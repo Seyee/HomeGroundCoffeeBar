@@ -94,4 +94,5 @@ D:\HomeGroundCoffeeBar\obj\Debug\net9.0\refint\..dll
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\..pdb
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\..genruntimeconfig.cache
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\ref\..dll
-D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\qxs3bzza0e-p3ay0xg8tm.gz
+D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\qxs3bzza0e-7ndv9llmk0.gz
+D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\ho2i433gpy-61mn3qjrqs.gz

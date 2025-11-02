@@ -33,16 +33,15 @@ img {
 
 footer.footer {
   width: 100%;
-  position: absolute;
-  bottom: 0;
-  height: 250px;
-  background-image: url('/img/footerbackground.png'); 
-  background-size: cover;       
-  background-position: center; 
-  background-repeat: no-repeat; 
+  background-image: url('/img/footerbackground.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: var(--primary-color);
   padding: 15px 0;
+  height: 250px;
 }
+
 
 
 .social {
@@ -204,12 +203,12 @@ header {
 
 @media (max-width: 768px) {
   .navbar .container {
-    flex-direction: column;
+    flex-direction: row;
     padding: 20px;
   }
 
   .nav-links {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 15px;
   }
