@@ -19,6 +19,7 @@ html, body {
     height: 100%;
     overflow-x: hidden;
     font-family: "Poppins", sans-serif;
+    background-color: #191511;
 }
 
 img {
@@ -32,15 +33,45 @@ h1 {
     font-weight: 800;
     font-size: 150px;
     line-height: 0.8;
+    
+  
+    width: fit-content;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 4px solid var(--primary-color);
+    animation: 
+        h1-typing 3s steps(19) 0.5s forwards,
+        h1-blink 0.75s step-end 3.5s 4,
+        h1-remove-cursor 0s 4.5s forwards;
+}
+
+@keyframes h1-typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes h1-blink {
+    50% {
+        border-color: transparent;
+    }
+}
+
+@keyframes h1-remove-cursor {
+    to {
+        border-right: none;
+    }
 }
 
 .FirstSection {
-  position: relative; /* Added for absolute positioning context */
+  position: relative; 
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 50px;
-
   background-image: url('/img/index_bg.png');
   background-size: cover;
   background-position: center;
@@ -53,8 +84,9 @@ h1 {
 }
 
 .content {
-  position: relative; /* Added to ensure content stays above */
-  z-index: 2; /* Places content above the image */
+  position: relative;
+  z-index: 2; 
+  margin-bottom: 70px;
 }
 
 .description-chocolate {
@@ -102,11 +134,295 @@ h1 {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    
+
+    opacity: 0;
+    animation: floatIn 2s ease-out 0.5s forwards;
+}
+
+@keyframes floatIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-30%) translateX(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
 }
 
 .big-chocolate img {
-    width: 120%;       /* Adjust this to make it bigger or smaller */
+    width: 120%;     
     max-width: none;   
     height: auto;
     object-fit: contain; 
+    position: relative;
+    z-index: 1;
+}
+
+/* Smoke */
+.smoke {
+    position: absolute;
+    top: 5%;
+    left: 55%;
+    width: 60px;
+    height: 60px;
+    background: 
+        radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.9) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(230,230,230,0.7) 0%, transparent 50%),
+        radial-gradient(circle, rgba(245,245,245,0.6) 0%, transparent 60%);
+    border-radius: 50%;
+    opacity: 0;
+    filter: blur(8px);
+    animation: smoke-rise 6s ease-out infinite;
+    z-index: 2;
+}
+
+.smoke2 {
+    animation-delay: 2s;
+    left: 50%;
+    width: 70px;
+    height: 70px;
+}
+
+.smoke3 {
+    animation-delay: 4s;
+    left: 60%;
+    width: 55px;
+    height: 55px;
+}
+
+@keyframes smoke-rise {
+    0% {
+        opacity: 0;
+        transform: translateY(0) translateX(0) scale(0.5) rotate(0deg);
+    }
+    10% {
+        opacity: 0.9;
+    }
+    20% {
+        opacity: 0.8;
+        transform: translateY(-40px) translateX(-5px) scale(0.7) rotate(10deg);
+    }
+    40% {
+        opacity: 0.6;
+        transform: translateY(-100px) translateX(8px) scale(1) rotate(-15deg);
+    }
+    60% {
+        opacity: 0.4;
+        transform: translateY(-160px) translateX(-10px) scale(1.3) rotate(20deg);
+    }
+    80% {
+        opacity: 0.2;
+        transform: translateY(-220px) translateX(5px) scale(1.6) rotate(-10deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-280px) translateX(-8px) scale(2) rotate(30deg);
+    }
+}
+
+.smoke4 {
+    animation-delay: 1s;
+    left: 58%;
+    width: 50px;
+    height: 50px;
+}
+
+.smoke5 {
+    animation-delay: 3s;
+    left: 52%;
+    width: 65px;
+    height: 65px;
+}
+
+.smoke6 {
+    animation-delay: 5s;
+    left: 48%;
+    width: 58px;
+    height: 58px;
+}
+
+@media (max-width: 600px) {
+  .FirstSection {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    height: auto;
+  }
+
+  .big-chocolate {
+    opacity: 0;
+  }
+
+  h1 {
+    font-size: 80px;
+  }
+}
+
+
+.SecondSection {
+  background-color: #191511;
+  padding: 50px 80px;
+  display: flex;
+}
+
+.second-option-description {
+  font-family: "Poppins", sans-serif;
+  color: var(--primary-color);
+  font-size: 16px;
+  font-weight: 200;
+  text-align: center;
+  margin: 0;
+}
+
+h3 {
+  font-family: "Poppins", sans-serif;
+  color: var(--primary-color);
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.check-menu-btn {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    background-color: #4a3a2d;
+    color: #E4D1B9;
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+    margin: 5px auto 0;
+    text-decoration: none;
+    display: block; 
+    width: fit-content; 
+}
+
+.check-menu-btn:hover {
+    background-color: #49392C;
+    color: #895725;
+}
+
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+
+
+/*Drinks*/
+
+.drinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.drink-item {
+  background-color: #1F1A14;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.drinks img {
+  border-radius: 15px;
+  width: 100%;
+  height: auto;
+}
+
+
+/*Burger*/
+
+.burger {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.burger-item {
+  background-color: #1F1A14;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.burger img {
+  border-radius: 15px;
+  width: 100%;
+  height: auto;
+}
+
+
+/*Third Section*/
+
+.ThirdSection {
+  background-image: url('/img/table.svg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+h2 {
+  font-family: "Poppins", sans-serif;
+  color: var(--primary-color);
+  font-size: 70px;
+  font-weight: 700;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 20px;
+  
+  /* Typing effect */
+  width: fit-content;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid var(--primary-color);
+  animation: 
+    typing 5s ease-in-out 0.5s infinite,
+    blink 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  0%, 100% {
+    width: 0;
+  }
+  30%, 70% {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+.ThirdSection p {
+  font-family: "Poppins", sans-serif;
+  color: white;
+  font-size: 25px;
+  font-weight: 200;
+  text-align: center;
+  max-width: 600px;
+  margin-bottom: 80px;
+  position: absolute;
+  bottom: 30px;           
+  left: 50%;
+  transform: translateX(-50%); 
 }

@@ -6,9 +6,11 @@
   --accent-color: #4f4439;
 }
 
-html {
+html, body {
   font-size: 14px;
   font-family: "Poppins", sans-serif;
+  scroll-behavior: smooth !important;
+
 }
 
 h1 {
@@ -17,6 +19,8 @@ h1 {
   font-size: 1.5rem;
   padding-top: 40px;
 }
+
+
 
 img {
   max-width: 100%;
@@ -133,6 +137,21 @@ footer.footer {
 }
 
 
+
+
+.scroll {
+  width: 150px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  transform: translateY(0);
+  justify-content: end;
+  display: flex;
+}
+
+.scroll:hover {
+  transform: translateY(-5px);
+}
+
 /* Responsive Design */
 @media (max-width: 700px) {
   .footer-content {
@@ -156,7 +175,6 @@ footer.footer {
 header {
   background-color: #020702;
   width: 100%;
-  position: sticky; 
   top: 0;
   z-index: 100;
 }
@@ -171,7 +189,7 @@ header {
 
 
 .navbar-logo img {
-  width: 100px;
+  width: 150px;
   height: auto;
   transition: transform 0.3s ease;
 }
@@ -194,9 +212,10 @@ header {
 
 .nav-link {
   color: #D3C4AE; 
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 800;
   text-decoration: none;
+  margin-top: 5px;
   transition: color 0.3s ease, transform 0.3s ease;
   position: relative;
 }

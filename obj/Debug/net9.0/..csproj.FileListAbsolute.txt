@@ -23,7 +23,6 @@ D:\HomeGroundCoffeeBar\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\scopedcss\bundle\..styles.css
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\scopedcss\projectbundle\..bundle.scp.css
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\w9mgx3lg96-61n19gt1b8.gz
-D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\u7e9vjp3u9-xtxxf3hu2r.gz
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\uf5vpjd4ya-bqjiyaj88i.gz
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\clj1lbygac-c2jlpeoesf.gz
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\7kt935jx3n-erw9l3u2r3.gz
@@ -94,5 +93,8 @@ D:\HomeGroundCoffeeBar\obj\Debug\net9.0\refint\..dll
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\..pdb
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\..genruntimeconfig.cache
 D:\HomeGroundCoffeeBar\obj\Debug\net9.0\ref\..dll
-D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\qxs3bzza0e-7ndv9llmk0.gz
-D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\ho2i433gpy-61mn3qjrqs.gz
+D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\c48jd7rcpn-y013pdy9o8.gz
+D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\qxs3bzza0e-zyh7a23ke5.gz
+D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\0n5m39neln-z6bfs92fhf.gz
+D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\u7e9vjp3u9-fi6lj8qhhj.gz
+D:\HomeGroundCoffeeBar\obj\Debug\net9.0\compressed\ho2i433gpy-vqnsdhijog.gz
