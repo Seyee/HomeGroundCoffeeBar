@@ -4,24 +4,21 @@ using _.Models;
 
 namespace _.Controllers;
 
-public class HomeController : Controller
+public class ProductController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<ProductController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    public ProductController(ILogger<ProductController> logger)
     {
         _logger = logger;
     }
 
-    public IActionResult Home()
+    public IActionResult Menu()
     {
         return View();
     }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

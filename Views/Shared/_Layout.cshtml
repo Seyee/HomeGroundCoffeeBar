@@ -13,16 +13,16 @@
     <header>
         <nav class="navbar">
             <div class="container">
-                <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Index">
+                <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
                     <img src="/img/logowhite.png" alt="Home Ground Logo" />
                 </a>
                 <div class="list-links">
                     <ul class="nav-links">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Home">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Menu">Menu</a>
+                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Menu">Menu</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Location">Location</a>
@@ -62,10 +62,10 @@
         <div class="quicklinks">
         <h1>QUICKLINKS</h1>
         <ul>
-            <li><a href="#" class="quicklink">Menu</a></li>
-            <li><a href="#" class="quicklink">Location</a></li>
-            <li><a href="#" class="quicklink">About Us</a></li>
-            <li><a href="#" class="quicklink">Sign Up</a></li>
+            <li><a href="/Product/Menu" class="quicklink">Menu</a></li>
+            <li><a href="/Home/Location" class="quicklink">Location</a></li>
+            <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
+            <li><a href="/Home/Signup" class="quicklink">Sign Up</a></li>
         </ul>
         </div>
     </div>
