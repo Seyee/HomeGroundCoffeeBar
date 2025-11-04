@@ -5,6 +5,8 @@ html, body {
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
+    scroll-behavior: smooth;
+
 }
 
 img {
@@ -12,23 +14,29 @@ img {
     height: auto;
 }
 
+
 .banner {
   position: relative; 
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 50px;
   background-image: url('/img/menu-bg.png');
+  background-size: contain;
   background-repeat: no-repeat;
-  background-position: right -50px;
-  background-size: cover;
-  height: 100vh;
+  height: 490px;
+  padding: 0 80px;
+  overflow: hidden;
 }
 
-
+.banner-image {
+  width: 100%;
+  height: auto;
+}
 
 .text-class {
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 100px;
   transform: translateY(-50%);
   color: white;
@@ -38,7 +46,7 @@ img {
 
 .banner-text {
     font-family: 'Poppins', sans-serif;
-    font-size: 80px;
+    font-size: 100px;
     font-weight: 700;
     line-height: 1.2;
 }
@@ -50,6 +58,7 @@ img {
 }
 
 .banner-btn {
+    margin-top: 30px;
     padding: 8px 15px;
     background-color: #614c3a;
     color: #E4D1B9;
@@ -124,7 +133,7 @@ img {
     display: flex;
     flex-direction: column;
     background-color: #191511;
-    width: 100%;
+    width: auto;
 }
 
 .product-card {
@@ -163,7 +172,6 @@ img {
 
 .title-menu {
     text-align: start;
-    margin-left: 60px; 
     font-family: 'Poppins', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -188,21 +196,30 @@ img {
 }
 
 .title-menu::after {
-  content: "";
-  display: block;
-  width: 1400px; 
-  height: 0.2px;  
-  background-color: #493922;
-  margin-top: 10px; 
-  border-radius: 2px;
+    content: "";
+    display: block;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 0.2px;  
+    background-color: #493922;
+    margin-top: 10px; 
+    border-radius: 2px;
 }
 
 .product-grid {
     align-self: center;
-    display: grid;
+    margin-right: auto;
     width: 85%;
+    gap: 25px;
+    background-color: #191511;
+}
+
+.product-card-container {
+    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 25px;
-    padding: 0px 40px;
     background-color: #191511;
+    padding: 0px 10px 0px 40px;
 }
