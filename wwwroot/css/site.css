@@ -270,7 +270,7 @@ header {
     width: fit-content;
 }
 
-.line1 {
+.line1, .line3 {
     padding-top: 20px;
     display: inline-block;
     overflow: hidden;
@@ -283,7 +283,13 @@ header {
         remove-cursor1 0s 1.2s forwards;
 }
 
-.line2 {
+.hotmilk .line3,
+.hotmilk .line4 {
+  display: none;
+}
+
+
+.line2, .line4 {
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
@@ -683,23 +689,48 @@ h3 {
     height: auto;
   }
 
+  .hotmilk .line3,
+  .hotmilk .line4 {
+    display: inline-block;
+    padding-bottom: 10px;
+  }
+
+  .hotmilk .line1,
+  .hotmilk .line2 {
+    display: none;
+  }
+
   .big-chocolate img{
     opacity: 0;
   }
 
-  h1 {
-    font-size: 80px;
-  }
   .hotmilk {
-    font-size: 80px !important;
+    font-size: 50px !important;
     margin: 20px;
   }
 
   .ThirdSection {
-    height: 500px;
+    height: 300px;
   }
 
   .smoke {
+    display: none;
+  }
+
+  .bean {
+    font-size: 40px;
+  }
+
+  .SecondSection {
+    padding: 20px 25px;
+  }
+
+  .ThirdSection p {
+    bottom: 0;
+    font-size: 15px;
+  }
+
+  .btn-taste {
     display: none;
   }
 }
