@@ -562,9 +562,6 @@ h3 {
 }
 
 
-
-
-
 /*Drinks*/
 
 .drinks {
@@ -590,7 +587,6 @@ h3 {
 
 
 /*Burger*/
-
 .burger {
   display: flex;
   flex-wrap: wrap;
