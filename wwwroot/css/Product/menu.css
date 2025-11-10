@@ -150,7 +150,7 @@ img {
     text-align: center;
     padding: 15px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: 220px;
+    width: 240px;
 }
 
 .product-card img {
@@ -177,25 +177,47 @@ img {
     display: none;
 }
 
+/* Main rule (around line 167) - KEEP THIS */
 .product-card-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 220px);
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, 230px);
+    gap: 20px;
     background-color: #191511;
     padding: 0px 10px 0px 40px;
-        justify-content: start;
+    justify-content: start;
 }
 
 
 @media screen and (max-width: 992px) {
     .product-card-container {
-        grid-template-columns: repeat(auto-fill, 200px);
+        grid-template-columns: repeat(auto-fill, 200px);  
         gap: 20px;
         padding: 0px 10px 0px 30px;
-        justify-content: start; /* Add this */
     }
 }
 
+@media screen and (max-width: 768px) {
+    .product-card-container {
+        grid-template-columns: repeat(auto-fill, 180px);  
+        gap: 15px;
+        padding: 0px 10px 0px 20px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .product-card-container {
+        grid-template-columns: repeat(auto-fill, 160px);  
+        gap: 12px;
+        padding: 0px 5px 0px 15px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .product-card-container {
+        grid-template-columns: repeat(auto-fill, 140px); 
+        gap: 10px;
+    }
+}
 
 
 .title {
@@ -247,14 +269,6 @@ img {
     width: 85%;
     gap: 25px;
     background-color: #191511;
-}
-
-.product-card-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 25px;
-    background-color: #191511;
-    padding: 0px 10px 0px 40px;
 }
 
 
@@ -442,6 +456,7 @@ img {
     
     .product-card {
         padding: 12px;
+        width: 180px;
     }
     
     .product-card p {
@@ -464,7 +479,7 @@ img {
     }
     
     .product-card-container {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
         gap: 10px;
     }
 }
