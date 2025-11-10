@@ -133,6 +133,9 @@ img {
 .category-item.active {
     font-weight: bold;
     color: #614c3a;
+    background-color: #292625;
+    border-radius: 5px;
+    padding-left: 20px;
 }
 
 
@@ -177,7 +180,7 @@ img {
     display: none;
 }
 
-/* Main rule (around line 167) - KEEP THIS */
+
 .product-card-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, 230px);
@@ -481,5 +484,153 @@ img {
     .product-card-container {
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
         gap: 10px;
+    }
+}
+
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    background-color: #1F1B16;
+    margin: 5% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(97, 76, 58, 0.5);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    color: #E4D1B9;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1001;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #614c3a;
+}
+
+.modal-body {
+    display: flex;
+    gap: 30px;
+    padding: 40px;
+}
+
+.modal-body img {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.modal-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modal-info h2 {
+    color: #E4D1B9;
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.modal-price {
+    color: #cfba9a;
+    font-family: 'Poppins', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 0px 0;
+}
+
+.modal-description {
+    color: #cfba9a;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 0 30px 0;
+}
+
+.order-btn, .add-to-cart-btn {
+    background-color: #614c3a;
+    color: #E4D1B9;
+    border: none;
+    border-radius: 10px;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.order-btn:hover {
+    background-color: #4e3b2d;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #4e3b2d;
+}
+
+/* Responsive Modal */
+@media screen and (max-width: 768px) {
+    .modal-body {
+        flex-direction: column;
+        padding: 30px 20px;
+    }
+    
+    .modal-body img {
+        width: 100%;
+        height: auto;
+    }
+    
+    .modal-info h2 {
+        font-size: 24px;
+    }
+    
+    .modal-price {
+        font-size: 22px;
+    }
+    
+    .modal-description {
+        font-size: 14px;
+    }
+
+    .close {
+        top: 0px;
+        font-size: 25px;
     }
 }

@@ -50,72 +50,72 @@
 
                 <div class="product-grid">
                     <div class="product-card-container">
-                        <div class="product-card" id="cold">
+                        <div class="product-card" id="cold" data-price="120">
                             <img src="~/img/Product/blueberry.png" alt="Blueberry" />
                             <p>Blueberry</p>
                         </div>
 
-                        <div class="product-card" id="cold">
+                        <div class="product-card" id="cold" data-price="170" >
                             <img src="~/img/Product/caramel_latte.png" alt="Caramel latte" />
                             <p>Caramel latte</p>
                         </div>
 
-                        <div class="product-card" id="burger" >
+                        <div class="product-card" id="burger" data-price="190" >
                             <img src="~/img/Product/classic_aloha_burger.png" alt="Classic Aloha" />
                             <p>Classic Aloha</p>
                         </div>
 
-                        <div class="product-card" id="burger" >
+                        <div class="product-card" id="burger" data-price="210" >
                             <img src="~/img/Product/classic_burger.png" alt="Classic Burger" />
                             <p>Classic Burger</p>
                         </div>
 
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="200" >
                             <img src="~/img/Product/dirty_matcha_latte.png" alt="Dirty Matcha" />
                             <p>Dirty Matcha Latte</p>
                         </div>
 
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="120" >
                             <img src="~/img/Product/green_apple.png" alt="Green Apple" />
                             <p>Green Apple</p>
                         </div>
 
-                        <div class="product-card" id="hot" >
+                        <div class="product-card" id="hot" data-price="170" >
                             <img src="~/img/Product/hot_milk_chocolate.png" alt="Hot Milk Chocolate" />
                             <p>Hot Milk Chocolate</p>
                         </div>
 
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="170" >
                             <img src="~/img/Product/iced_milk_chocolate.png" alt="Iced Milk Chocolate" />
                             <p>Iced Milk Chocolate</p>
                         </div>
 
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="170" >
                             <img src="~/img/Product/iced_milk_strawberry.png" alt="Iced Milk Strawberry" />
                             <p>Iced Milk Strawberry</p>
                         </div>
 
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="210" >
                             <img src="~/img/Product/matcha_latte_oat.png" alt="Matcha Latte Oat" />
                             <p>Matcha Latte Oat</p>
                         </div>
 
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="120" >
                             <img src="~/img/Product/peach.png" alt="Peach" />
                             <p>Peach</p>
                         </div>
 
-                        <div class="product-card" id="burger" >
+                        <div class="product-card" id="burger" data-price="230" >
                             <img src="~/img/Product/signature_barbeque.png" alt="Signature Barbeque" />
                             <p>Signature Barbeque</p>
                         </div>
 
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="180" >
                             <img src="~/img/Product/spanish_latte.png" alt="Spanish Latte" />
                             <p>Spanish Latte</p>
                         </div>
                         
-                        <div class="product-card" id="cold" >
+                        <div class="product-card" id="cold" data-price="180" >
                             <img src="~/img/Product/white_mocha_latte.png" alt="White Mocha" />
                             <p>White Mocha Latte</p>
                         </div>
@@ -128,6 +128,28 @@
         </div>
     </div>
 
+
+    <!-- Modal Popup -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="">
+                <div class="modal-info">
+                    <p class="modal-price">₱<span id="modalPrice"></span></p>
+                    <h2 id="modalTitle"></h2>
+                    <p class="modal-description">Enjoy our freshly made product with premium ingredients.</p>
+
+                    <div class="modal-btn">
+                        <button class="add-to-cart-btn">Add to cart</button>
+                        <button class="order-btn">Order Now</button>                   
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 </body>
