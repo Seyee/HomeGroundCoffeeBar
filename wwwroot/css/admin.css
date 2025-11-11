@@ -1,0 +1,212 @@
+* {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background-color: #2A241E;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .title-adminPage {
+        background-image: url(/img/footerbackground.png);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 68px 40px;
+    }
+
+    .title-adminPage h1 {
+        font-size: 18px;
+        font-weight: bolder;
+        position: relative;
+        bottom: 50px;
+        right: 20px;
+        color: #CCBEA8;
+    }
+
+    .title-adminPage .logo {
+        position: absolute;
+        left: 48%;
+        
+    }
+
+    .logo img{
+        width: 160px;
+        position: relative;
+        right: 50px;
+        bottom: 20px;
+    }
+
+
+    .content {
+        padding: 0 20px;
+        margin: 0;
+    }
+
+    .tab-container {
+        position: absolute;
+        top: 100px;               
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #3A322B;
+        padding: 5px 8px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #6A5C50;
+        gap: 0;
+        z-index: 10;
+    }
+
+    .tab-container .tab-btn {
+        background: none;
+        border: none;
+        color: #CCBEA8;
+        padding: 7px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        position: relative;
+        transition: 0.2s;
+    }
+
+    .tab-container .tab-btn::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        width: 0%;
+        height: 2px;
+        background-color: #CCBEA8;
+        transform: translateX(-50%);
+        transition: width 0.40s;  
+    }
+
+    .tab-container .tab-btn.active::after {
+        width: 70%
+    }
+
+    .tab-divider {
+        width: 1px;
+        height: 25px;
+        background-color: #8C7E70;
+        margin: 0 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1e1e1e;
+        color: #fff;
+    }
+
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #333;
+        text-align: left;
+    }
+
+    /* User table */
+    #users-table th:nth-child(1),
+    #users-table td:nth-child(1) {
+        width: 150px; /* User ID */
+    }
+
+    #users-table th:nth-child(2),
+    #users-table td:nth-child(2) {
+        width: 200px; /* Name */
+    }
+
+    #users-table th:nth-child(3),
+    #users-table td:nth-child(3) {
+        width: 200px; /* Password */
+    }
+
+    #users-table th:nth-child(4),
+    #users-table td:nth-child(4) {
+        width: 280px; /* Email */
+    }
+
+    #users-table th:nth-child(5),
+    #users-table td:nth-child(5) {
+        width: 200px; /* Numbers */
+    }
+
+    #users-table th:nth-child(6),
+    #users-table td:nth-child(6) {
+        width: 200px; /* Operator */
+    }
+
+
+    /* Order table */
+    #orders-table th:nth-child(1),
+    #orders-table td:nth-child(1) {
+        width: 200px; /* Order ID */
+    }
+
+    #orders-table th:nth-child(2),
+    #orders-table td:nth-child(2) {
+        width: 200px; /* Customer */
+    }
+
+    #orders-table th:nth-child(3),
+    #orders-table td:nth-child(3) {
+        width: 200px; /* Items */
+    }
+
+    #orders-table th:nth-child(4),
+    #orders-table td:nth-child(4) {
+        width: 200px; /* Total */
+    }
+
+    #orders-table th:nth-child(5),
+    #orders-table td:nth-child(5) {
+        width: 200px; /* Payment */
+    }
+
+    #orders-table th:nth-child(6),
+    #orders-table td:nth-child(6) {
+        width: 200px; /* Status */
+    }
+
+    th {
+       background-color: #2A241E;
+       color: rgba(204, 190, 168, 0.7);
+       font-weight: 500;
+
+    }
+
+    td {
+        background-color: #2A241E;
+        color: #CCBEA8;
+    }
+
+    td a {
+        color: #fff;
+        text-decoration: none;
+    }
+
+    td a:hover {
+        text-decoration: underline;
+    }
+
+    .footer {
+        text-align: right;
+        padding: 10px 40px;
+        color: #bbb;
+        font-size: 14px;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+    }
+
+    .footer #total-accounts {
+        margin-right: 20px;
+    }
