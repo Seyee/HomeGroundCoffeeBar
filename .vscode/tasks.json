@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+        "label": "Run dotnet watch",
+        "type": "shell",
+        "command": "dotnet watch run",
+        "problemMatcher": [],
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        }
+    }
+]
+}

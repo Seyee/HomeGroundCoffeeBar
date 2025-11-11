@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Home Ground</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
@@ -22,7 +21,7 @@
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Home">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Menu">Menu</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Menu">Menu</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Location" asp-action="Location">Location</a>
@@ -31,7 +30,7 @@
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="AboutUs">About Us</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Signup">Sign Up</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Signin">Sign in</a>
                         </li>
                     </ul>
                 </div>
@@ -62,10 +61,10 @@
         <div class="quicklinks">
         <h1>QUICKLINKS</h1>
         <ul>
-            <li><a href="/Product/Menu" class="quicklink">Menu</a></li>
+            <li><a href="/Home/Menu" class="quicklink">Menu</a></li>
             <li><a href="/Home/Location" class="quicklink">Location</a></li>
             <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
-            <li><a href="/Home/Signup" class="quicklink">Sign Up</a></li>
+            <li><a href="/Home/Signin" class="quicklink">Sign in</a></li>
         </ul>
         </div>
     </div>
@@ -92,7 +91,6 @@
 
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
