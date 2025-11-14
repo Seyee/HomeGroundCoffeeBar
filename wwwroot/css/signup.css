@@ -234,6 +234,7 @@ body::before {
 
     .signup-box {
         padding: 35px 25px;
+        border-radius: 20px;
     }
 
     .signup-title {
