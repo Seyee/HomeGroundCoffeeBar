@@ -86,6 +86,11 @@ body::before {
     flex-shrink: 0;
 }
 
+a.btn.btn-google {
+    text-decoration: none;
+    color: #E4D1B9;
+}
+
 .divider {
     display: flex;
     align-items: center;

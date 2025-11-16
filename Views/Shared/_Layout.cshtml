@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var isLogged = Context.Session.GetString("UserName") != null;
+    var name = Context.Session.GetString("UserName");
+    var googlePic = Context.Session.GetString("GooglePicture");
+}
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -29,9 +36,39 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="AboutUs">About Us</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Signin">Sign in</a>
-                        </li>
+                        @if (!isLogged)
+{
+    <!-- GUEST VIEW -->
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Home" asp-action="Signin">Sign in</a>
+    </li>
+}
+else
+{
+    <!-- LOGGED IN VIEW -->
+    <div class="profile-container">
+        <button id="ProfileBtn" class="profile-btn">
+
+            @if (googlePic != null)
+            {
+                <!-- GOOGLE USER PHOTO -->
+                <img src="@googlePic" class="profile-pic" />
+            }
+            else
+            {
+                <!-- NORMAL SIGNUP USER PHOTO -->
+                <img src="/img/defaultuser.png" class="profile-pic" />
+            }
+
+            <span>@name</span>
+        </button>
+
+        <div id="ProfileMenu" class="profile-menu">
+            <a asp-controller="Home" asp-action="Logout">Logout</a>
+        </div>
+    </div>
+}
+
                     </ul>
                 </div>
             </div>
