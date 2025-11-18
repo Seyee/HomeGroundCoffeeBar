@@ -42,7 +42,7 @@
 
                     <div class="form-group">
                         <label for="Phone">Phone Number</label>
-                        <input type="tel" id="phone" name="Phone" pattern="[0-9]{11}" maxlength="11" required />
+                        <input type="tel" id="phone" name="Phone" required />
                     </div>
 
                     <div class="form-group">
@@ -67,7 +67,7 @@
         Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: errorMessage,
+            text: errorMessage, 
             confirmButtonColor: "#7066E0",
             background: "#FFFFFF",
             color: "#000000"

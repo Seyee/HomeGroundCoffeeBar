@@ -244,9 +244,10 @@ header {
   text-decoration: none;
   align-items: center;
   display: flex;
-  height: 58px;
+  height: 55px;
   transition: color 0.3s ease, transform 0.3s ease;
   position: relative;
+  top: 5px;
 }
 
 @media (max-width: 768px) {

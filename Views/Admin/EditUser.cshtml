@@ -1,0 +1,24 @@
+@model Models.UserModel
+
+<h2>Edit User</h2>
+
+<form asp-action="EditUser" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <label>Name:</label>
+    <input asp-for="Name" />
+
+    <label>Phone:</label>
+    <input asp-for="Phone" />
+
+    <label>Password:</label>
+    <input asp-for="Password" />
+
+    <label>Role:</label>
+    <select asp-for="Role">
+        <option value="Admin">Admin</option>
+        <option value="User">User</option>
+    </select>
+
+    <button type="submit">Save</button>
+</form>

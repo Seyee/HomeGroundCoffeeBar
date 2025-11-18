@@ -22,7 +22,13 @@ public class HomeController : Controller
 
     public IActionResult Home()
     {
-        return View();
+       var user = HttpContext.Session.GetString("Name");
+
+    if (!string.IsNullOrEmpty(user))
+    {
+        return RedirectToAction("Index", "Dashboard");
+    }
+    return View();
     }
 
     public IActionResult Privacy()
