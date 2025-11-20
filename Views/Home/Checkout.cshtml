@@ -99,7 +99,7 @@
                         <label class="payment-option">
                             <input type="radio" name="paymentMethod" value="gcash" />
                             <div class="payment-card">
-                                <div class="payment-icon">📱</div>
+                                <div class="payment-icon"><img src="../img/gLogo.svg" alt="GCash"></div>
                                 <div class="payment-info">
                                     <h3>GCash</h3>
                                     <p>Pay via GCash mobile wallet</p>
@@ -110,10 +110,10 @@
                         <label class="payment-option">
                             <input type="radio" name="paymentMethod" value="card" />
                             <div class="payment-card">
-                                <div class="payment-icon">💳</div>
+                                <div class="payment-icon"><img src="../img/mayaLogo.png" alt="Maya"></div>
                                 <div class="payment-info">
-                                    <h3>Credit/Debit Card</h3>
-                                    <p>Pay securely with your card</p>
+                                    <h3>Maya</h3>
+                                    <p>Pay securely with Maya</p>
                                 </div>
                             </div>
                         </label>
@@ -134,7 +134,7 @@
                     </svg>
                     Back
                 </button>
-                <a href="/Home/PaymentMethods"><button class="btn-next" id="nextBtn" onclick="goNext()"></a>
+                    <button class="btn-next" id="nextBtn" onclick="goNext()">
                     Next
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -151,7 +151,7 @@
 
             <!-- Cart Items -->
             <div class="cart-items-list" id="checkoutCartItems">
-                <!-- Items will be loaded from localStorage -->
+                
             </div>
 
             <!-- Order Summary -->
@@ -164,10 +164,6 @@
                     <span>Delivery</span>
                     <span id="deliveryFee">₱50</span>
                 </div>
-                <div class="total-row">
-                    <span>Discount</span>
-                    <span id="discount">₱0</span>
-                </div>
                 <div class="total-row grand-total">
                     <span>Order Total</span>
                     <span id="orderTotal">₱0</span>
@@ -179,24 +175,27 @@
     <script src="~/js/site.js"></script>
 
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
     console.log('Checkout page loaded');
-    
+
+    // -------------------------------
+    // Load Cart Items from localStorage
+    // -------------------------------
     function loadCheckoutCart() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const container = document.getElementById('checkoutCartItems');
-        
+
         if (!container) {
             console.error('Cart container not found');
             return;
         }
-        
+
         if (cart.length === 0) {
             container.innerHTML = '<p class="empty-cart-message">Your cart is empty</p>';
             return;
         }
-        
+
         container.innerHTML = cart.map(item => `
             <div class="checkout-cart-item">
                 <img src="${item.image}" alt="${item.name}">
@@ -207,32 +206,59 @@
                 </div>
             </div>
         `).join('');
-        
+
         // Update totals
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         document.getElementById('basketPrice').textContent = `₱${total}`;
         document.getElementById('orderTotal').textContent = `₱${total + 50}`;
     }
-    
-    // Load cart immediately
-    loadCheckoutCart();
-    
-    // Also load when page fully loads
-    window.addEventListener('load', loadCheckoutCart);
-    });
 
-    document.addEventListener('DOMContentLoaded', function() {
-    // ... your existing checkout code ...
-    
-    // Add click handler for edit basket link
+    // Load cart immediately and on full page load
+    loadCheckoutCart();
+    window.addEventListener('load', loadCheckoutCart);
+
+    // -------------------------------
+    // Edit Basket Link
+    // -------------------------------
     const editBasketLink = document.querySelector('.edit-basket');
     if (editBasketLink) {
-        editBasketLink.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent navigation to menu
-            openCart(); // Open the cart modal
+        editBasketLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            openCart(); // Make sure openCart() exists
         });
     }
+
+    // -------------------------------
+    // Multi-step Checkout
+    // -------------------------------
+    let currentStep = 1;
+
+    function showStep(step) {
+        const personalForm = document.getElementById('personalInfoForm');
+        const paymentForm = document.getElementById('paymentForm');
+
+        // Show only the current step
+        personalForm.classList.toggle('active', step === 1);
+        paymentForm.classList.toggle('active', step === 2);
+
+        // Update step indicators
+        document.querySelectorAll('.step').forEach((s, index) => {
+            s.classList.toggle('active', index + 1 === step);
+        });
+
+        currentStep = step;
+    }
+
+    // Attach functions to window for inline onclick
+    window.goNext = function () {
+        if (currentStep < 2) showStep(currentStep + 1);
+    };
+
+    window.goBack = function () {
+        if (currentStep > 1) showStep(currentStep - 1);
+    };
 });
-    </script>
+</script>
+
 </body>
 </html>

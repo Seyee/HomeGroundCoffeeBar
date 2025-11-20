@@ -221,6 +221,7 @@ textarea {
     font-weight: 600;
     color: #E4D1B9;
     margin-bottom: 5px;
+    justify-self: start;
 }
 
 .payment-info p {

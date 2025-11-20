@@ -648,27 +648,31 @@ function calculateTotals(cart) {
 }
 
 // Go to next step
-function goNext() {
-    if (currentStep === 1) {
-        // Validate personal info form
-        if (!validatePersonalInfo()) {
-            return;
-        }
-        
-        // Save personal info to localStorage
-        savePersonalInfo();
-        
-        // Move to payment step
-        currentStep = 2;
-        showStep(2);
-    } else if (currentStep === 2) {
-        // Save payment method
-        savePaymentMethod();
-        
-        // Process order
-        processOrder();
+function showStep(step) {
+    const personalForm = document.getElementById("personalInfoForm");
+    const paymentForm = document.getElementById("paymentForm");
+
+    // Step Indicators
+    const steps = document.querySelectorAll(".step");
+
+    // Reset forms
+    personalForm.classList.remove("active");
+    paymentForm.classList.remove("active");
+
+    // Reset step indicator
+    steps.forEach(s => s.classList.remove("active"));
+
+    if (step === 1) {
+        personalForm.classList.add("active");
+        steps[0].classList.add("active");
+    }
+
+    if (step === 2) {
+        paymentForm.classList.add("active");
+        steps[1].classList.add("active");
     }
 }
+
 
 // Go back to previous step
 function goBack() {
