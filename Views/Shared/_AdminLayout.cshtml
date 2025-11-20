@@ -12,19 +12,37 @@
 <body>
 
     <header class="title-adminPage">
-        <h1>Admin page</h1>
+    <h1>Admin page</h1>
 
-        <div class="logo">
-            <img src="/img/logowhite.png">
+    <div class="logo">
+        <img src="/img/logowhite.png" alt="Logo">
+    </div>
+
+    <div class="tab-container">
+        <button class="tab-btn active" data-tab="users">Users</button>
+        <div class="tab-divider"></div>
+        <button class="tab-btn" data-tab="orders">Orders</button>
+    </div>
+
+    @* Profile wrapper for admin *@
+    @{
+        var adminName = Context.Session.GetString("Name");
+        var adminPic = Context.Session.GetString("ProfilePic");
+        string finalPic = string.IsNullOrWhiteSpace(adminPic) 
+            ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBkA9WO3FnL4fddebhCcTztCr6vr2METdo9w&s" 
+            : adminPic;
+    }
+
+    <div class="profile-wrapper">
+        <img src="@finalPic?v=@DateTime.Now.Ticks" alt="Profile" class="profile-img" />
+
+        <div class="profile-dropdown">
+            <p class="profile-name">Admin</p>
+            <a asp-controller="Account" asp-action="Logout">Logout</a>
         </div>
+    </div>
+</header>
 
-        <div class="tab-container">
-            <button class="tab-btn active" data-tab="users">Users</button>
-            <div class="tab-divider"></div>
-            <button class="tab-btn" data-tab="orders">Orders</button>
-        </div>
-
-    </header>
 
 
     <main role="main" class="pb-3">

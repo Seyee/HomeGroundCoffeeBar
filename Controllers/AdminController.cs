@@ -44,6 +44,27 @@ namespace Controllers
         [HttpPost]
         public IActionResult EditUser([FromBody] UserModel user)
         {
+
+            if (string.IsNullOrWhiteSpace(user.Name))
+            {
+                return BadRequest(new { message = "Name is required." });
+            }
+
+            if (user.Name.Length < 3)
+            {
+                return BadRequest(new { message = "Name must be at least 3 characters." });
+            }
+
+            if (user.Name.Length > 18)
+            {
+                return BadRequest(new { message = "Name must not exceed 18 characters." });
+            }
+
+            if (string.IsNullOrEmpty(user.Phone) || user.Phone.Length != 11)
+            {
+                return BadRequest(new { message = "Phone number must be exactly 11 digits." });
+            }
+
             using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();

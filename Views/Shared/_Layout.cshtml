@@ -138,6 +138,20 @@
 
 </footer>
 
+    <script>
+
+    // GUEST LAYOUT = NOT LOGGED IN
+    const isLoggedIn = false; 
+
+    if (!isLoggedIn) {
+        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+            btn.style.display = "none";
+        });
+    }
+    
+    </script>
+
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

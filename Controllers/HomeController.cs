@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using _.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace _.Controllers;
 
@@ -14,10 +16,13 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-    public IActionResult Index()
-{
-    return RedirectToAction("Home");
-}
+
+     public async Task<IActionResult> Logout()
+    {
+        HttpContext.Session.Clear();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Signin", "Home");
+    }
 
 
     public IActionResult Home()
@@ -47,6 +52,11 @@ public class HomeController : Controller
     }
 
     public IActionResult Signup()
+    {
+        return View();
+    }
+
+    public IActionResult Cart()
     {
         return View();
     }

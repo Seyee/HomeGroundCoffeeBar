@@ -240,7 +240,7 @@ header {
 .nav-link {
   color: #D3C4AE; 
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 500;
   text-decoration: none;
   margin-top: 5px;
   transition: color 0.3s ease, transform 0.3s ease;

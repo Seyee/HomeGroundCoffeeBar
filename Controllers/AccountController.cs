@@ -84,6 +84,7 @@ public class AccountController : Controller
     [HttpPost]
     public IActionResult Signup(string Name, string Phone, string Password)
     {
+        
         try
         {
             using (var conn = new MySqlConnection(connectionString))
@@ -121,7 +122,7 @@ public async Task<IActionResult> Signin(string Phone, string Password)
     {
         conn.Open();
 
-        string query = "SELECT Name, ProfilePic, Password, GoogleId FROM Users WHERE Phone = @Phone";
+        string query = "SELECT Name, ProfilePic, Password, GoogleId, Role FROM Users WHERE Phone = @Phone";
 
         using (var cmd = new MySqlCommand(query, conn))
         {
@@ -145,6 +146,7 @@ public async Task<IActionResult> Signin(string Phone, string Password)
                 string name = reader["Name"].ToString() ?? "";
                 string dbPic = reader["ProfilePic"]?.ToString();
                 string googleId = reader["GoogleId"]?.ToString();
+                string role = reader["Role"]?.ToString() ?? "User";
 
                 string profilePic;
 
@@ -157,7 +159,7 @@ public async Task<IActionResult> Signin(string Phone, string Password)
                     // Normal user fallback
                     profilePic = !string.IsNullOrEmpty(dbPic)
                         ? dbPic
-                        : "https://i.pinimg.com/736x/e9/a8/f0/e9a8f0cb1f9d06744ffa253e199804f9.jpg";
+                        : "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3407.jpg";
                 }
 
 
@@ -165,6 +167,7 @@ public async Task<IActionResult> Signin(string Phone, string Password)
                 HttpContext.Session.SetString("Phone", Phone);
                 HttpContext.Session.SetString("Name", name);
                 HttpContext.Session.SetString("ProfilePic", profilePic);
+                HttpContext.Session.SetString("Role", role);
 
                 TempData["SuccessMessage"] = "Welcome back!";
 
@@ -174,17 +177,28 @@ public async Task<IActionResult> Signin(string Phone, string Password)
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, name),
-                    new Claim("picture", profilePic)
+                    new Claim("picture", profilePic),
+                    new Claim(ClaimTypes.Role, role)
                 };
 
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme))
                 );
+
+                 if (role == "Admin")
+                {
+                    return RedirectToAction("AdminHomePage", "Admin");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
         }
+        
     }
 
-    return RedirectToAction("Index", "Dashboard");
+    
 }
 
 
