@@ -1,0 +1,238 @@
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/x-icon" href="~/img/icon.png" />
+    <link rel="stylesheet" href="~/css/checkout.css" />
+</head>
+
+<body>
+    <div class="checkout-container">
+        <!-- Left Side: Checkout Form -->
+        <div class="checkout-form-section">
+            <h1 class="checkout-title">Checkout</h1>
+            
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Personal Info</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Payment</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Confirmation</span>
+                </div>
+            </div>
+
+            <!-- Form Container (will be swapped) -->
+            <div id="formContainer">
+                <!-- Personal Info Form -->
+                <div class="form-section active" id="personalInfoForm">
+                    <h2 class="section-title">Personal Info</h2>
+                    
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="your.email@example.com" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="streetAddress">Street Address</label>
+                        <input type="text" id="streetAddress" name="streetAddress" placeholder="123 Main Street" required />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="state">State/Province</label>
+                            <input type="text" id="state" name="state" placeholder="Cavite" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" placeholder="Bacoor" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zipCode">Zip/Postal Code</label>
+                            <input type="text" id="zipCode" name="zipCode" placeholder="4102" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="+63 912 345 6789" required />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Form (Initially Hidden) -->
+                <div class="form-section" id="paymentForm">
+                    <h2 class="section-title">Payment Method</h2>
+                    
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="cod" checked />
+                            <div class="payment-card">
+                                <div class="payment-icon">💵</div>
+                                <div class="payment-info">
+                                    <h3>Cash on Delivery</h3>
+                                    <p>Pay when you receive your order</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="gcash" />
+                            <div class="payment-card">
+                                <div class="payment-icon">📱</div>
+                                <div class="payment-info">
+                                    <h3>GCash</h3>
+                                    <p>Pay via GCash mobile wallet</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="card" />
+                            <div class="payment-card">
+                                <div class="payment-icon">💳</div>
+                                <div class="payment-info">
+                                    <h3>Credit/Debit Card</h3>
+                                    <p>Pay securely with your card</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 30px;">
+                        <label for="deliveryNotes">Delivery Notes (Optional)</label>
+                        <textarea id="deliveryNotes" name="deliveryNotes" rows="4" placeholder="Add any special instructions for your delivery..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <button class="btn-back" id="backBtn" onclick="goBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Back
+                </button>
+                <a href="/Home/PaymentMethods"><button class="btn-next" id="nextBtn" onclick="goNext()"></a>
+                    Next
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side: Order Summary (Persistent) -->
+        <div class="order-summary-section">
+            <div class="order-summary-header">
+                <h2>Basket</h2>
+            </div>
+
+            <!-- Cart Items -->
+            <div class="cart-items-list" id="checkoutCartItems">
+                <!-- Items will be loaded from localStorage -->
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-totals">
+                <div class="total-row">
+                    <span>Basket Price</span>
+                    <span id="basketPrice">₱0</span>
+                </div>
+                <div class="total-row">
+                    <span>Delivery</span>
+                    <span id="deliveryFee">₱50</span>
+                </div>
+                <div class="total-row">
+                    <span>Discount</span>
+                    <span id="discount">₱0</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Order Total</span>
+                    <span id="orderTotal">₱0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/js/site.js"></script>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    console.log('Checkout page loaded');
+    
+    function loadCheckoutCart() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const container = document.getElementById('checkoutCartItems');
+        
+        if (!container) {
+            console.error('Cart container not found');
+            return;
+        }
+        
+        if (cart.length === 0) {
+            container.innerHTML = '<p class="empty-cart-message">Your cart is empty</p>';
+            return;
+        }
+        
+        container.innerHTML = cart.map(item => `
+            <div class="checkout-cart-item">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="checkout-item-info">
+                    <div class="checkout-item-name">${item.name}</div>
+                    <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
+                    <div class="checkout-item-price">₱${item.price * item.quantity}</div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update totals
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        document.getElementById('basketPrice').textContent = `₱${total}`;
+        document.getElementById('orderTotal').textContent = `₱${total + 50}`;
+    }
+    
+    // Load cart immediately
+    loadCheckoutCart();
+    
+    // Also load when page fully loads
+    window.addEventListener('load', loadCheckoutCart);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing checkout code ...
+    
+    // Add click handler for edit basket link
+    const editBasketLink = document.querySelector('.edit-basket');
+    if (editBasketLink) {
+        editBasketLink.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent navigation to menu
+            openCart(); // Open the cart modal
+        });
+    }
+});
+    </script>
+</body>
+</html>

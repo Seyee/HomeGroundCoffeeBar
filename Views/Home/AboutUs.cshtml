@@ -1,0 +1,87 @@
+@{
+    ViewData["Title"] = "About Us";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/x-icon" href="~/img/icon.png" />
+    <link rel="stylesheet" href="~/css/about.css" />
+</head>
+
+<body>
+    <!-- Hero Section with About Us -->
+    <section class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="about-text-box">
+                <h1 class="about-title">ABOUT US</h1>
+                <p class="about-description">
+                    Nestled in the heart of Bacoor, Cavite, HomeGround was built on a simple dream: 
+                    to create a place where comfort, flavor, and community come together. What 
+                    started as a small passion project soon became a warm gathering spot for friends, 
+                    families, and anyone looking for a taste of home.
+                </p>
+                <p class="about-description">
+                    At HomeGround, we believe that good food brings people closer. From the aroma of 
+                    freshly brewed coffee to the juicy, flame-grilled burgers made with care, 
+                    every bite and sip is crafted to make you feel welcome. It's more than just a meal—it's 
+                    a moment of connection, a reminder of home, and a celebration of everyday comfort.
+                </p>
+            </div>
+            
+            <div class="visit-box">
+                <h2 class="visit-title">VISIT US</h2>
+                <div class="visit-links">
+                    <a href="/Home/Location" class="visit-link">Location</a>
+                    <a href="https://www.facebook.com/homegroundcoffee4102" target="_blank" class="visit-link">Facebook Page</a>
+                    <a href="https://www.instagram.com/homegroundcoffeebar" target="_blank" class="visit-link">Instagram</a>
+                </div>
+            </div>
+        </div>
+    </section>
+        <section class="storefront-section">
+            <div class="storefront-image-container">
+                <img src="../img/storefront.png" alt="HomeGround Store Front" class="storefront-img" />
+            </div>
+        </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+        <div class="mission-label">OUR MISSION</div>
+        <h2 class="mission-title">Bringing people together through exceptional coffee and genuine connection.</h2>
+        <p class="mission-description">
+            At HomeGround, our mission is simple: to serve more than just a beverage or a meal. 
+            We're here to be a gathering place—a refuge from the hustle, a space for meaningful conversations, 
+            and a reminder that comfort can always be found over a cup of freshly brewed coffee and a home-style burger.
+        </p>
+    </section>
+
+    <!-- Vision Section -->
+    <section class="vision-section">
+        <div class="vision-label">OUR VISION</div>
+        <h2 class="vision-title">Brewing comfort and connection in every corner of the world.</h2>
+        <p class="vision-description">
+            HomeGround envisions becoming a beloved brand in every community—where quality, warmth, and 
+            inclusiveness come together seamlessly. Whether you're in Bacoor or anywhere in the Philippines (and beyond), 
+            we want HomeGround to feel like your second home.
+        </p>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section">
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="../img/coffee1.png" alt="Coffee" />
+            </div>
+            <div class="gallery-item">
+                <img src="../img/coffee2.png" alt="Coffee" />
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
