@@ -394,11 +394,10 @@ function openCart() {
                 cartModal.style.display = 'none';
             }
         };
-        
-        // Checkout button
         cartModal.querySelector('.checkout-btn').onclick = () => {
-            alert('Checkout functionality coming soon!');
+         window.location.href = '/Home/Checkout';
         };
+
     }
     
     // Populate cart items
@@ -462,3 +461,396 @@ function removeItem(index) {
     updateCartButton();
     openCart(); // Refresh cart modal
 }
+
+
+
+// Store locations data
+const locations = {
+    store1: {
+        lat: 14.441571582745448,
+        lng: 120.95271528109014,
+        name: '13 Azucena Street',
+        zoom: 17
+    },
+    store2: {
+        lat: 14.389405670070746,
+        lng: 120.9397815099245,
+        name: 'Servida Building Anabu',
+        zoom: 17
+    }
+};
+
+function focusLocation(lat, lng, storeId) {
+    const iframe = document.getElementById('googleMap');
+
+    // 🔥 This URL works with dynamic coordinates
+    const newSrc = `https://www.google.com/maps?q=${lat},${lng}&z=17&output=embed`;
+
+    iframe.src = newSrc;
+
+    // Switch active store visually
+    const allCards = document.querySelectorAll('.store-card');
+    allCards.forEach(card => card.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    // Smooth scroll (mobile)
+    if (window.innerWidth <= 1024) {
+        document.querySelector('.map-container').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
+
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Add entrance animation to store cards
+    const storeCards = document.querySelectorAll('.store-card');
+    storeCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(-30px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateX(0)';
+        }, 200 * (index + 1));
+    });
+
+    // Add entrance animation to contact info
+    const contactInfo = document.querySelector('.contact-info');
+    if (contactInfo) {
+        contactInfo.style.opacity = '0';
+        contactInfo.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            contactInfo.style.transition = 'all 0.6s ease';
+            contactInfo.style.opacity = '1';
+            contactInfo.style.transform = 'translateY(0)';
+        }, 600);
+    }
+
+    // Add ripple effect on store card click
+    storeCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+});
+
+// Add ripple effect styles dynamically
+const style = document.createElement('style');
+style.textContent = `
+    .store-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .store-card.active {
+        background: rgba(97, 76, 58, 0.25);
+        border-color: #614c3a;
+        box-shadow: 0 0 20px rgba(97, 76, 58, 0.5);
+    }
+    
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(228, 209, 185, 0.3);
+        transform: scale(0);
+        animation: ripple-animation 0.6s ease-out;
+        pointer-events: none;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+
+
+
+
+
+// Current step tracker
+let currentStep = 1;
+
+// Initialize checkout page
+document.addEventListener('DOMContentLoaded', function() {
+    loadCartItems();
+    updateStepIndicator();
+    updateNavigationButtons();
+    
+    // Check if cart is empty
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cart.length === 0) {
+        // Redirect to menu if cart is empty
+        // window.location.href = '/Home/Menu';
+    }
+});
+
+// Load cart items from localStorage
+function loadCartItems() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartItemsContainer = document.getElementById('checkoutCartItems');
+    
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your cart is empty. Add items to proceed.</p>';
+        document.getElementById('basketPrice').textContent = '₱0';
+        document.getElementById('orderTotal').textContent = '₱50';
+        return;
+    }
+    
+    // Render cart items
+    cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="checkout-cart-item">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="checkout-item-info">
+                <div class="checkout-item-name">${item.name}</div>
+                <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
+                <div class="checkout-item-price">₱${item.price * item.quantity}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    // Calculate totals
+    calculateTotals(cart);
+}
+
+// Calculate order totals
+function calculateTotals(cart) {
+    const basketPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = 50;
+    const discount = 0;
+    const orderTotal = basketPrice + deliveryFee - discount;
+    
+    document.getElementById('basketPrice').textContent = `₱${basketPrice}`;
+    document.getElementById('deliveryFee').textContent = `₱${deliveryFee}`;
+    document.getElementById('discount').textContent = `₱${discount}`;
+    document.getElementById('orderTotal').textContent = `₱${orderTotal}`;
+}
+
+// Go to next step
+function showStep(step) {
+    const personalForm = document.getElementById("personalInfoForm");
+    const paymentForm = document.getElementById("paymentForm");
+
+    // Step Indicators
+    const steps = document.querySelectorAll(".step");
+
+    // Reset forms
+    personalForm.classList.remove("active");
+    paymentForm.classList.remove("active");
+
+    // Reset step indicator
+    steps.forEach(s => s.classList.remove("active"));
+
+    if (step === 1) {
+        personalForm.classList.add("active");
+        steps[0].classList.add("active");
+    }
+
+    if (step === 2) {
+        paymentForm.classList.add("active");
+        steps[1].classList.add("active");
+    }
+}
+
+
+// Go back to previous step
+function goBack() {
+    if (currentStep === 2) {
+        currentStep = 1;
+        showStep(1);
+    } else if (currentStep === 1) {
+        // Go back to menu
+        window.location.href = '/Home/Menu';
+    }
+}
+
+// Show specific step
+function showStep(step) {
+    // Hide all forms
+    document.querySelectorAll('.form-section').forEach(form => {
+        form.classList.remove('active');
+    });
+    
+    // Show selected form
+    if (step === 1) {
+        document.getElementById('personalInfoForm').classList.add('active');
+    } else if (step === 2) {
+        document.getElementById('paymentForm').classList.add('active');
+    }
+    
+    updateStepIndicator();
+    updateNavigationButtons();
+}
+
+// Update step indicator
+function updateStepIndicator() {
+    const steps = document.querySelectorAll('.step');
+    steps.forEach((step, index) => {
+        if (index + 1 <= currentStep) {
+            step.classList.add('active');
+        } else {
+            step.classList.remove('active');
+        }
+    });
+}
+
+// Update navigation buttons
+function updateNavigationButtons() {
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    if (currentStep === 1) {
+        backBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Back to Menu
+        `;
+    } else {
+        backBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Back
+        `;
+    }
+    
+    if (currentStep === 2) {
+        nextBtn.innerHTML = `
+            Place Order
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        `;
+    } else {
+        nextBtn.innerHTML = `
+            Next
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        `;
+    }
+}
+
+// Validate personal info form
+function validatePersonalInfo() {
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const streetAddress = document.getElementById('streetAddress').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const zipCode = document.getElementById('zipCode').value.trim();
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    
+    if (!fullName || !email || !streetAddress || !state || !city || !zipCode || !phoneNumber) {
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Save personal info to localStorage
+function savePersonalInfo() {
+    const personalInfo = {
+        fullName: document.getElementById('fullName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        streetAddress: document.getElementById('streetAddress').value.trim(),
+        state: document.getElementById('state').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        zipCode: document.getElementById('zipCode').value.trim(),
+        phoneNumber: document.getElementById('phoneNumber').value.trim()
+    };
+    
+    localStorage.setItem('checkoutPersonalInfo', JSON.stringify(personalInfo));
+}
+
+// Save payment method
+function savePaymentMethod() {
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const deliveryNotes = document.getElementById('deliveryNotes').value.trim();
+    
+    localStorage.setItem('paymentMethod', paymentMethod);
+    localStorage.setItem('deliveryNotes', deliveryNotes);
+}
+
+// Process order
+function processOrder() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const personalInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
+    const paymentMethod = localStorage.getItem('paymentMethod');
+    const deliveryNotes = localStorage.getItem('deliveryNotes');
+    
+    const order = {
+        orderNumber: 'ORD-' + Date.now(),
+        personalInfo: personalInfo,
+        items: cart,
+        paymentMethod: paymentMethod,
+        deliveryNotes: deliveryNotes,
+        basketPrice: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        deliveryFee: 50,
+        discount: 0,
+        orderTotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50,
+        orderDate: new Date().toISOString()
+    };
+    
+    // Save order to localStorage (in production, send to server)
+    localStorage.setItem('lastOrder', JSON.stringify(order));
+    
+    // Clear cart
+    localStorage.removeItem('cart');
+    
+    // Show success message
+    alert(`Order placed successfully!\nOrder Number: ${order.orderNumber}\n\nThank you for your order!`);
+    
+    // Redirect to home or order confirmation page
+    window.location.href = '/Home/Home';
+}
+
+// Load saved personal info if available (for returning customers)
+window.addEventListener('load', function() {
+    const savedInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
+    if (savedInfo) {
+        document.getElementById('fullName').value = savedInfo.fullName || '';
+        document.getElementById('email').value = savedInfo.email || '';
+        document.getElementById('streetAddress').value = savedInfo.streetAddress || '';
+        document.getElementById('state').value = savedInfo.state || '';
+        document.getElementById('city').value = savedInfo.city || '';
+        document.getElementById('zipCode').value = savedInfo.zipCode || '';
+        document.getElementById('phoneNumber').value = savedInfo.phoneNumber || '';
+    }
+
+    
+});
+
+
+
+

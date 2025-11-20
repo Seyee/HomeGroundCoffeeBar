@@ -61,6 +61,26 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Location()
+    {
+        return View();
+    }
+
+    public IActionResult AboutUs()
+    {
+        return View();
+    }
+
+    public IActionResult Checkout()
+    {
+        return View();
+    }
+
+    public IActionResult PaymentMethods()
+    {
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

@@ -1,0 +1,113 @@
+@{
+    ViewData["Title"] = "Location";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/x-icon" href="~/img/icon.png" />
+    <link rel="stylesheet" href="~/css/location.css" />
+</head>
+
+<body>
+
+        <div class="map-section">
+
+    <div class="location-container">
+        <!-- Sidebar with store locations -->
+        <div class="location-sidebar">
+            <h2 class="sidebar-title">Our Locations</h2>
+
+            <!-- Store 1 -->
+            <div class="store-card" onclick="focusLocation(14.441571582745448, 120.95271528109014, 'store1')">
+                <div class="store-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#E4D1B9"/>
+                    </svg>
+                </div>
+                <div class="store-info">
+                    <h3 class="store-name">Home Ground Coffee Bar</h3>
+                    <p class="store-address">13 Azucena St. Andrea 1 PF Espiritu VI, Bacoor, 4102 Cavite</p>
+                    <div class="store-wifi">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M1 9L12 20L23 9C18.52 4.52 14.48 4.52 12 4.52C9.52 4.52 5.48 4.52 1 9Z" stroke="#cfba9a" stroke-width="2"/>
+                        </svg>
+                        <span>Free WiFi Available</span>
+                    </div>
+                </div>
+                <div class="store-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18L15 12L9 6" stroke="#E4D1B9" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Store 2 -->
+            <div class="store-card" onclick="focusLocation(14.389405670070746, 120.9397815099245, 'store2')">
+                <div class="store-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#E4D1B9"/>
+                    </svg>
+                </div>
+                <div class="store-info">
+                    <h3 class="store-name">Home Ground Coffee Bar - Anabu</h3>
+                    <p class="store-address">Gen. E. Aguinaldo Highway, Anabu 1-F, Imus, 4103 Cavite</p>
+                    <div class="store-wifi">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M1 9L12 20L23 9C18.52 4.52 14.48 4.52 12 4.52C9.52 4.52 5.48 4.52 1 9Z" stroke="#cfba9a" stroke-width="2"/>
+                        </svg>
+                        <span>Free WiFi Available</span>
+                    </div>
+                </div>
+                <div class="store-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18L15 12L9 6" stroke="#E4D1B9" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <h3 class="contact-title">Get in Touch</h3>
+                <div class="contact-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="#cfba9a"/>
+                    </svg>
+                    <span>homegroundcoffee@gmail.com</span>
+                </div>
+                <div class="contact-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M6.62 10.79C8.06 13.62 10.38 15.94 13.21 17.38L15.41 15.18C15.69 14.9 16.08 14.82 16.43 14.93C17.55 15.3 18.75 15.5 20 15.5C20.55 15.5 21 15.95 21 16.5V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z" fill="#cfba9a"/>
+                    </svg>
+                    <span>(+63) 906 278 3788</span>
+                </div>
+                <div class="contact-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z" fill="#cfba9a"/>
+                    </svg>
+                    <span>Mon-Sat: 7:00 AM - 10:00 PM</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <iframe 
+                id="googleMap"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3864.656941318201!2d120.93723877596553!3d14.389249786072487!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397d3c74f493a0d%3A0xd0a7add364b2c399!2sHome%20Ground%20Coffee%20Bar%20-%20Anabu!5e0!3m2!1sen!2sph!4v1763548901514!5m2!1sen!2sph" 
+                width="100%" 
+                height="100%" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </div>
+
+    <script src="~/js/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary-color: #E4D1B9;
+    --secondary-color: #2A241E;
+    --accent-color: #614c3a;
+    --dark-bg: #1a1511;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--primary-color);
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    background-image: url('../img/index_bg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    padding: 80px 60px;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    width: 100%;
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin: 0 auto;
+}
+
+.about-text-box {
+    flex: 1;
+    max-width: 700px;
+    background-color: #211f1e9c;
+    padding: 30px;
+    border-radius: 30px;
+}
+
+.about-title {
+    font-size: 80px;
+    font-weight: 900;
+    color: var(--primary-color);
+    margin-bottom: 40px;
+    letter-spacing: 3px;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.about-description {
+    font-size: 16px;
+    font-weight: 300;
+    color: #D3C4AE;
+    line-height: 1.8;
+    margin-bottom: 24px;
+    text-align: justify;
+}
+
+.visit-box {
+    background: rgba(97, 76, 58, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(228, 209, 185, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    width: 320px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.visit-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+}
+
+.visit-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.visit-link {
+    display: block;
+    color: #B3A999;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 400;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(228, 209, 185, 0.1);
+    transition: all 0.3s ease;
+}
+
+.visit-link:hover {
+    color: var(--primary-color);
+    padding-left: 10px;
+    border-bottom-color: var(--accent-color);
+}
+
+
+/* Storefront Section */
+.storefront-section {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: -120px; /* pushes image upward to overlap */
+    z-index: 10;
+}
+
+.storefront-image-container {
+    width: 90%;
+    max-width: 1400px;
+    height: 600px;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    transition: transform 0.4s ease;
+}
+
+.storefront-img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.storefront-image-container:hover {
+    transform: scale(1.02);
+}
+
+.storefront img :hover {
+    transform: scale(1.1);
+}
+
+/* Mission Section */
+.mission-section {
+    background: linear-gradient(180deg, var(--dark-bg) 0%, #221d18 100%);
+    padding: 100px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mission-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #B3A999;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.mission-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.4;
+    margin-bottom: 30px;
+    max-width: 900px;
+}
+
+.mission-description {
+    font-size: 16px;
+    font-weight: 300;
+    color: #B3A999;
+    line-height: 1.8;
+    max-width: 900px;
+}
+
+/* Vision Section */
+.vision-section {
+    background: #221d18;
+    padding: 100px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.vision-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #B3A999;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.vision-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.4;
+    margin-bottom: 30px;
+    max-width: 900px;
+}
+
+.vision-description {
+    font-size: 16px;
+    font-weight: 300;
+    color: #B3A999;
+    line-height: 1.8;
+    max-width: 900px;
+}
+
+/* Gallery Section */
+.gallery-section {
+    background: var(--dark-bg);
+    padding: 80px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery-item {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: transform 0.4s ease;
+}
+
+.gallery-item:hover {
+    transform: scale(1.02);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .hero-content {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .visit-box {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .about-title {
+        font-size: 64px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 30px;
+        min-height: auto;
+    }
+
+    .about-title {
+        font-size: 48px;
+        margin-bottom: 30px;
+    }
+
+    .about-description {
+        font-size: 14px;
+    }
+
+    .visit-box {
+        padding: 30px;
+    }
+
+    .storefront-image-container {
+        height: 400px;
+    }
+
+    .mission-section,
+    .vision-section {
+        padding: 60px 30px;
+    }
+
+    .mission-title,
+    .vision-title {
+        font-size: 32px;
+    }
+
+    .mission-description,
+    .vision-description {
+        font-size: 14px;
+    }
+
+    .gallery-section {
+        padding: 40px 20px;
+    }
+
+    .gallery-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .gallery-item {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section {
+        padding: 40px 20px;
+    }
+
+    .about-title {
+        font-size: 36px;
+    }
+
+    .about-description {
+        font-size: 13px;
+    }
+
+    .visit-box {
+        padding: 25px;
+    }
+
+    .visit-title {
+        font-size: 20px;
+    }
+
+    .storefront-image-container {
+        height: 300px;
+    }
+
+    .mission-section,
+    .vision-section {
+        padding: 40px 20px;
+    }
+
+    .mission-title,
+    .vision-title {
+        font-size: 26px;
+    }
+
+    .gallery-item {
+        height: 250px;
+    }
+}
