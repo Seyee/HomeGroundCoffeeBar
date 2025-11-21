@@ -108,7 +108,7 @@
                         </label>
 
                         <label class="payment-option">
-                            <input type="radio" name="paymentMethod" value="card" />
+                            <input type="radio" name="paymentMethod" value="maya" />
                             <div class="payment-card">
                                 <div class="payment-icon"><img src="../img/mayaLogo.png" alt="Maya"></div>
                                 <div class="payment-info">
@@ -182,14 +182,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // -------------------------------
     // Load Cart Items from localStorage
     // -------------------------------
+    let total;
+
     function loadCheckoutCart() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const container = document.getElementById('checkoutCartItems');
 
-        if (!container) {
-            console.error('Cart container not found');
-            return;
-        }
+        if (!container) return;
 
         if (cart.length === 0) {
             container.innerHTML = '<p class="empty-cart-message">Your cart is empty</p>';
@@ -207,26 +206,13 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `).join('');
 
-        // Update totals
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         document.getElementById('basketPrice').textContent = `₱${total}`;
         document.getElementById('orderTotal').textContent = `₱${total + 50}`;
     }
 
-    // Load cart immediately and on full page load
     loadCheckoutCart();
     window.addEventListener('load', loadCheckoutCart);
-
-    // -------------------------------
-    // Edit Basket Link
-    // -------------------------------
-    const editBasketLink = document.querySelector('.edit-basket');
-    if (editBasketLink) {
-        editBasketLink.addEventListener('click', function (e) {
-            e.preventDefault();
-            openCart(); // Make sure openCart() exists
-        });
-    }
 
     // -------------------------------
     // Multi-step Checkout
@@ -237,11 +223,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const personalForm = document.getElementById('personalInfoForm');
         const paymentForm = document.getElementById('paymentForm');
 
-        // Show only the current step
         personalForm.classList.toggle('active', step === 1);
         paymentForm.classList.toggle('active', step === 2);
 
-        // Update step indicators
         document.querySelectorAll('.step').forEach((s, index) => {
             s.classList.toggle('active', index + 1 === step);
         });
@@ -249,16 +233,43 @@ document.addEventListener('DOMContentLoaded', function () {
         currentStep = step;
     }
 
-    // Attach functions to window for inline onclick
+    // Next button logic
     window.goNext = function () {
-        if (currentStep < 2) showStep(currentStep + 1);
+        if (currentStep === 1) {
+            // Step 1 → Step 2
+            showStep(2);
+        } else if (currentStep === 2) {
+            // Step 2 → Payment check
+            const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+
+            if (!selectedPayment) {
+                alert('Please select a payment method');
+                return;
+            }
+            const orderTotal = total + 50;
+            switch (selectedPayment.value) {
+                case 'maya':
+                    window.location.href = '@Url.Action("PayMayaMain", "PayMaya")' + '?amount=' + orderTotal;
+                    break;
+                case 'gcash':
+                    window.location.href = '@Url.Action("GcashMain", "GCash")' + '?amount=' + orderTotal;
+                    break;
+                case 'cod':
+                    alert('Cash on Delivery selected');
+                    break;
+                default:
+                    alert('Payment option not implemented');
+            }
+        }
     };
 
+    // Back button
     window.goBack = function () {
         if (currentStep > 1) showStep(currentStep - 1);
     };
 });
 </script>
+
 
 </body>
 </html>

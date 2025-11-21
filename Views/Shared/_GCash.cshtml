@@ -1,0 +1,48 @@
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using HomeGroundCoffeeBar.Data 
+@*model HomeGroundCoffeeBar.Models.ViewModels*@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCash - #1 Financing Super App</title>
+    <link rel="icon" href="~/img/gcashIcon.png">
+
+    <link rel="stylesheet" href="~/css/gcash.css">
+</head>
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div class="loading_screen">
+        <div class="logo_con_loading">
+            <img src="~/img/gcash/gcashLogoWhite.png" alt="gcashLogo">
+        </div>
+
+        <div class="spinner">
+            <img src="" alt="">
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <main>
+        <div class="top_bar">
+            <div class="logo_con">
+                <img src="~/img/gcash/gcashLogoWhite.png" alt="gcashLogo">
+            </div>
+        </div>
+
+        <div class="pop_up_con">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- SCRIPT -->
+    <script src="~/js/gcash.js" asp-append-version="true"></script>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

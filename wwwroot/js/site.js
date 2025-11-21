@@ -671,6 +671,8 @@ function showStep(step) {
         paymentForm.classList.add("active");
         steps[1].classList.add("active");
     }
+
+    
 }
 
 
@@ -850,6 +852,9 @@ window.addEventListener('load', function() {
 
     
 });
+
+
+
 
 
 

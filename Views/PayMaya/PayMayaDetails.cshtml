@@ -1,0 +1,39 @@
+<div class="details_con">
+    <div class="top_desc_con_details">
+        <h5>Review purchase details</h5>
+        <p>You are about to pay, kindly confirm the details below.</p>
+    </div>
+
+    <div class="details_con_main">
+        <div>
+            <p>Available balance</p>
+            
+            <div class="amount_con">
+                <p>PHP</p>
+                <p><span id="availBalancePayMaya">@Model.PayMaya.AvailBalance</span>.00</p>
+            </div>
+        </div>
+
+        <div>
+            <p>You are buying from</p>
+            <p class="merchant">STI College</p>
+        </div>
+
+        <div class="amount_due">
+            <p>Amount due</p>
+            
+            <div class="amount_con">
+                <p>PHP</p>
+                <p><span id="totalAmount">@Model.PayMaya.Amount</span>.00</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bot_con_details">
+        <form action="GetAvailBalance" id="paymentFormCon" class="form_con_btn">
+            <p class="amount_error" id="amountError"></p>
+            <button type="submit" id="paymaya" data-url="@Url.Action("Main", "Home")">Confirm to pay</button>
+        </form>
+        <a href="@Url.Action("Main", "Home")">Cancel and return</a>
+    </div>
+</div>

@@ -1,0 +1,34 @@
+<div class="otp_con">
+    <div class="top_desc_con_otp">
+        <div class="top_text_otp">
+            <h5>One-Time</h5>
+            <h5 class="pin">PIN</h5>
+        </div>
+
+        <div class="top_desc_text_otp">
+            <p>Please enter the one-time PIN (OTP) that we sent to +63</p>
+            <p>099 48751671</p>
+        </div>
+
+    </div>
+
+    <form asp-controller="PayMaya" asp-action="PayMayaDetails" method="post" class="otp_form" id="otpForm">
+        <div class="otp_con_input">
+            <input type="text" inputmode="numeric" pattern="\d" maxlength="1" name="otp1" id="otp1" class="otp_box" required/>
+            <input type="text" inputmode="numeric" pattern="\d" maxlength="1" name="otp2" id="otp2" class="otp_box" required/>
+            <input type="text" inputmode="numeric" pattern="\d" maxlength="1" name="otp3" id="otp3" class="otp_box" required/>
+            <input type="text" inputmode="numeric" pattern="\d" maxlength="1" name="otp4" id="otp4" class="otp_box" required/>
+            <input type="text" inputmode="numeric" pattern="\d" maxlength="1" name="otp5" id="otp5" class="otp_box" required/>
+            <input type="text" inputmode="numeric" pattern="\d" maxlength="1" name="otp6" id="otp6" class="otp_box" required/>
+        </div>
+
+        <div class="bot_con_otp">
+            <button type="submit">Verify</button>
+
+            <div class="bot_text_otp">
+                <p>Didn't receive the code?</p>
+                <a href="" class="resend_code">Resend code</a>
+            </div>
+        </div>
+    </form>
+</div>

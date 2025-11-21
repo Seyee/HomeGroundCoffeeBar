@@ -1,0 +1,24 @@
+<div class="log_in_con">
+    <div class="logo_con">
+        <img src="~/img/maya/mayaLogo.svg" alt="Maya" class="logo">
+    </div>
+
+    <div class="form_con">
+        <form action="" class="form">
+            <div class="input_con">
+                <div class="input">
+                    <input type="text" id="email" name="Email" placeholder="" autocomplete="true"/>
+                    <label for="email">Email address or mobile number</label>
+                </div>
+                <div class="input">
+                    <input type="text" id="password" name="Password" placeholder="" autocomplete="true"/>
+                    <label for="password">Password</label>
+                </div>
+                <a href="">Forgot your password?</a>
+            </div>
+            
+            <button asp-asp-controller="PayMaya" asp-action="PayMayaOTP" type="submit">Log in</button>
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,61 @@
+<div class="success_con">
+    <div class="top_con_success">
+        <p>Payment Successful</p>
+        <div class="maya_house_con">
+            <img src="~/img/maya/mayaHouse.svg" alt="MayaHouse">
+        </div>
+
+        <div>
+            <div class="amount_success">
+                <h5>PHP</h5>
+                <h5>@Model.PayMaya.Amount.00</h5>
+            </div>
+
+            <p class="merchant_success">STI College</p>
+        </div>
+    </div>
+
+    <div class="success_details">
+        <div class="transaction_details">
+            <p>TRANSACTION DETAILS</p>
+
+            <div class="transac_main">
+                <div>
+                    <p>Transaction ID</p>
+                    <p class="transac_data">sdjnckvsjkr34173dvs4</p>
+                </div>
+
+                <div>
+                    <p>Payment Date</p>
+                    <div class="payment_date transac_data">
+                        <p>28</p>
+                        <p>Sep</p>
+                        <p>2025</p>
+                    </div>
+                </div>
+
+                <div class="payment_method">
+                    <p>Payment Method</p>
+                    <p class="transac_data">Maya</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment_details">
+            <p>PAYMENT DETAILS</p>
+
+            <div class="total_amount">
+                <p class="amount_paid_p">Total Amount Paid</p>
+
+                <div class="amount_con">
+                    <p>PHP</p>
+                    <p>@Model.PayMaya.Amount.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bot_con_success">
+        <button type="button" onclick="location.href='@Url.Action("Menu", "Home")'">Back to Merchant</button>
+    </div>
+</div>
