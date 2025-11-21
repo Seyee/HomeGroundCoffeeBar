@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var name = Context.Session.GetString("Name");
+    var profilePic = Context.Session.GetString("ProfilePic");
+
+    var isLogged = !string.IsNullOrEmpty(name);
+}
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -6,36 +14,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Home Ground</title>
     <script type="importmap"></script>
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <header>
         <nav class="navbar">
-            <div class="container">
-                <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
-                    <img src="/img/logowhite.png" alt="Home Ground Logo" />
-                </a>
-                <div class="list-links">
-                    <ul class="nav-links">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Home">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Menu">Menu</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Location">Location</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="AboutUs">About Us</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Signin">Sign in</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+    <div class="container">
+        <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
+            <img src="/img/logowhite.png" alt="Home Ground Logo" />
+        </a>
+
+        <div class="list-links">
+            <ul class="nav-links">
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Home">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Menu">Menu</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Location" asp-action="Location">Location</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="AboutUs">About Us</a>
+                </li>
+
+                @if (!isLogged)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Signin">Sign in</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item profile-li">
+
+                        <div class="profile-container">
+                            <button id="ProfileBtn" class="profile-btn">
+
+                                @if (!string.IsNullOrEmpty(profilePic))
+                                {
+                                    <img src="@profilePic" class="profile-pic" />
+                                }
+                                else
+                                {
+                                    <img src="/img/defaultuser.png" class="profile-pic" />
+                                }
+
+
+                            </button>
+
+                            <div id="ProfileMenu" class="profile-menu">
+                                 <span class="profile-name">@name</span>
+                                <a asp-controller="Home" asp-action="Logout">Logout</a>
+                            </div>
+                            
+                        </div>
+                    </li>
+                }
+
+            </ul>
+        </div>
+    </div>
+</nav>
     </header>
 
 <main role="main" class="pb-3">
@@ -64,7 +110,10 @@
             <li><a href="/Home/Menu" class="quicklink">Menu</a></li>
             <li><a href="/Home/Location" class="quicklink">Location</a></li>
             <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
-            <li><a href="/Home/Signin" class="quicklink">Sign in</a></li>
+            @if (!isLogged) {
+                <li><a href="/Home/Signin" class="quicklink">Sign in</a></li>
+            }
+            
         </ul>
         </div>
     </div>
@@ -89,9 +138,27 @@
 
 </footer>
 
+    <script>
+
+    // GUEST LAYOUT = NOT LOGGED IN
+    const isLoggedIn = false; 
+
+    if (!isLoggedIn) {
+        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+            btn.style.display = "none";
+        });
+    }
+    
+    </script>
+
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+
+
+
 </body>
 </html>

@@ -2,17 +2,10 @@
     ViewData["Title"] = "Menu";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"]</title>
+
     <link rel="icon" type="image/x-icon" href="~/img/icon.png" />
     <link rel="stylesheet" href="~/css/product/menu.css" />
-</head>
 
-<body>
     <div class="banner" >
         <div class="text-class">
             <h1 class="banner-text">Warm it. Chill it. <br>Feel it.</h1>
@@ -151,5 +144,35 @@
         </div>
     </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
 
-</body>
+    // Kunwari session variable na ginagamit mo
+    var isLoggedIn = "@(Context.Session.GetString("Phone") != null ? "true" : "false")" === "true";
+
+    const addToCartBtns = document.querySelectorAll(".add-to-cart-btn");
+    const orderBtns = document.querySelectorAll(".order-btn");
+
+    if (!isLoggedIn) {
+        // Guest → hide Add to Cart
+        addToCartBtns.forEach(btn => btn.style.display = "none");
+
+        // Guest → Order Now redirects to Signin
+        orderBtns.forEach(btn => {
+            btn.style.display = "block"; // siguraduhing nakikita
+            btn.addEventListener("click", function() {
+                window.location.href = "/Home/Signin"; // redirect sa signin
+            });
+        });
+    } else {
+        // Logged-in → show both buttons
+        addToCartBtns.forEach(btn => btn.style.display = "block");
+        orderBtns.forEach(btn => btn.style.display = "block");
+    }
+
+});
+</script>
+
+
+
+
