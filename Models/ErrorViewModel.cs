@@ -1,4 +1,4 @@
-namespace _.Models;
+namespace HomeGroundCoffeeBar.Models;
 
 public class ErrorViewModel
 {
