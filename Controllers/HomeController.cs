@@ -1,11 +1,14 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using HomeGroundCoffeeBar.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace HomeGroundCoffeeBar.Controllers;
 
 public class HomeController : Controller
 {
+    
     private readonly ILogger<HomeController> _logger;
 
     public HomeController(ILogger<HomeController> logger)
@@ -13,9 +16,24 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+
+     public async Task<IActionResult> Logout()
+    {
+        HttpContext.Session.Clear();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Signin", "Home");
+    }
+
+
     public IActionResult Home()
     {
-        return View();
+       var user = HttpContext.Session.GetString("Name");
+
+    if (!string.IsNullOrEmpty(user))
+    {
+        return RedirectToAction("Index", "Dashboard");
+    }
+    return View();
     }
 
     public IActionResult Privacy()

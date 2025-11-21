@@ -1,0 +1,144 @@
+/* NAVBAR BASE */
+header {
+    background-color: #020702;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 60px;
+}
+
+.navbar-logo img {
+    width: 150px;
+    height: auto;
+    transition: transform 0.3s ease;
+}
+
+.navbar-logo img:hover {
+    transform: scale(1.05);
+}
+
+.list-links {
+    display: flex;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 40px; 
+    align-items: center;
+}
+
+.nav-link {
+    color: #D3C4AE;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    height: 55px;
+    transition: 0.3s ease;
+}
+
+
+.profile-li {
+    position: relative;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.profile-btn {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: 0.2s ease;
+}
+
+.profile-btn:hover .profile-pic {
+    transform: scale(1.05);
+}
+
+.profile-btn span {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* The dropdown menu container */
+.profile-menu {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: #1F1A14;
+    padding: 15px;
+    width: 170px;
+    border-radius: 12px;
+    animation: fadeDropdown 0.2s ease-out;
+    z-index: 999;
+}
+
+/* Animation */
+@keyframes fadeDropdown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Show dropdown on hover */
+.profile-container:hover .profile-menu {
+    display: block;
+}
+
+/* Name text inside dropdown */
+.profile-menu .profile-name {
+    color: #D3C4AE;
+    font-size: 16px;
+    font-weight: 600;
+    display: block;
+    width: 100%;  
+    border-bottom: 2px solid #4f4439;
+    padding-bottom: 10px;  
+    margin-bottom: 10px;  
+}
+
+
+
+/* Logout link styling */
+.profile-menu a {
+    display: block;
+    text-decoration: none;
+    color: #D3C4AE;
+    font-size: 15px;
+    font-weight: 480;
+    padding: 8px 5px;
+    margin-top: 10px;
+    border-radius: 8px;
+    transition: 0.2s ease;
+}
+
+.profile-menu a:hover {
+    background-color: #4f4439;
+    color: #fff;
+}
+
+
+

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="~/img/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Home Ground</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+</head>
+
+<body>
+<header>
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
+                <img src="/img/logowhite.png" alt="Home Ground Logo" />
+            </a>
+
+            <div class="list-links">
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Menu">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Location" asp-action="Location">Location</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="AboutUs">About Us</a>
+                    </li>
+
+                        @{
+                            var sessionName = Context.Session.GetString("Name");
+                            var sessionPic = Context.Session.GetString("ProfilePic");
+
+                            string finalPic = string.IsNullOrWhiteSpace(sessionPic)
+                                ? "#"
+                                : sessionPic;
+
+                        }
+
+                        @if (sessionName != null)
+                        {
+                            <div class="profile-wrapper">
+                                <img src="@finalPic?v=@DateTime.Now.Ticks" 
+                                alt="Profile" class="profile-img" />
+
+                                <div class="profile-dropdown">
+                                    <p class="profile-name">@sessionName</p>
+                                    <a asp-controller="Account" asp-action="Logout">Logout</a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="nav-link" asp-controller="Home" asp-action="Signin">Sign in</a>
+                        }
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main role="main" class="pb-3">
+    @RenderBody()
+</main>
+
+<footer class="border-top footer text-muted">
+    <div class="container footer-content">
+        <div class="footer-info-container">
+            <div class="about">
+                <h1>ABOUT</h1>
+                <span class="welcome-text">Welcome to the Official Website of <br> Home Ground. #Happybean</span>
+
+                <div class="social">
+                    <a href="https://www.instagram.com/homegroundcoffeebar" class="social-icon">
+                        <img src="/img/iglogo.png" alt="Instagram" />
+                    </a>
+                    <a href="https://www.facebook.com/homegroundcoffee4102" class="social-icon">
+                        <img src="/img/fblogo.png" alt="Facebook" />
+                    </a>
+                </div>
+            </div>
+
+            <div class="quicklinks">
+                <h1>QUICKLINKS</h1>
+                <ul>
+                    <li><a href="/Home/Menu" class="quicklink">Menu</a></li>
+                    <li><a href="/Home/Location" class="quicklink">Location</a></li>
+                    <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-logo-container">
+            <div class="footer-logo">
+                <img src="/img/logowhite.png" alt="Home Ground Logo" />
+            </div>
+        </div>
+
+        <div class="scroll">
+            <div class="arrow-up">
+                <a href="#" id="ScrollTopLink">
+                    <img src="/img/scroll_top.svg" alt="Scroll to Top" />
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script>
+    // DASHBOARD LAYOUT = LOGGED-IN USERS ONLY
+    const isLoggedIn = true;
+
+    if (isLoggedIn) {
+        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+            btn.style.display = "inline-block";
+        });
+        }
+    </script>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
