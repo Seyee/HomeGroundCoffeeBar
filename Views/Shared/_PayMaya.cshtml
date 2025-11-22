@@ -1,0 +1,30 @@
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using HomeGroundCoffeeBar.Data 
+@*model HomeGroundCoffeeBar.Models.ViewModels*@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayMaya</title>
+    <link rel="icon" href="~/img/mayaIcon.png">
+
+    <link rel="stylesheet" href="~/css/paymaya.css" asp-append-version="true">
+</head>
+<body>
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer>
+        <p>Copyright © 2025 Maya. All rights reserved.</p>
+    </footer>
+
+    <script src="~/js/paymaya.js" asp-append-version="true"></script>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

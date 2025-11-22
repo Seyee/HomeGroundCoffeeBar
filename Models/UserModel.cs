@@ -7,7 +7,8 @@ namespace Models
         public string Phone {get; set;}
         public string Password {get; set;}
         public string ProfilePic {get; set;}
-        public DateTime CreatedAt { get; set; }
+        public string GoogleId { get; set; }
+        public DateTime? CreatedAt { get; set; }
         public string Role {get; set;}
     }
 }

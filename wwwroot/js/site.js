@@ -265,7 +265,7 @@ function initializeProductModal() {
             
             // Reset quantity and show modal
             qtyInput.value = 1;
-            modal.style.display = 'block';
+            modal.style.display = 'flex';
         });
     });
     
@@ -671,6 +671,8 @@ function showStep(step) {
         paymentForm.classList.add("active");
         steps[1].classList.add("active");
     }
+
+    
 }
 
 
@@ -850,6 +852,9 @@ window.addEventListener('load', function() {
 
     
 });
+
+
+
 
 
 

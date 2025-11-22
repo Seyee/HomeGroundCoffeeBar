@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using HomeGroundCoffeeBar.Models;
 using MySql.Data.MySqlClient;
 using Models;
 
-namespace Controllers
+namespace HomeGroundCoffeeBar.Controllers
 {
     public class AdminController : Controller
     {
-        private string connectionString = "server=localhost;database=HomeGroundCoffeeBar;user=root;password=yourpassword123;port=3307;";
+        private string connectionString = "server=localhost;database=homegroundcoffeebar;user=root;password=homeground;port=3306;";
 
         // Admin Home Page with Users Table
         public IActionResult AdminHomePage()
@@ -22,19 +23,22 @@ namespace Controllers
 
                 using (var reader = cmd.ExecuteReader())
                 {
-                    while (reader.Read())
+                while (reader.Read())
+                {
+                    users.Add(new UserModel
                     {
-                        users.Add(new UserModel
-                        {
-                            Id = reader["Id"].ToString(),
-                            Name = reader["Name"].ToString(),
-                            Phone = reader["Phone"].ToString(),
-                            Password = reader["Password"].ToString(),
-                            Role = reader["Role"].ToString(),
-                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                            ProfilePic = reader["ProfilePic"].ToString()
-                        });
-                    }
+                        Id = reader["Id"].ToString(),
+                        Name = reader["Name"].ToString(),
+                        Phone = reader["Phone"].ToString(),
+                        Password = reader["Password"].ToString(),
+                        Role = reader["Role"].ToString(),
+                        CreatedAt = reader["CreatedAt"] == DBNull.Value 
+                                    ? (DateTime?)null 
+                                    : Convert.ToDateTime(reader["CreatedAt"]),
+                        ProfilePic = reader["ProfilePic"].ToString()
+                    });
+                }
+
                 }
             }
 

@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using _.Models;
+using HomeGroundCoffeeBar.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace _.Controllers;
+namespace HomeGroundCoffeeBar.Controllers;
 
 public class HomeController : Controller
 {

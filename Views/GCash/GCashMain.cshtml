@@ -1,0 +1,259 @@
+<div class="pop_up_main">
+
+    <!-- LOGIN -->
+    <div class="login" id="loginPop">
+        <div class="login_top_con">
+            <div class="login_top_info_con">
+                <p>Merchant</p>
+                <p>Amount to send</p>
+            </div>
+
+            <div class="login_bot_info_con">
+                <p>STI College</p>
+                <div class="login_amount">
+                    <p>PHP</p>
+                    <p>@Model.GCash.Amount.00</p>
+                </div>
+            </div>
+        </div>
+
+        <form action="" class="login_main_form">
+            <div class="login_main">
+                <p>Login to pay with GCash</p>
+
+                <div class="login_input_con">
+                    <div class="country_code">
+                        <p>+63</p>
+                    </div>
+
+                    <div class="login_input">
+                        <input type="text" inputmode="numeric" pattern="\d{11}" name="phoneNumber" id="phoneNumber" class="no_spinner" placeholder="" maxlength="11" required>
+                        <label for="phoneNumber">Mobile Number</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn_con">
+                <div class="main_btn">
+                    <button id="btn1">
+                        NEXT
+                    </button>
+
+                    <div class="button_opacity">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- OTP VERIFICATION -->
+    <div class="otp_verification" id="otpPop">
+        <div class="login_top">
+            <p class="login_p">Login to pay with GCash</p>
+            <p>Enter the 6-digit authentication code sent to your registered mobile number</p>
+        </div>
+
+        <form action="" class="otp_main_form" id="otpForm">
+            <div class="otp_code">
+                <div class="otp_con">
+                    <input type="text" inputmode="numeric" pattern="\d" name="otpPin1" id="otpPin1" class="no_spinner" maxlength="1" autocomplete="off" required>
+                    <input type="text" inputmode="numeric" pattern="\d" name="otpPin2" id="otpPin2" class="no_spinner" maxlength="1" autocomplete="off" required>
+                    <input type="text" inputmode="numeric" pattern="\d" name="otpPin3" id="otpPin3" class="no_spinner" maxlength="1" autocomplete="off" required>
+                    <input type="text" inputmode="numeric" pattern="\d" name="otpPin4" id="otpPin4" class="no_spinner" maxlength="1" autocomplete="off" required>
+                    <input type="text" inputmode="numeric" pattern="\d" name="otpPin5" id="otpPin5" class="no_spinner" maxlength="1" autocomplete="off" required>
+                    <input type="text" inputmode="numeric" pattern="\d" name="otpPin6" id="otpPin6" class="no_spinner" maxlength="1" autocomplete="off" required>
+                </div>  
+
+                <p>Didn&rsquo;t get the code? Resend 300s</p>
+            </div>
+
+            <div class="btn_con">
+                <div class="main_btn">
+                    <button id="btn2">
+                        NEXT
+                    </button>
+
+                    <div class="button_opacity">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- MPIN -->
+    <div class="mpin_verification" id="mpinPop">
+        <div class="login_top">
+            <p class="login_p">Login to pay with GCash</p>
+            <p>Enter your 4-digit MPIN</p>
+        </div>
+
+        <form action="" class="mpin_main_form" id="mpinForm">
+            <div class="mpin_code">
+                <div class="mpin_con"> 
+                    <input type="text" name="mpin" id="mpin1" inputmode="numeric" pattern="\d" maxlength="1" autocomplete="off" required>
+                    <input type="text" name="mpin" id="mpin2" inputmode="numeric" pattern="\d" maxlength="1" autocomplete="off" required>
+                    <input type="text" name="mpin" id="mpin3" inputmode="numeric" pattern="\d" maxlength="1" autocomplete="off" required>
+                    <input type="text" name="mpin" id="mpin4" inputmode="numeric" pattern="\d" maxlength="1" autocomplete="off" required>
+                </div>
+            </div>
+
+            <div class="btn_con">
+                <div class="main_btn">
+                    <button id="btn3">
+                        NEXT
+                    </button>
+
+                    <div class="button_opacity">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+    <!-- PAYMENT DETAILS -->
+    <div class="payment_details" id="payDetPop">
+        <div class="payment_details_top">
+            <p class="merchant_name">STI College</p>
+
+            <div class="payment_details_main">
+                <div class="payment_details_con">    
+                    <div class="pay_with_con">
+                        <p>PAY WITH</p>
+
+                        <div class="pay_with">
+                            <p>GCash</p>
+                            <div class="avail_bal_con">
+                                <div class="amount_con">
+                                    <div class="amount">
+                                        <p>PHP</p>
+                                        <p>@Model.GCash.AvailableBalance.00</p>
+                                    </div>
+
+                                    <p>Available Balance</p>
+                                </div>
+
+                                <div class="radio_btn">
+                                    <input type="radio" name="payMethod" value="gcash" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="amount_to_pay_con">
+                        <p>YOU ARE ABOUT TO PAY</p>
+
+                        <div class="amount_to_pay">
+                            <p>Amount</p>
+
+                            <div class="amount">
+                                <p>PHP</p>
+                                <p>@Model.GCash.Amount.00<p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="total_con">
+                    <p>Total</p>
+
+                    <div class="total_amount">
+                        <p class="currency">PHP</p>
+                        <p><span id="totalAmount">@Model.GCash.Amount</span>.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment_details_bot">
+            <p>Please review to ensure that the details are correct before you proceed</p>
+            <div class="btn_con">
+                <div class="main_btn">
+                    <form id="payAmountForm" action="GetAvailBalance">
+                        <button type="submit" id="btn4" data-url="@Url.Action("Main", "Home")"> 
+                            PAY PHP <span>@Model.GCash.Amount.00</span>
+                        </button>
+                    </form>
+
+                    <div class="button_opacity">
+                    </div>
+                </div>
+            </div>
+
+            <p class="amount_error" id="amountError"></p>
+        </div>  
+    </div>
+
+    <!-- PAYMENT SUCCESFULLY -->
+    <div class="payment_succesfully" id="paySucPop">
+        <div class="pay_suc_main">
+            <p class="payment_title">Payment Succesfully</p>
+        
+            <div class="payment_suc_det">
+                <div class="pay_suc_con">
+                    <div>
+                        <p>Merchant</p>
+                        <p class="pay_suc_p">STI College</p>
+                    </div>
+
+                    <div>
+                        <p>Payment method</p>
+                        <p class="pay_suc_p">GCash</p>
+                    </div>
+
+                    <div>
+                        <p>Account</p>
+                        <p class="pay_suc_p">09948751671</p>
+                    </div>
+
+                    <div class="total_amount">
+                        <p>Total amount</p>
+                        <div class="amount">
+                            <p>PHP</p>
+                            <p>@Model.GCash.Amount.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ref_con">
+                    <div class="reference_num">
+                        <p>Ref. No.</p>
+                        <p>6032890764306</p>
+                    </div>
+
+                    <div class="ref_date">
+                        <p>23</p>
+                        <p>September</p>
+                        <p>2025</p>
+                        <div>
+                            <p>3</p>
+                            <p>:</p>
+                            <p>43</p>
+                            <p>:</p>
+                            <p>33</p>  
+                        </div>
+                        <p>PM</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="pay_suc_bot">
+            <div class="btn_con">
+                <div class="main_btn">
+                    <button id="btn5" onclick="location.href=`@Url.Action("Menu", "Home")`">
+                        Back to Menu
+                    </button>
+
+                    <div class="button_opacity">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
