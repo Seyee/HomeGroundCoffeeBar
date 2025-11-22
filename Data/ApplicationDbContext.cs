@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using HomeGroundCoffeeBar.Models;
+using Models;
 
 namespace HomeGroundCoffeeBar.Data
 {
@@ -12,5 +13,6 @@ namespace HomeGroundCoffeeBar.Data
 
         public DbSet<GCashModel> GCash { get; set; }
         public DbSet<PayMayaModel> PayMaya { get; set; }
+        public DbSet<UserModel> Users { get; set; }
     }
 }
