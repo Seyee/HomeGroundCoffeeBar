@@ -1,12 +1,15 @@
 using HomeGroundCoffeeBar.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-
+using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// -----------------------------
+// Authentication Setup
+// -----------------------------
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -24,39 +27,49 @@ builder.Services.AddAuthentication(options =>
     googleOptions.ClaimActions.MapJsonKey("picture", "picture", "url");
 });
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+// -----------------------------
+// Database Setup
+// -----------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseMySql(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            new MySqlServerVersion(new Version(8, 0, 33)) // MySQL version
-        )
-    );
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(10, 0, 100)) // MySQL version mo
+    )
+);
+
+// -----------------------------
+// Controllers and Session
+// -----------------------------
+builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
+// -----------------------------
+// HTTP Request Pipeline
+// -----------------------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 app.UseSession();
 
-// **Add Authentication middleware**
+// ✅ Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
+// -----------------------------
+// Default Route
+// -----------------------------
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Home}/{id?}");
+    pattern: "{controller=Home}/{action=Home}/{id?}"
+);
 
 app.Run();

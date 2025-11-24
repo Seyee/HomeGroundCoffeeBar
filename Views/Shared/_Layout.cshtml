@@ -137,25 +137,42 @@
 
 
 </footer>
-
+    @* THIS CHECKS IF USER IS LOGGED IN *@
+@if (User.Identity.IsAuthenticated)
+{
     <script>
+        window.isLoggedIn = true;
+        window.userId = "@User.FindFirst("sub")?.Value";
+    </script> 
 
-    // GUEST LAYOUT = NOT LOGGED IN
-    const isLoggedIn = false; 
-
-    if (!isLoggedIn) {
-        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
-            btn.style.display = "none";
-        });
-    }
-    
+    <button id="cartButton" class="cart-button" onclick="openCart()" style="display:none;">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-count">0</span>
+    </button>
+}
+else
+{
+    <script>
+        window.isLoggedIn = false;
+        window.userId = null;
+        
     </script>
+}
+
 
 
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+<script>
+    if (window.isLoggedIn) {
+        updateCartButton();
+    }
+
+window.currentUser = "@name";
+    </script>
 
 
 

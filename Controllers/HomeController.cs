@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using HomeGroundCoffeeBar.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text.Json;
 
 namespace HomeGroundCoffeeBar.Controllers;
 
 public class HomeController : Controller
 {
-    
     private readonly ILogger<HomeController> _logger;
 
     public HomeController(ILogger<HomeController> logger)
@@ -16,74 +16,115 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-
-     public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout()
     {
         HttpContext.Session.Clear();
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Signin", "Home");
     }
 
-
     public IActionResult Home()
     {
-       var user = HttpContext.Session.GetString("Name");
+        var user = HttpContext.Session.GetString("Name");
 
-    if (!string.IsNullOrEmpty(user))
-    {
-        return RedirectToAction("Index", "Dashboard");
-    }
-    return View();
-    }
-
-    public IActionResult Privacy()
-    {
+        if (!string.IsNullOrEmpty(user))
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
         return View();
     }
 
-    public IActionResult Menu()
-    {
-        return View();
-    }
-
-    public IActionResult Signin()
-    {
-        return View();
-    }
-
-    public IActionResult Signup()
-    {
-        return View();
-    }
-
-    public IActionResult Cart()
-    {
-        return View();
-    }
-
-    public IActionResult Location()
-    {
-        return View();
-    }
-
-    public IActionResult AboutUs()
-    {
-        return View();
-    }
-
-    public IActionResult Checkout()
-    {
-        return View();
-    }
-
-    public IActionResult PaymentMethods()
-    {
-        return View();
-    }
+    public IActionResult Privacy() => View();
+    public IActionResult Menu() => View();
+    public IActionResult Signin() => View();
+    public IActionResult Signup() => View();
+    public IActionResult Cart() => View();
+    public IActionResult Location() => View();
+    public IActionResult AboutUs() => View();
+    public IActionResult Checkout() => View();
+    public IActionResult PaymentMethods() => View();
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    // =============================
+    // ORDER SUBMISSION & RECEIPT
+    // =============================
+
+    [HttpPost]
+    public IActionResult SubmitOrder([FromBody] OrderDto orderDto)
+    {
+        if(orderDto == null || orderDto.Items == null || orderDto.Items.Count == 0)
+            return BadRequest("No items in order.");
+
+        // Generate order number
+        string orderNumber = "ORD-" + DateTime.Now.Ticks;
+
+        // Calculate totals
+        decimal itemsTotal = orderDto.Items.Sum(i => i.Price * i.Quantity);
+        decimal deliveryFee = orderDto.DeliveryFee;
+        decimal totalAmount = itemsTotal + deliveryFee;
+
+        // Build order model
+        var order = new OrderModel
+        {
+            OrderNumber = orderNumber,
+            Items = orderDto.Items,
+            DeliveryFee = deliveryFee,
+            TotalAmount = totalAmount,
+            PaymentMethod = orderDto.PaymentMethod
+        };
+
+        // Save order temporarily in TempData (for receipt page)
+        TempData["LastOrder"] = JsonSerializer.Serialize(order);
+
+        // Return order number to frontend
+        return Json(new { orderId = orderNumber });
+    }
+
+    public IActionResult Receipt(string orderNumber)
+    {
+        var lastOrderJson = TempData["LastOrder"] as string;
+
+        if (string.IsNullOrEmpty(lastOrderJson))
+        {
+            // No order found → redirect to menu
+            return RedirectToAction("Menu");
+        }
+
+        // Deserialize order
+        var order = JsonSerializer.Deserialize<OrderModel>(lastOrderJson);
+
+        return View(order);
+    }
+}
+
+// =============================
+// DTO & Model Classes
+// =============================
+
+public class OrderDto
+{
+    public List<OrderItem> Items { get; set; } = new List<OrderItem>();
+    public decimal DeliveryFee { get; set; } = 50; // default
+    public string PaymentMethod { get; set; } = "Cash";
+}
+
+public class OrderModel
+{
+    public string OrderNumber { get; set; }
+    public List<OrderItem> Items { get; set; } = new List<OrderItem>();
+    public decimal DeliveryFee { get; set; }
+    public decimal TotalAmount { get; set; }
+    public string PaymentMethod { get; set; }
+}
+
+public class OrderItem
+{
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+    public int Quantity { get; set; }
 }

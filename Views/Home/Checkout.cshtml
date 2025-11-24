@@ -268,6 +268,43 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentStep > 1) showStep(currentStep - 1);
     };
 });
+
+
+
+function placeOrder() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    const paymentMethod = document.querySelector('input[name="payment"]:checked');
+    if (!paymentMethod) {
+        alert("Please select a payment method.");
+        return;
+    }
+
+    const orderData = {
+        cart: cart,
+        deliveryFee: 45,
+        paymentMethod: paymentMethod.value
+    };
+
+    fetch("/Order/Submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        // Redirect to receipt page
+        window.location.href = `/Home/Receipt/${data.orderId}`;
+    })
+    .catch(err => console.error(err));
+}
+
+
 </script>
 
 
