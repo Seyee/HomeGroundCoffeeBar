@@ -250,6 +250,10 @@ document.addEventListener('DOMContentLoaded', function () {
             switch (selectedPayment.value) {
                 case 'maya':
                     window.location.href = '@Url.Action("PayMayaMain", "PayMaya")' + '?amount=' + orderTotal;
+
+                    // PUT THE FUNCTION HERE THAT CONTAIN THE FETCH POST REQUEST THAT CONATINS THE JSON OBJECT THAT CONTAINS
+                    // THE CART ITEMS
+
                     break;
                 case 'gcash':
                     window.location.href = '@Url.Action("GcashMain", "GCash")' + '?amount=' + orderTotal;

@@ -20,68 +20,68 @@
 <body>
     <header>
         <nav class="navbar">
-    <div class="container">
-        <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
-            <img src="/img/logowhite.png" alt="Homeground Logo" />
-        </a>
+            <div class="container">
+                <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
+                    <img src="/img/logowhite.png" alt="Homeground Logo" />
+                </a>
 
-        <div class="list-links">
-            <ul class="nav-links">
+                <div class="list-links">
+                    <ul class="nav-links">
 
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="Home">Home</a>
-                </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Home">Home</a>
+                        </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="Menu">Menu</a>
-                </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Menu">Menu</a>
+                        </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="Location">Location</a>
-                </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Location">Location</a>
+                        </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="AboutUs">About Us</a>
-                </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="AboutUs">About Us</a>
+                        </li>
 
-                @if (!isLogged)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Signin">Sign in</a>
-                    </li>
-                }
-                else
-                {
-                    <li class="nav-item profile-li">
+                        @if (!isLogged)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Signin">Sign in</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item profile-li">
 
-                        <div class="profile-container">
-                            <button id="ProfileBtn" class="profile-btn">
+                                <div class="profile-container">
+                                    <button id="ProfileBtn" class="profile-btn">
 
-                                @if (!string.IsNullOrEmpty(profilePic))
-                                {
-                                    <img src="@profilePic" class="profile-pic" />
-                                }
-                                else
-                                {
-                                    <img src="/img/defaultuser.png" class="profile-pic" />
-                                }
+                                        @if (!string.IsNullOrEmpty(profilePic))
+                                        {
+                                            <img src="@profilePic" class="profile-pic" />
+                                        }
+                                        else
+                                        {
+                                            <img src="/img/defaultuser.png" class="profile-pic" />
+                                        }
 
 
-                            </button>
+                                    </button>
 
-                            <div id="ProfileMenu" class="profile-menu">
-                                 <span class="profile-name">@name</span>
-                                <a asp-controller="Home" asp-action="Logout">Logout</a>
-                            </div>
-                            
-                        </div>
-                    </li>
-                }
+                                    <div id="ProfileMenu" class="profile-menu">
+                                        <span class="profile-name">@name</span>
+                                        <a asp-controller="Home" asp-action="Logout">Logout</a>
+                                    </div>
+                                    
+                                </div>
+                            </li>
+                        }
 
-            </ul>
-        </div>
-    </div>
-</nav>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
 
 <main role="main" class="pb-3">
@@ -143,9 +143,10 @@
     <script>
         window.isLoggedIn = true;
         window.userId = "@User.FindFirst("sub")?.Value";
+
     </script> 
 
-    <button id="cartButton" class="cart-button" onclick="openCart()" style="display:none;">
+    <button id="cartButton" class="cart-button" onclick="openCart()">
         <span class="cart-icon">🛒</span>
         <span class="cart-count">0</span>
     </button>
@@ -156,26 +157,23 @@ else
         window.isLoggedIn = false;
         window.userId = null;
         
+        
+        console.log(window.userId);
     </script>
 }
-
-
 
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
-<script>
-    if (window.isLoggedIn) {
-        updateCartButton();
-    }
+    <script>
+        if (window.isLoggedIn) {
+            updateCartButton();
+        }
 
-window.currentUser = "@name";
+        window.currentUser = "@name";
     </script>
-
-
-
 
 </body>
 </html>

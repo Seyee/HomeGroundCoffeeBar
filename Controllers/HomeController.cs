@@ -57,6 +57,12 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult SubmitOrder([FromBody] OrderDto orderDto)
     {
+
+        // FIND A WAY TO STORE THE DATA FROM JAVASCRIPT AND STORE IT IN A JSON OBJECT
+        // USING FETCH FUNCTION PUT IT INSIDE A FUNCTION IN JAVASCRIPT THEN CALL IT IN THE REDIRECTTION LINK IN Checkout.cshtml
+        // CREATE A NEW POST REQUEST METHOD IN THIS FILE, CREATE A DTO FILE FOR STORING THE JSON OBJECT 
+        // THEN PUT THE TRANSFERRED DATA FROM THE DTO TO A TempData[]
+
         if(orderDto == null || orderDto.Items == null || orderDto.Items.Count == 0)
             return BadRequest("No items in order.");
 
@@ -87,18 +93,21 @@ public class HomeController : Controller
 
     public IActionResult Receipt(string orderNumber)
     {
+        // FIND A WAY TO STORE THE DATA FROM    
         var lastOrderJson = TempData["LastOrder"] as string;
+
+        Console.WriteLine(lastOrderJson);
 
         if (string.IsNullOrEmpty(lastOrderJson))
         {
             // No order found → redirect to menu
-            return RedirectToAction("Menu");
+            return RedirectToAction("menu");
         }
 
         // Deserialize order
         var order = JsonSerializer.Deserialize<OrderModel>(lastOrderJson);
 
-        return View(order);
+        return View(/*order*/);
     }
 }
 

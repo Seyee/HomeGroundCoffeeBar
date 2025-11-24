@@ -319,13 +319,16 @@ orderNowBtn.onclick = (e) => {
 function updateCartButton() {
 
     // If not logged in → hide button and stop function
+    // DISPLAY MUNA NATEN
+    let cartBtn = document.getElementById('cartButton');
+
+    console.log(window.isLoggedIn); // DEBUGGER
+    console.log(window.userId);
+
     if (!window.isLoggedIn) {
-        const btn = document.getElementById('cartButton');
-        if (btn) btn.style.display = 'none';
+        if (cartBtn) cartBtn.style.display = 'flex';
         return;
     }
-
-    let cartBtn = document.getElementById('cartButton');
 
     if (!cartBtn) return; // extra safety
 
@@ -335,7 +338,7 @@ function updateCartButton() {
     cartCount.textContent = totalItems;
 
     if (totalItems > 0) {
-        cartBtn.style.display = 'flex';
+        cartBtn.style.display = 'flex'; //THIS SHOW THE CART MODAL // DEBUG
     } else {
         cartBtn.style.display = 'none';
     }

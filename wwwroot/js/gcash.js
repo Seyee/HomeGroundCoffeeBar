@@ -88,7 +88,7 @@ payAmountForm.addEventListener("submit", async function (event) {
             btn4.innerHTML = "Go back to merchant";
             const url = btn4.dataset.url;
             btn4.addEventListener("click", () => {
-                location.href = url;
+                location.href = url;    
             });
         } 
         else
