@@ -91,6 +91,12 @@ public class HomeController : Controller
         return Json(new { orderId = orderNumber });
     }
 
+    /*[HttpPost]
+    public IActionResult sendCartData([FromBody])
+    {
+        
+    }*/
+
     public IActionResult Receipt(string orderNumber)
     {
         // FIND A WAY TO STORE THE DATA FROM    

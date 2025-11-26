@@ -39,6 +39,7 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
             {
                 if (amount > gcashTable.AvailableBalance)
                 {
+                    Console.WriteLine("AMount exceed the avail balance"); // REMOVE THIS
                     return View();
                 }
                 else
@@ -50,6 +51,8 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
                         AvailableBalance = newBalance,
                         Amount = amount
                     };
+
+                    Console.WriteLine("Amount send: " + amount); // REMOVE THIS
 
                     _context.GCash.Add(sendNewBalance);
 
@@ -86,9 +89,11 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
             }
         }
 
+        var payment = _context.GCash.OrderByDescending(p => p.CreatedAt).FirstOrDefault(); // GET THE LATEST DATA ROM THE DATABASE
+
         var vm = new ViewModels
         {
-            GCash = gcashTable ?? new GCashModel()
+            GCash = payment ?? new GCashModel()
         };
 
         return View(vm);

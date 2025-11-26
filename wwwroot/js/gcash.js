@@ -50,6 +50,10 @@ btn3.addEventListener('click', () => {
     paySucPop.classList.remove("active");
 });
 
+btn4.addEventListener('click', () => {
+    localStorage.removeItem("cart");
+});
+
 btn5.addEventListener('click', () => {
     loginPop.classList.remove("inactive");
     otpPop.classList.remove("active");
