@@ -1,0 +1,28 @@
+<h2>Resibo</h2>
+<p>Order Number: @*Model.OrderNumber*@</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @*foreach(var item in Model.Items)
+        {*@
+            <tr>
+                <td>@*item.Name*@</td>
+                <td>@*item.Quantity*@</td>
+                <td>₱@*item.Price*@</td>
+                <td>₱@*(item.Price * item.Quantity)*@</td>
+            </tr>
+        @*}*@
+    </tbody>
+</table>
+
+<p>Delivery Fee: ₱@*Model.DeliveryFee*@</p>
+<p>Total: ₱@*Model.TotalAmount*@</p>
+<p>Mode of Payment: @*Model.PaymentMethod*@</p>

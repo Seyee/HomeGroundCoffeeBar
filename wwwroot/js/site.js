@@ -283,37 +283,67 @@ function initializeProductModal() {
         
         closeModal();
     };
+
+    // Add this inside initializeProductModal(), after addToCartBtn.onclick
+
+const orderNowBtn = modal.querySelector('.order-btn');
+
+orderNowBtn.onclick = (e) => {
+
+    e.stopPropagation(); // 🔥 prevents modal from closing early
+
+    // 🔥 CHECK LOGIN
+    if (!window.isLoggedIn) {
+        window.location.href = "/Home/Signin";
+        return;
+    }
+
+    const quantity = parseInt(qtyInput.value);
+    const product = {
+        name: modal.dataset.productName,
+        price: parseInt(modal.dataset.productPrice),
+        image: modal.dataset.productImage
+    };
+
+    addToCart(product, quantity);
+
+    modal.style.display = 'none';
+
+    window.location.href = '/Home/Checkout';
+};
+
+
 }
 
 // Update cart button visibility and count
 function updateCartButton() {
+
+    // If not logged in → hide button and stop function
+    // DISPLAY MUNA NATEN
     let cartBtn = document.getElementById('cartButton');
-    
-    // Create cart button if it doesn't exist
-    if (!cartBtn) {
-        cartBtn = document.createElement('button');
-        cartBtn.id = 'cartButton';
-        cartBtn.className = 'cart-button';
-        cartBtn.innerHTML = `
-            <span class="cart-icon">🛒</span>
-            <span class="cart-count">0</span>
-        `;
-        cartBtn.onclick = openCart;
-        document.body.appendChild(cartBtn);
+
+    console.log(window.isLoggedIn); // DEBUGGER
+    console.log(window.userId);
+
+    if (!window.isLoggedIn) {
+        if (cartBtn) cartBtn.style.display = 'flex';
+        return;
     }
-    
-    // Update cart count
+
+    if (!cartBtn) return; // extra safety
+
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const cartCount = cartBtn.querySelector('.cart-count');
+
     cartCount.textContent = totalItems;
-    
-    // Show/hide cart button based on items
+
     if (totalItems > 0) {
-        cartBtn.style.display = 'flex';
+        cartBtn.style.display = 'flex'; //THIS SHOW THE CART MODAL // DEBUG
     } else {
         cartBtn.style.display = 'none';
     }
 }
+
 
 // Add item to cart
 function addToCart(product, quantity = 1) {
@@ -810,7 +840,12 @@ function processOrder() {
     const personalInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
     const paymentMethod = localStorage.getItem('paymentMethod');
     const deliveryNotes = localStorage.getItem('deliveryNotes');
-    
+
+    if(cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+
     const order = {
         orderNumber: 'ORD-' + Date.now(),
         personalInfo: personalInfo,
@@ -818,24 +853,22 @@ function processOrder() {
         paymentMethod: paymentMethod,
         deliveryNotes: deliveryNotes,
         basketPrice: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        deliveryFee: 50,
+        deliveryFee: 50,  // fixed or calculated
         discount: 0,
         orderTotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50,
         orderDate: new Date().toISOString()
     };
-    
-    // Save order to localStorage (in production, send to server)
+
+    // Save order to localStorage
     localStorage.setItem('lastOrder', JSON.stringify(order));
-    
+
     // Clear cart
     localStorage.removeItem('cart');
-    
-    // Show success message
-    alert(`Order placed successfully!\nOrder Number: ${order.orderNumber}\n\nThank you for your order!`);
-    
-    // Redirect to home or order confirmation page
-    window.location.href = '/Home/Home';
+
+    // Redirect to receipt page
+    window.location.href = '/Home/Receipt';
 }
+
 
 // Load saved personal info if available (for returning customers)
 window.addEventListener('load', function() {
@@ -852,7 +885,6 @@ window.addEventListener('load', function() {
 
     
 });
-
 
 
 

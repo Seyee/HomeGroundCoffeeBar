@@ -37,19 +37,22 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
         {
             if (gcashTable.AvailableBalance > 0)
             {
-                if (gcashTable.Amount > gcashTable.AvailableBalance)
+                if (amount > gcashTable.AvailableBalance)
                 {
-                    return BadRequest(new { message = "Amount exceeded!" });
+                    Console.WriteLine("AMount exceed the avail balance"); // REMOVE THIS
+                    return View();
                 }
                 else
                 {
-                    var newBalance = gcashTable.AvailableBalance - gcashTable.Amount;
+                    var newBalance = gcashTable.AvailableBalance - amount;
 
                     var sendNewBalance = new GCashModel
                     {
                         AvailableBalance = newBalance,
-                        Amount = gcashTable.Amount
+                        Amount = amount
                     };
+
+                    Console.WriteLine("Amount send: " + amount); // REMOVE THIS
 
                     _context.GCash.Add(sendNewBalance);
 
@@ -61,7 +64,7 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
                         var updateGcashBalance = new GCashModel
                         {
                             AvailableBalance = balance,
-                            Amount = gcashTable.Amount
+                            Amount = amount
                         };
 
                         _context.GCash.Add(updateGcashBalance);
@@ -77,7 +80,7 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
                 var updateAvailBalance = new GCashModel
                 {
                     AvailableBalance = balance,
-                    Amount = gcashTable.Amount
+                    Amount = amount
                 };
 
                 _context.GCash.Add(updateAvailBalance);
@@ -86,9 +89,7 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
             }
         }
 
-        var payment = _context.GCash
-                        .OrderByDescending(p => p.CreatedAt)
-                        .FirstOrDefault();
+        var payment = _context.GCash.OrderByDescending(p => p.CreatedAt).FirstOrDefault(); // GET THE LATEST DATA ROM THE DATABASE
 
         var vm = new ViewModels
         {

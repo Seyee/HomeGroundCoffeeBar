@@ -37,7 +37,7 @@
                             var sessionPic = Context.Session.GetString("ProfilePic");
 
                             string finalPic = string.IsNullOrWhiteSpace(sessionPic)
-                                ? "#"
+                                ? "/img/burger.png"
                                 : sessionPic;
 
                         }
@@ -113,17 +113,8 @@
     </div>
 </footer>
 
-    <script>
-    // DASHBOARD LAYOUT = LOGGED-IN USERS ONLY
-    const isLoggedIn = true;
 
-    if (isLoggedIn) {
-        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
-            btn.style.display = "inline-block";
-        });
-        }
-    </script>
-
+    
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

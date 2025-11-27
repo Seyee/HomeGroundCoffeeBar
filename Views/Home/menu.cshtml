@@ -78,7 +78,7 @@
                             <p>Hot Milk Chocolate</p>
                         </div>
 
-                        <div class="product-card" id="cold" data-price="170" >
+                        <div class="product-card" id="cold" data-price="170" >`
                             <img src="~/img/Product/iced_milk_chocolate.png" alt="Iced Milk Chocolate" />
                             <p>Iced Milk Chocolate</p>
                         </div>
@@ -145,32 +145,33 @@
     </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function() {
 
-    // Kunwari session variable na ginagamit mo
-    var isLoggedIn = "@(Context.Session.GetString("Phone") != null ? "true" : "false")" === "true";
+        var isLoggedIn = "@(
+            Context.Session.GetString("Phone") != null || Context.Session.GetString("GoogleId") != null
+            ? "true" 
+            : "false"
+        )" === "true";
 
-    const addToCartBtns = document.querySelectorAll(".add-to-cart-btn");
-    const orderBtns = document.querySelectorAll(".order-btn");
+        const addToCartBtns = document.querySelectorAll(".add-to-cart-btn");
+        const orderBtns = document.querySelectorAll(".order-btn");
 
-    if (!isLoggedIn) {
-        // Guest → hide Add to Cart
-        addToCartBtns.forEach(btn => btn.style.display = "none");
+        if (!isLoggedIn) {
+            addToCartBtns.forEach(btn => btn.style.display = "none");
 
-        // Guest → Order Now redirects to Signin
-        orderBtns.forEach(btn => {
-            btn.style.display = "block"; // siguraduhing nakikita
-            btn.addEventListener("click", function() {
-                window.location.href = "/Home/Signin"; // redirect sa signin
+            orderBtns.forEach(btn => {
+                btn.style.display = "block";
+                btn.addEventListener("click", function() {
+                    window.location.href = "/Home/Signin";
+                });
             });
-        });
-    } else {
-        // Logged-in → show both buttons
-        addToCartBtns.forEach(btn => btn.style.display = "block");
-        orderBtns.forEach(btn => btn.style.display = "block");
-    }
+        } else {
+            addToCartBtns.forEach(btn => btn.style.display = "block");
+            orderBtns.forEach(btn => btn.style.display = "block");
+        }
 
-});
+    });
+
 </script>
 
 

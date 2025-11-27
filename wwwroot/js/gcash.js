@@ -50,6 +50,10 @@ btn3.addEventListener('click', () => {
     paySucPop.classList.remove("active");
 });
 
+btn4.addEventListener('click', () => {
+    localStorage.removeItem("cart");
+});
+
 btn5.addEventListener('click', () => {
     loginPop.classList.remove("inactive");
     otpPop.classList.remove("active");
@@ -88,7 +92,7 @@ payAmountForm.addEventListener("submit", async function (event) {
             btn4.innerHTML = "Go back to merchant";
             const url = btn4.dataset.url;
             btn4.addEventListener("click", () => {
-                location.href = url;
+                location.href = url;    
             });
         } 
         else
