@@ -41,10 +41,10 @@ namespace _.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GCash");
+                    b.ToTable("GCash", (string)null);
                 });
 
-            modelBuilder.Entity("HomeGroundCoffeeBar.Models.PayMayaModel", b =>
+            modelBuilder.Entity("HomeGroundCoffeeBar.PayMayaModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -63,44 +63,7 @@ namespace _.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PayMaya");
-                });
-
-            modelBuilder.Entity("Models.UserModel", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("GoogleId")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ProfilePic")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
+                    b.ToTable("PayMaya", (string)null);
                 });
 #pragma warning restore 612, 618
         }
