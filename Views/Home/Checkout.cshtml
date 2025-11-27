@@ -172,9 +172,7 @@
         </div>
     </div>
 
-    <script src="~/js/site.js"></script>
-
-
+    
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Checkout page loaded');
@@ -185,8 +183,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let total;
 
     function loadCheckoutCart() {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cart = JSON.parse(localStorage.getItem('cart')) || []; // USE THIS TO PASS IT IN THE BACK END
         const container = document.getElementById('checkoutCartItems');
+
+        console.log(cart); // REMOVE THIS
+        
+        console.log("item name", cart.name); // REMOVE THIS
 
         if (!container) return;
 
@@ -250,6 +252,10 @@ document.addEventListener('DOMContentLoaded', function () {
             switch (selectedPayment.value) {
                 case 'maya':
                     window.location.href = '@Url.Action("PayMayaMain", "PayMaya")' + '?amount=' + orderTotal;
+
+                    // PUT THE FUNCTION HERE THAT CONTAIN THE FETCH POST REQUEST THAT CONATINS THE JSON OBJECT THAT CONTAINS
+                    // THE CART ITEMS
+
                     break;
                 case 'gcash':
                     window.location.href = '@Url.Action("GcashMain", "GCash")' + '?amount=' + orderTotal;
@@ -268,8 +274,60 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentStep > 1) showStep(currentStep - 1);
     };
 });
+
+
+
+function placeOrder() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    const paymentMethod = document.querySelector('input[name="payment"]:checked');
+    if (!paymentMethod) {
+        alert("Please select a payment method.");
+        return;
+    }
+
+    const orderData = {
+        cart: cart,
+        deliveryFee: 45,
+        paymentMethod: paymentMethod.value
+    };
+
+    fetch("/Order/Submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        // Redirect to receipt page
+        window.location.href = `/Home/Receipt/${data.orderId}`;
+    })
+    .catch(err => console.error(err));
+}
+
+
+// MOVE MO TO 
+/*const cartDataJson = {
+    name: cart.name
+}/*
+
+/*function sendCartData() {
+    fetch("/Home/sendCartData", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application"
+        },
+        body: 
+    });
+}*/
+
 </script>
 
-
+    <script src="~/js/site.js"></script>
 </body>
 </html>

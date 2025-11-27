@@ -66,17 +66,38 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
 
     // EDIT
     editBtn?.addEventListener('click', () => {
-        // Hide Delete, show Save & Cancel
+
         deleteBtn.style.display = 'none';
         saveBtn.style.display = 'inline';
         cancelBtn.style.display = 'inline';
         editBtn.style.display = 'none';
 
-        // Make editable
+        // Make editable + set limits
         row.querySelectorAll('td.name, td.password, td.phone').forEach(td => {
             td.dataset.original = td.textContent.trim();
             td.setAttribute('contenteditable', 'true');
             td.style.backgroundColor = '#3A322B';
+
+            // Set max length
+            const maxLength =
+                td.classList.contains('name') ? 18 :
+                td.classList.contains('phone') ? 11 :
+                td.classList.contains('password') ? 15 : 0;
+
+            // Max-length logic
+            td.addEventListener('input', () => {
+                if (td.innerText.length > maxLength) {
+                    td.innerText = td.innerText.slice(0, maxLength);
+
+                    // Keep cursor at end
+                    const range = document.createRange();
+                    const sel = window.getSelection();
+                    range.selectNodeContents(td);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            });
         });
 
         // Role dropdown
@@ -84,6 +105,7 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
         const currentRole = roleCell.textContent.trim();
         roleCell.dataset.original = currentRole;
         const select = document.createElement('select');
+
         ['Admin', 'User'].forEach(r => {
             const option = document.createElement('option');
             option.value = r;
@@ -91,13 +113,14 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
             if (r === currentRole) option.selected = true;
             select.appendChild(option);
         });
+
         roleCell.innerHTML = '';
         roleCell.appendChild(select);
     });
 
     // CANCEL
     cancelBtn?.addEventListener('click', () => {
-        if(confirm('Are you sure you want to cancel editing?')) {
+        if (confirm('Are you sure you want to cancel editing?')) {
             row.querySelectorAll('td.name, td.password, td.phone').forEach(td => {
                 td.textContent = td.dataset.original;
                 td.removeAttribute('contenteditable');
@@ -107,7 +130,6 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
             const roleCell = row.querySelector('td.role');
             roleCell.textContent = roleCell.dataset.original;
 
-            // Toggle buttons
             editBtn.style.display = 'inline';
             deleteBtn.style.display = 'inline';
             saveBtn.style.display = 'none';
@@ -132,21 +154,19 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
                 body: JSON.stringify(user)
             });
 
-            if(res.ok){
+            if (res.ok) {
                 alert('User updated successfully!');
-                
-                // Update table cells
+
                 row.querySelectorAll('td.name, td.password, td.phone').forEach(td => {
                     td.dataset.original = td.textContent;
                     td.removeAttribute('contenteditable');
                     td.style.backgroundColor = 'transparent';
                 });
-                
+
                 const roleCell = row.querySelector('td.role');
                 roleCell.dataset.original = user.Role;
                 roleCell.textContent = user.Role;
 
-                // Toggle buttons
                 editBtn.style.display = 'inline';
                 deleteBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
@@ -163,7 +183,7 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
 
     // DELETE
     deleteBtn?.addEventListener('click', async () => {
-        if(confirm('Are you sure you want to delete this user?')) {
+        if (confirm('Are you sure you want to delete this user?')) {
             try {
                 const res = await fetch('/Admin/DeleteUser', {
                     method: 'POST',
@@ -171,17 +191,18 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
                     body: JSON.stringify({ Id: row.dataset.id })
                 });
 
-                if(res.ok){
+                if (res.ok) {
                     alert('User deleted successfully!');
                     row.remove();
                 } else {
                     const data = await res.json();
                     alert(data?.message || 'Error deleting user.');
                 }
-            } catch(err){
+            } catch (err) {
                 alert('Server error!');
             }
         }
     });
 });
 </script>
+

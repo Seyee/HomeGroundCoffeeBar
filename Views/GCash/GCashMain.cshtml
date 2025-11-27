@@ -172,7 +172,7 @@
             <div class="btn_con">
                 <div class="main_btn">
                     <form id="payAmountForm" action="GetAvailBalance">
-                        <button type="submit" id="btn4" data-url="@Url.Action("Main", "Home")"> 
+                        <button type="submit" id="btn4" data-url="@Url.Action("Menu ", "Home")"> 
                             PAY PHP <span>@Model.GCash.Amount.00</span>
                         </button>
                     </form>
@@ -244,8 +244,8 @@
         <div class="pay_suc_bot">
             <div class="btn_con">
                 <div class="main_btn">
-                    <button id="btn5" onclick="location.href=`@Url.Action("Menu", "Home")`">
-                        Back to Menu
+                    <button id="btn5" onclick="location.href=`@Url.Action("Receipt", "Home")`">
+                        Back to Merchant
                     </button>
 
                     <div class="button_opacity">

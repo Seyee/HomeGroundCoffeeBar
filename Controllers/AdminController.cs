@@ -9,7 +9,8 @@ namespace HomeGroundCoffeeBar.Controllers
 {
     public class AdminController : Controller
     {
-        private string connectionString = "server=localhost;database=homegroundcoffeebar;user=root;password=homeground;port=3306;";
+        private string connectionString = "Server=localhost;Port=3307;Database=homegroundcoffeebar;User Id=root;Password=yourpassword123;";
+
 
         // Admin Home Page with Users Table
         public IActionResult AdminHomePage()
