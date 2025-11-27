@@ -1,28 +1,173 @@
-<h2>Resibo</h2>
-<p>Order Number: @*Model.OrderNumber*@</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Receipt - Homeground</title>
+    <link rel="icon" type="image/x-icon" href="/img/icon.png" />
+    <link rel="stylesheet" href="~/css/receipt.css" />
+</head>
+<body>
+    <div class="receipt-container">
+        <!-- Header -->
+        <div class="receipt-header">
+            <div class="success-icon">✓</div>
+            <h1>Order Successful!</h1>
+            <p>Thank you for your order</p>
+        </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @*foreach(var item in Model.Items)
-        {*@
-            <tr>
-                <td>@*item.Name*@</td>
-                <td>@*item.Quantity*@</td>
-                <td>₱@*item.Price*@</td>
-                <td>₱@*(item.Price * item.Quantity)*@</td>
-            </tr>
-        @*}*@
-    </tbody>
-</table>
+        <!-- Body -->
+        <div class="receipt-body">
+            <!-- Order Information -->
+            <div class="order-info">
+                <div class="info-item">
+                    <span class="info-label">Order ID</span>
+                    <span class="info-value" id="orderId">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date & Time</span>
+                    <span class="info-value" id="orderDate">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Customer Name</span>
+                    <span class="info-value" id="customerName">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Payment Method</span>
+                    <span class="payment-method" id="paymentMethod">Loading...</span>
+                </div>
+            </div>
 
-<p>Delivery Fee: ₱@*Model.DeliveryFee*@</p>
-<p>Total: ₱@*Model.TotalAmount*@</p>
-<p>Mode of Payment: @*Model.PaymentMethod*@</p>
+            <!-- Order Items -->
+            <div class="items-section">
+                <h2 class="section-title">Order Items</h2>
+                <div id="orderItems">
+                    <!-- Items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Totals -->
+            <div class="totals-section">
+                <div class="total-row subtotal">
+                    <span>Subtotal</span>
+                    <span id="subtotal">₱0</span>
+                </div>
+                <div class="total-row delivery">
+                    <span>Delivery Fee</span>
+                    <span id="deliveryFee">₱50</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Total Amount</span>
+                    <span id="grandTotal">₱0</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="receipt-actions">
+                <a href="/Home/Menu" onclick="clearcart()" class="btn btn-primary">Continue Shopping</a>
+                <button onclick="window.print()" class="btn btn-secondary">Print Receipt</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="receipt-footer">
+            <p>Homeground Coffee Bar • #Happybean</p>
+            <p>Questions? Contact us at info@homeground.com</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get payment method from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentMethod = urlParams.get('payment') || localStorage.getItem('paymentMethod') || 'cod';
+            
+            // Load cart data
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Generate order ID
+            const orderId = 'HG' + Date.now().toString().slice(-8);
+            
+            // Get current date and time
+            const now = new Date();
+            const orderDate = now.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            
+            // Get customer name
+            const customerName = window.currentUser || 'Guest';
+
+            
+            
+            // Update order information
+            document.getElementById('orderId').textContent = orderId;
+            document.getElementById('orderDate').textContent = orderDate;
+            document.getElementById('customerName').textContent = customerName;
+            
+            // Update payment method
+            const paymentMethodEl = document.getElementById('paymentMethod');
+            let paymentText = '';
+            let paymentClass = '';
+            
+            switch(paymentMethod.toLowerCase()) {
+                case 'gcash':
+                    paymentText = '💳 GCash';
+                    paymentClass = 'gcash';
+                    break;
+                case 'maya':
+                case 'paymaya':
+                    paymentText = '💳 PayMaya';
+                    paymentClass = 'paymaya';
+                    break;
+                case 'cod':
+                    paymentText = '💵 Cash on Delivery';
+                    paymentClass = 'cod';
+                    break;
+                default:
+                    paymentText = paymentMethod;
+            }
+            
+            paymentMethodEl.textContent = paymentText;
+            paymentMethodEl.className = 'payment-method ' + paymentClass;
+            
+            // Render order items
+            const orderItemsContainer = document.getElementById('orderItems');
+            
+            if (cart.length === 0) {
+                orderItemsContainer.innerHTML = '<p style="text-align: center; color: #666;">No items found</p>';
+            } else {
+                orderItemsContainer.innerHTML = cart.map(item => `
+                    <div class="order-item">
+                        <img src="${item.image}" alt="${item.name}" class="item-image">
+                        <div class="item-details">
+                            <div class="item-info">
+                                <h3>${item.name}</h3>
+                                <span class="item-quantity">Quantity: ${item.quantity}</span>
+                            </div>
+                            <div class="item-price">₱${(item.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Calculate totals
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = 50;
+            const grandTotal = subtotal + deliveryFee;
+            
+            document.getElementById('subtotal').textContent = '₱' + subtotal.toFixed(2);
+            document.getElementById('deliveryFee').textContent = '₱' + deliveryFee.toFixed(2);
+            document.getElementById('grandTotal').textContent = '₱' + grandTotal.toFixed(2);
+            
+            // Clear cart after showing receipt
+            localStorage.removeItem('cart');
+            // Note: Uncomment the line above if you want to clear the cart after order
+        });
+    </script>
+</body>
+</html>

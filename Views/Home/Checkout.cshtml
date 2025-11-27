@@ -174,6 +174,9 @@
 
     
 <script>
+// UPDATED CHECKOUT.CSHTML SCRIPT SECTION
+// Replace your existing script with this:
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Checkout page loaded');
 
@@ -183,12 +186,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let total;
 
     function loadCheckoutCart() {
-        const cart = JSON.parse(localStorage.getItem('cart')) || []; // USE THIS TO PASS IT IN THE BACK END
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const container = document.getElementById('checkoutCartItems');
 
-        console.log(cart); // REMOVE THIS
-        
-        console.log("item name", cart.name); // REMOVE THIS
+        console.log(cart);
 
         if (!container) return;
 
@@ -235,36 +236,127 @@ document.addEventListener('DOMContentLoaded', function () {
         currentStep = step;
     }
 
+    // -------------------------------
+    // Submit Order to Backend
+    // -------------------------------
+    async function submitOrderToBackend(paymentMethod) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        if (cart.length === 0) {
+            alert('Your cart is empty!');
+            return null;
+        }
+
+        // Prepare order data matching your OrderDto structure
+        const orderData = {
+            items: cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            })),
+            deliveryFee: 50,
+            paymentMethod: paymentMethod
+        };
+
+        try {
+            const response = await fetch('/Home/SubmitOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit order');
+            }
+
+            const result = await response.json();
+            console.log('Order submitted:', result);
+            
+            // Store payment method for receipt page
+            localStorage.setItem('paymentMethod', paymentMethod);
+            
+            return result.orderId; // Returns the order number
+            
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            alert('Failed to submit order. Please try again.');
+            return null;
+        }
+    }
+
+    // -------------------------------
     // Next button logic
-    window.goNext = function () {
+    // -------------------------------
+    window.goNext = async function () {
         if (currentStep === 1) {
-            // Step 1 → Step 2
+            // Validate personal info
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const streetAddress = document.getElementById('streetAddress').value;
+            const city = document.getElementById('city').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+
+            if (!fullName || !email || !streetAddress || !city || !phoneNumber) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Save customer info to localStorage
+            localStorage.setItem('customerInfo', JSON.stringify({
+                fullName,
+                email,
+                streetAddress,
+                city,
+                phoneNumber
+            }));
+
             showStep(2);
+            
         } else if (currentStep === 2) {
-            // Step 2 → Payment check
             const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
 
             if (!selectedPayment) {
                 alert('Please select a payment method');
                 return;
             }
+
+            const paymentMethod = selectedPayment.value;
             const orderTotal = total + 50;
-            switch (selectedPayment.value) {
+
+            // Show loading state
+            const nextBtn = document.getElementById('nextBtn');
+            const originalText = nextBtn.innerHTML;
+            nextBtn.disabled = true;
+            nextBtn.innerHTML = 'Processing...';
+
+            // Submit order to backend
+            const orderId = await submitOrderToBackend(paymentMethod);
+
+            if (!orderId) {
+                // Restore button if failed
+                nextBtn.disabled = false;
+                nextBtn.innerHTML = originalText;
+                return;
+            }
+
+            // Redirect based on payment method
+            switch (paymentMethod) {
                 case 'maya':
-                    window.location.href = '@Url.Action("PayMayaMain", "PayMaya")' + '?amount=' + orderTotal;
-
-                    // PUT THE FUNCTION HERE THAT CONTAIN THE FETCH POST REQUEST THAT CONATINS THE JSON OBJECT THAT CONTAINS
-                    // THE CART ITEMS
-
+                    window.location.href = `/PayMaya/PayMayaMain?amount=${orderTotal}&orderId=${orderId}`;
                     break;
                 case 'gcash':
-                    window.location.href = '@Url.Action("GcashMain", "GCash")' + '?amount=' + orderTotal;
+                    window.location.href = `/GCash/GcashMain?amount=${orderTotal}&orderId=${orderId}`;
                     break;
                 case 'cod':
-                    alert('Cash on Delivery selected');
+                    // Go directly to receipt for COD
+                    window.location.href = `/Home/Receipt?orderNumber=${orderId}`;
                     break;
                 default:
                     alert('Payment option not implemented');
+                    nextBtn.disabled = false;
+                    nextBtn.innerHTML = originalText;
             }
         }
     };
@@ -274,41 +366,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentStep > 1) showStep(currentStep - 1);
     };
 });
-
-
-
-function placeOrder() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    if (cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-    }
-
-    const paymentMethod = document.querySelector('input[name="payment"]:checked');
-    if (!paymentMethod) {
-        alert("Please select a payment method.");
-        return;
-    }
-
-    const orderData = {
-        cart: cart,
-        deliveryFee: 45,
-        paymentMethod: paymentMethod.value
-    };
-
-    fetch("/Order/Submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData)
-    })
-    .then(res => res.json())
-    .then(data => {
-        // Redirect to receipt page
-        window.location.href = `/Home/Receipt/${data.orderId}`;
-    })
-    .catch(err => console.error(err));
-}
 
 
 // MOVE MO TO 

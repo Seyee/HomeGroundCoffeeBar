@@ -35,6 +35,8 @@ if (paymentFormCon) {
                     location.href = url;
                 });
             } else if (data.redirect) {
+                // Store payment method before redirect
+                localStorage.setItem('paymentMethod', 'paymaya');
                 window.location.href = data.redirect;
             }
         } 
@@ -44,6 +46,25 @@ if (paymentFormCon) {
     });
 }
 
+// FUNCTION TO REDIRECT TO RECEIPT (for success button)
+function redirectToReceipt() {
+    // Get order ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    
+    // Store payment method in localStorage
+    localStorage.setItem('paymentMethod', 'paymaya');
+    
+    // Redirect to receipt page
+    if (orderId) {
+        window.location.href = `/Home/Receipt?orderNumber=${orderId}`;
+    } else {
+        window.location.href = '/Home/Receipt';
+    }
+}
+
+// Make function available globally
+window.redirectToReceipt = redirectToReceipt;
 
 // OTP
 const otp = document.querySelectorAll(".otp_con_input input");
