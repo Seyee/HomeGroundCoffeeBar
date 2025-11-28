@@ -6,3 +6,4 @@ namespace HomeGroundCoffeeBar.DTO
         public required string PaymentMethod { get; set; }
     }
 }
+//

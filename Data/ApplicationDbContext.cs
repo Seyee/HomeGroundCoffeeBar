@@ -16,3 +16,4 @@ namespace HomeGroundCoffeeBar.Data
         public DbSet<UserModel> Users { get; set; }
     }
 }
+//
