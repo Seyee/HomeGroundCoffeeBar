@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Crypto.Generators;
 
 public class AccountController : Controller
 {
@@ -89,39 +90,46 @@ public IActionResult GetStatus() {
     // ================================
     // SIGN UP
     // ================================
-    [HttpPost]
-    public IActionResult Signup(string Name, string Phone, string Password)
+[HttpPost]
+public IActionResult Signup(string Name, string Phone, string Password)
+{
+    try
     {
-        try
+        using (var conn = new MySqlConnection(connectionString))
         {
-            using (var conn = new MySqlConnection(connectionString))
+            conn.Open();
+
+            // CHECK PHONE
+            var checkCmd = new MySqlCommand(
+                "SELECT COUNT(*) FROM Users WHERE Phone=@Phone", conn);
+            checkCmd.Parameters.AddWithValue("@Phone", Phone);
+
+            if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
             {
-                conn.Open();
-                string query = "INSERT INTO Users (Name, Phone, Password, CreatedAt) VALUES (@Name, @Phone, @Password, NOW())";
-
-                using (var cmd = new MySqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@Name", Name);
-                    cmd.Parameters.AddWithValue("@Phone", Phone);
-                    cmd.Parameters.AddWithValue("@Password", Password);
-                    cmd.ExecuteNonQuery();
-
-                    // Get the inserted user Id
-                    var userId = cmd.LastInsertedId;
-                    HttpContext.Session.SetString("UserId", userId.ToString());
-                    HttpContext.Session.SetString("Phone", Phone);
-                    HttpContext.Session.SetString("Name", Name);
-                }
+                TempData["ErrorMessage"] = "Phone number already exists!";
+                return RedirectToAction("Signup", "Home");
             }
 
-            TempData["SignupSuccess"] = true;
-            return RedirectToAction("Signup", "Home");
+            // INSERT USER
+            var cmd = new MySqlCommand(
+                "INSERT INTO Users (Name, Phone, Password, Role, CreatedAt) VALUES (@Name,@Phone,@Password,'User',NOW())",
+                conn);
+
+            cmd.Parameters.AddWithValue("@Name", Name);
+            cmd.Parameters.AddWithValue("@Phone", Phone);
+            cmd.Parameters.AddWithValue("@Password", Password);
+            cmd.ExecuteNonQuery();
         }
-        catch
-        {
-            return RedirectToAction("Signup", "Home");
-        }
+
+        TempData["SignupSuccess"] = true;
+        return RedirectToAction("Signup", "Home");
     }
+    catch (Exception ex)
+    {
+        // TEMPORARY: SHOW REAL ERROR
+        return Content(ex.Message);
+    }
+}
 
     // ================================
     // ADD TO CART
