@@ -28,7 +28,7 @@ namespace HomeGroundCoffeeBar.Controllers
                 {
                     users.Add(new UserModel
                     {
-                        Id = reader["Id"].ToString(),
+                        Id = Convert.ToInt32(reader["Id"]),                        
                         Name = reader["Name"].ToString(),
                         Phone = reader["Phone"].ToString(),
                         Password = reader["Password"].ToString(),
@@ -104,7 +104,7 @@ namespace HomeGroundCoffeeBar.Controllers
         [HttpPost]
         public IActionResult DeleteUser([FromBody] UserModel user)
         {
-            if (user == null || string.IsNullOrEmpty(user.Id))
+            if (user == null)
                 return BadRequest(new { message = "Invalid user Id." });
 
             using (var conn = new MySqlConnection(connectionString))
@@ -125,6 +125,7 @@ namespace HomeGroundCoffeeBar.Controllers
             }
 
             return Ok(new { message = "User deleted successfully!" });
+            
         }
 
     }

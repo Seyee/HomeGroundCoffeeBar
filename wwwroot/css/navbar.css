@@ -30,7 +30,7 @@ header {
 .nav-links {
     display: flex;
     list-style: none;
-    gap: 40px; 
+    gap: 40px;
     align-items: center;
 }
 
@@ -44,7 +44,6 @@ header {
     height: 55px;
     transition: 0.3s ease;
 }
-
 
 .profile-li {
     position: relative;
@@ -70,11 +69,13 @@ header {
     height: 50px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid #4f4439;
     transition: 0.2s ease;
 }
 
 .profile-btn:hover .profile-pic {
     transform: scale(1.05);
+    border-color: #D3C4AE;
 }
 
 .profile-btn span {
@@ -83,62 +84,129 @@ header {
     font-size: 14px;
 }
 
-/* The dropdown menu container */
+/* ─── POINTS BADGE (navbar) ─────────────────────────────────────────────────
+   Earthy, coffee-house feel — replaces the jarring gold badge.
+   Uses a warm dark pill with cream text and a subtle inner glow.        */
+.points-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    background-color: #2A2018;          /* deep espresso */
+    border: 1px solid #6B5743;          /* warm mid-brown border */
+    color: #D3C4AE;                     /* matches nav-link text */
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 20px;
+    padding: 4px 10px;
+
+    box-shadow:
+        0 0 0 1px rgba(211, 196, 174, 0.06),   /* faint cream halo */
+        inset 0 1px 0 rgba(211, 196, 174, 0.08); /* subtle top sheen */
+
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.points-badge:hover {
+    background-color: #3A2E22;
+    border-color: #D3C4AE;
+    transform: scale(1.05);
+}
+
+.points-badge .points-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.85;
+    filter: sepia(1) saturate(0.6) brightness(1.2); /* warm-tone the icon */
+}
+
+.points-badge .points-text {
+    color: #D3C4AE;
+    line-height: 1;
+}
+
+/* ─── PROFILE DROPDOWN ───────────────────────────────────────────────────── */
 .profile-menu {
     display: none;
     position: absolute;
-    top: 50px;
+    top: 58px;
     right: 0;
-    background: #1F1A14;
-    padding: 15px;
-    width: 170px;
+    background: #1A1510;              /* slightly warmer than #1F1A14 */
+    border: 1px solid #3A2E22;
+    padding: 16px;
+    width: 180px;
     border-radius: 12px;
     animation: fadeDropdown 0.2s ease-out;
     z-index: 999;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-/* Animation */
 @keyframes fadeDropdown {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Show dropdown on hover */
 .profile-container:hover .profile-menu {
     display: block;
 }
 
-/* Name text inside dropdown */
 .profile-menu .profile-name {
     color: #D3C4AE;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
     display: block;
-    width: 100%;  
-    border-bottom: 2px solid #4f4439;
-    padding-bottom: 10px;  
-    margin-bottom: 10px;  
+    border-bottom: 1px solid #3A2E22;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
 }
 
+/* ─── POINTS ROW (inside dropdown) ─────────────────────────────────────────
+   Matches the badge style — earthy pill inside the dark dropdown.      */
+.profile-menu .profile-points {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 
+    background-color: #2A2018;
+    border: 1px solid #6B5743;
+    color: #D3C4AE;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 20px;
+    padding: 5px 12px;
+    margin-bottom: 12px;
 
-/* Logout link styling */
+    box-shadow: inset 0 1px 0 rgba(211, 196, 174, 0.07);
+    transition: border-color 0.2s ease;
+}
+
+.profile-menu .profile-points:hover {
+    border-color: #D3C4AE;
+}
+
+.profile-menu .profile-points .points-icon-small {
+    width: 14px;
+    height: 14px;
+    opacity: 0.85;
+    filter: sepia(1) saturate(0.6) brightness(1.2);
+}
+
+/* Logout link */
 .profile-menu a {
     display: block;
     text-decoration: none;
     color: #D3C4AE;
-    font-size: 15px;
-    font-weight: 480;
-    padding: 8px 5px;
-    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 10px;
     border-radius: 8px;
-    transition: 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .profile-menu a:hover {
-    background-color: #4f4439;
+    background-color: #3A2E22;
     color: #fff;
 }
-
-
-

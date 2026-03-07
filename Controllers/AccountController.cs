@@ -50,6 +50,10 @@ public class AccountController : Controller
         {
             conn.Open();
 
+            var cmd = new MySqlCommand(
+            "INSERT INTO Users (Name, Phone, Password, Role, ProfilePic, CreatedAt) VALUES (@Name,@Phone,@Password,'User', NULL, NOW())",
+            conn);
+
             var checkCmd = new MySqlCommand("SELECT Id FROM Users WHERE GoogleId=@GoogleId", conn);
             checkCmd.Parameters.AddWithValue("@GoogleId", googleId);
             var userId = checkCmd.ExecuteScalar();
@@ -111,9 +115,9 @@ public IActionResult Signup(string Name, string Phone, string Password)
             }
 
             // INSERT USER
-            var cmd = new MySqlCommand(
-                "INSERT INTO Users (Name, Phone, Password, Role, CreatedAt) VALUES (@Name,@Phone,@Password,'User',NOW())",
-                conn);
+                var cmd = new MySqlCommand(
+                    "INSERT INTO Users (Name, Phone, Password, Role, ProfilePic, CreatedAt) VALUES (@Name,@Phone,@Password,'User',NULL,NOW())",
+                    conn);
 
             cmd.Parameters.AddWithValue("@Name", Name);
             cmd.Parameters.AddWithValue("@Phone", Phone);
@@ -237,6 +241,7 @@ public IActionResult Signup(string Name, string Phone, string Password)
         using (var conn = new MySqlConnection(connectionString))
         {
             conn.Open();
+            
 
             string query = "SELECT Id, Name, ProfilePic, GoogleId, Role, Password FROM Users WHERE Phone=@Phone";
             using (var cmd = new MySqlCommand(query, conn))
@@ -255,6 +260,9 @@ public IActionResult Signup(string Name, string Phone, string Password)
                         TempData["ErrorMessage"] = "Incorrect password!";
                         return RedirectToAction("Signin", "Home");
                     }
+
+                    var rawPic = reader["ProfilePic"]?.ToString();
+                    var profilePic = string.IsNullOrWhiteSpace(rawPic) || rawPic == "1" ? "" : rawPic;
 
                     // SET SESSION
                     var userId = reader["Id"].ToString();

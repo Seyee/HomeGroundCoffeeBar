@@ -2,7 +2,7 @@ namespace Models
 {
     public class UserModel
     {
-        public string Id {get; set;}
+        public int Id { get; set; }        
         public string Name {get; set;}
         public string Phone {get; set;}
         public string Password {get; set;}
@@ -10,5 +10,6 @@ namespace Models
         public string GoogleId { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string Role {get; set;}
+        public int Points { get; set; } = 0; 
     }
 }
