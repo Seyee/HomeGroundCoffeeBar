@@ -133,9 +133,11 @@ public IActionResult SubmitOrder([FromBody] OrderDto orderDto)
     {
         var rewards = new List<RewardModel>
         {
-            new RewardModel{ Id=1, Name="Free Coffee", PointsRequired=100, Image="/img/rewards/coffee.png", Description="Redeem for any coffee."},
-            new RewardModel{ Id=2, Name="Homeground Insulated Mug", PointsRequired=300, Image="/img/rewards/insulatedmug.png", Description="Exclusive coffee mug."},
-            new RewardModel{ Id=3, Name="Homeground Tote Bag", PointsRequired=500, Image="/img/rewards/totebag.png", Description="Limited tote bag."}
+            new RewardModel{ Id=1, Name="Homeground Coffee Club Cap", PointsRequired=250, Image="/img/rewards/cap.png", Description="Stylish Homeground cap perfect for coffee lovers who want to represent their favorite brew anywhere."},
+            new RewardModel{ Id=2, Name="Homeground Barista Insulated Mug", PointsRequired=400, Image="/img/rewards/insulatedmug.png", Description="Premium insulated mug designed to keep your coffee hot while you enjoy every sip."},
+            new RewardModel{ Id=3, Name="Homeground Brew Hoodie", PointsRequired=300, Image="/img/rewards/hoodie.png", Description="Comfortable Homeground hoodie inspired by cozy coffee shop vibes."},
+            new RewardModel{ Id=4, Name="Homeground Notebook", PointsRequired=100, Image="/img/rewards/notebook.png", Description="Homeground notebook for jotting down your ideas."}
+
         };
 
         return View(rewards);
