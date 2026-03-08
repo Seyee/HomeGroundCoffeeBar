@@ -50,6 +50,7 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
     public IActionResult Checkout() => View();
     public IActionResult PaymentMethods() => View();
 
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
@@ -126,6 +127,51 @@ public IActionResult SubmitOrder([FromBody] OrderDto orderDto)
 
         return View(/*order*/);
     }
+
+
+        public IActionResult Redeem()
+    {
+        var rewards = new List<RewardModel>
+        {
+            new RewardModel{ Id=1, Name="Free Coffee", PointsRequired=100, Image="/img/rewards/coffee.png", Description="Redeem for any coffee."},
+            new RewardModel{ Id=2, Name="Homeground Insulated Mug", PointsRequired=300, Image="/img/rewards/insulatedmug.png", Description="Exclusive coffee mug."},
+            new RewardModel{ Id=3, Name="Homeground Tote Bag", PointsRequired=500, Image="/img/rewards/totebag.png", Description="Limited tote bag."}
+        };
+
+        return View(rewards);
+    }
+
+
+[HttpPost]
+public IActionResult RedeemReward([FromBody] RedeemRequest request)
+{
+    int rewardId = request.RewardId;
+
+    var name = HttpContext.Session.GetString("Name");
+    if (string.IsNullOrEmpty(name))
+        return Unauthorized();
+
+    var user = _context.Users.FirstOrDefault(u => u.Name == name);
+    if (user == null)
+        return NotFound();
+
+    int requiredPoints = rewardId switch
+    {
+        1 => 100,
+        2 => 300,
+        3 => 500,
+        _ => 0
+    };
+
+    if (user.Points < requiredPoints)
+        return BadRequest("Not enough points");
+
+    user.Points -= requiredPoints;
+
+    _context.SaveChanges();
+
+    return Json(new { success = true, remainingPoints = user.Points });
+}
 }
 
 // =============================
@@ -154,3 +200,6 @@ public class OrderItem
     public decimal Price { get; set; }
     public int Quantity { get; set; }
 }
+
+
+

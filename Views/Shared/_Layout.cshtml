@@ -85,10 +85,12 @@
                                         }
                                         
                                         <!-- Points Badge -->
-                                        <div class="points-badge">
-                                            <img src="/img/points.png" alt="Points" class="points-icon" />
-                                            <span class="points-text">@Points</span>
-                                        </div>
+                                        <a asp-controller="Home" asp-action="Redeem" class="points-link">
+                                            <div class="points-badge">
+                                                <img src="/img/points.png" alt="Points" class="points-icon" />
+                                                <span class="points-text">@Points</span>
+                                            </div>
+                                        </a>
                                     </button>
 
                                     <div id="ProfileMenu" class="profile-menu">
@@ -171,10 +173,16 @@
 
     </script> 
 
+@if (User.Identity.IsAuthenticated && 
+    ViewContext.RouteData.Values["controller"].ToString() == "Home" &&
+    ViewContext.RouteData.Values["action"].ToString() == "Menu")
+{
     <button id="cartButton" class="cart-button" onclick="openCart()">
         <span class="cart-icon">🛒</span>
         <span class="cart-count">0</span>
     </button>
+}
+
 }
 else
 {

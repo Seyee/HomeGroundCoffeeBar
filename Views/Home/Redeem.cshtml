@@ -1,0 +1,209 @@
+@model List<HomeGroundCoffeeBar.Models.RewardModel>
+
+<head>
+    <link rel="stylesheet" href="~/css/redeem.css" />
+</head>
+
+<!-- Hero Section -->
+<div class="redeem-hero">
+    <div class="hero-content">
+        <h1 class="redeem-title">Redeem Your Rewards</h1>
+        <p class="redeem-subtitle">Turn your loyalty points into delicious treats</p>
+    </div>
+</div>
+
+<!-- Rewards Grid -->
+<div class="rewards-section">
+    <div class="rewards-container">
+        @foreach (var reward in Model)
+        {
+            <div class="reward-card" onclick="openProductModal(@reward.Id, '@reward.Name', '@reward.Description', '@reward.Image', @reward.PointsRequired)">
+                <div class="reward-image-container">
+                    <img src="@reward.Image" class="reward-img" alt="@reward.Name" />
+                    <div class="reward-overlay"></div>
+                </div>
+
+                <div class="reward-content">
+                    <h3 class="reward-name">@reward.Name</h3>
+                    <p class="reward-description">@reward.Description</p>
+
+                    <div class="reward-footer">
+                        <div class="points-required">
+                            <img src="/img/points.png" alt="Points" />
+                            <span>@reward.PointsRequired pts</span>
+                        </div>
+
+                        <button class="view-details-btn" onclick="event.stopPropagation(); openProductModal(@reward.Id, '@reward.Name', '@reward.Description', '@reward.Image', @reward.PointsRequired)">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div id="productModal" class="modal" onclick="closeProductModal(event)">
+    <div class="product-modal-content" onclick="event.stopPropagation()">
+        <button class="close-modal-btn" onclick="closeProductModal()">&times;</button>
+        
+        <div class="product-modal-layout">
+            <!-- Product Image Side -->
+            <div class="product-modal-image-section">
+                <div class="product-modal-image-container">
+                    <img id="modalProductImage" src="" alt="Product" />
+                </div>
+            </div>
+
+            <!-- Product Details Side -->
+            <div class="product-modal-details-section">
+                <h2 id="modalProductName" class="product-modal-title"></h2>
+                <p id="modalProductDescription" class="product-modal-description"></p>
+
+                <div class="product-modal-info">
+                    <div class="modal-points-section">
+                        <span class="modal-points-label">Required Points:</span>
+                        <div class="modal-points-badge">
+                            <img src="/img/points.png" alt="Points" />
+                            <span id="modalProductPoints"></span> pts
+                        </div>
+                    </div>
+
+                    <div class="modal-additional-info">
+                        <div class="info-item">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="#B3A999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10 6V10L13 13" stroke="#B3A999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Available Now</span>
+                        </div>
+                        <div class="info-item">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 2L12.5 7.5L18 8.5L14 13L15 18.5L10 15.5L5 18.5L6 13L2 8.5L7.5 7.5L10 2Z" stroke="#B3A999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Exclusive Reward</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="modalRedeemBtn" class="modal-redeem-btn" onclick="redeemFromModal()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M16 6L7.5 14.5L4 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Redeem This Reward
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="redeemModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon success">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                <circle cx="30" cy="30" r="28" stroke="#614c3a" stroke-width="4"/>
+                <path d="M17 30L26 39L43 22" stroke="#614c3a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h2>Reward Redeemed!</h2>
+        <p>Your reward has been successfully redeemed. Enjoy!</p>
+        <button class="modal-btn" onclick="closeModal()">Continue</button>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon error">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                <circle cx="30" cy="30" r="28" stroke="#8B4513" stroke-width="4"/>
+                <path d="M22 22L38 38M38 22L22 38" stroke="#8B4513" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h2>Insufficient Points</h2>
+        <p>You don't have enough points for this reward. Keep collecting!</p>
+        <button class="modal-btn" onclick="closeModal()">Got it</button>
+    </div>
+</div>
+
+<script>
+let currentRewardId = null;
+
+function openProductModal(id, name, description, image, points) {
+    currentRewardId = id;
+    document.getElementById('modalProductName').textContent = name;
+    document.getElementById('modalProductDescription').textContent = description;
+    document.getElementById('modalProductImage').src = image;
+    document.getElementById('modalProductPoints').textContent = points;
+    document.getElementById('productModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closeProductModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    document.getElementById('productModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    currentRewardId = null;
+}
+
+function redeemFromModal() {
+    if (!currentRewardId) return;
+    
+    fetch("/Home/RedeemReward", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ rewardId: currentRewardId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        closeProductModal();
+        
+        if (data.success) {
+            showModal('redeemModal');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showModal('errorModal');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        closeProductModal();
+        showModal('errorModal');
+    });
+}
+
+function showModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('redeemModal').style.display = 'none';
+    document.getElementById('errorModal').style.display = 'none';
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const redeemModal = document.getElementById('redeemModal');
+    const errorModal = document.getElementById('errorModal');
+    
+    if (event.target === redeemModal) {
+        redeemModal.style.display = 'none';
+    }
+    if (event.target === errorModal) {
+        errorModal.style.display = 'none';
+    }
+}
+
+// Close product modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeProductModal();
+    }
+});
+</script>
