@@ -1,6 +1,26 @@
-﻿@{
+﻿@using HomeGroundCoffeeBar.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _context
+
+@{
     var name = Context.Session.GetString("Name");
-    var profilePic = Context.Session.GetString("ProfilePic");
+    int Points = 0;
+    string profilePic = Context.Session.GetString("ProfilePic");
+
+    if (!string.IsNullOrEmpty(name))
+    {
+        // Get latest points from database
+        var dbUser = await _context.Users
+                                   .Where(u => u.Name == name)
+                                   .Select(u => new { u.Points, u.ProfilePic })
+                                   .FirstOrDefaultAsync();
+
+        if (dbUser != null)
+        {
+            Points = dbUser.Points;
+            profilePic = dbUser.ProfilePic ?? profilePic; // fallback to session
+        }
+    }
 
     var isLogged = !string.IsNullOrEmpty(name);
 }
@@ -37,7 +57,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Location">Location</a>
+                            <a class="nav-link" href="/Home/Location">Location</a>
                         </li>
 
                         <li class="nav-item">
@@ -53,27 +73,34 @@
                         else
                         {
                             <li class="nav-item profile-li">
-
                                 <div class="profile-container">
                                     <button id="ProfileBtn" class="profile-btn">
-
                                         @if (!string.IsNullOrEmpty(profilePic))
                                         {
                                             <img src="@profilePic" class="profile-pic" />
                                         }
                                         else
                                         {
-                                            <img src="/img/defaultuser.png" class="profile-pic" />
+                                            <img src="/img/user.webp" class="profile-pic" />
                                         }
-
-
+                                        
+                                        <!-- Points Badge -->
+                                        <a asp-controller="Home" asp-action="Redeem" class="points-link">
+                                            <div class="points-badge">
+                                                <img src="/img/points.png" alt="Points" class="points-icon" />
+                                                <span class="points-text">@Points</span>
+                                            </div>
+                                        </a>
                                     </button>
 
                                     <div id="ProfileMenu" class="profile-menu">
                                         <span class="profile-name">@name</span>
+                                        <div class="profile-points">
+                                            <img src="/img/points.png" class="points-icon-small" />
+                                            <span>@Points pts</span>
+                                        </div>
                                         <a asp-controller="Home" asp-action="Logout">Logout</a>
                                     </div>
-                                    
                                 </div>
                             </li>
                         }
@@ -146,10 +173,16 @@
 
     </script> 
 
+@if (User.Identity.IsAuthenticated && 
+    ViewContext.RouteData.Values["controller"].ToString() == "Home" &&
+    ViewContext.RouteData.Values["action"].ToString() == "Menu")
+{
     <button id="cartButton" class="cart-button" onclick="openCart()">
         <span class="cart-icon">🛒</span>
         <span class="cart-count">0</span>
     </button>
+}
+
 }
 else
 {

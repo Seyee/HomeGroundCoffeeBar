@@ -4,17 +4,23 @@ using HomeGroundCoffeeBar.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json;
+using HomeGroundCoffeeBar.Data;
 
 namespace HomeGroundCoffeeBar.Controllers;
+
+
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ApplicationDbContext _context;
+
+public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+{
+    _logger = logger;
+    _context = context;
+}
 
     public async Task<IActionResult> Logout()
     {
@@ -44,6 +50,7 @@ public class HomeController : Controller
     public IActionResult Checkout() => View();
     public IActionResult PaymentMethods() => View();
 
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
@@ -53,43 +60,48 @@ public class HomeController : Controller
     // =============================
     // ORDER SUBMISSION & RECEIPT
     // =============================
+[HttpPost]
+public IActionResult SubmitOrder([FromBody] OrderDto orderDto)
+{
+    if (orderDto == null || orderDto.Items == null || orderDto.Items.Count == 0)
+        return BadRequest("No items in order.");
 
-    [HttpPost]
-    public IActionResult SubmitOrder([FromBody] OrderDto orderDto)
+    string orderNumber = "ORD-" + DateTime.Now.Ticks;
+    decimal itemsTotal = orderDto.Items.Sum(i => i.Price * i.Quantity);
+    decimal totalAmount = itemsTotal + orderDto.DeliveryFee;
+    int earnedPoints = (int)(totalAmount * 0.05m);
+
+    // Get user name from session
+    var name = HttpContext.Session.GetString("Name");
+
+    if (!string.IsNullOrEmpty(name))
     {
-
-        // FIND A WAY TO STORE THE DATA FROM JAVASCRIPT AND STORE IT IN A JSON OBJECT
-        // USING FETCH FUNCTION PUT IT INSIDE A FUNCTION IN JAVASCRIPT THEN CALL IT IN THE REDIRECTTION LINK IN Checkout.cshtml
-        // CREATE A NEW POST REQUEST METHOD IN THIS FILE, CREATE A DTO FILE FOR STORING THE JSON OBJECT 
-        // THEN PUT THE TRANSFERRED DATA FROM THE DTO TO A TempData[]
-
-        if(orderDto == null || orderDto.Items == null || orderDto.Items.Count == 0)
-            return BadRequest("No items in order.");
-
-        // Generate order number
-        string orderNumber = "ORD-" + DateTime.Now.Ticks;
-
-        // Calculate totals
-        decimal itemsTotal = orderDto.Items.Sum(i => i.Price * i.Quantity);
-        decimal deliveryFee = orderDto.DeliveryFee;
-        decimal totalAmount = itemsTotal + deliveryFee;
-
-        // Build order model
-        var order = new OrderModel
+        // Fetch the actual tracked entity from EF
+        var user = _context.Users.FirstOrDefault(u => u.Name == name);
+        if (user != null)
         {
-            OrderNumber = orderNumber,
-            Items = orderDto.Items,
-            DeliveryFee = deliveryFee,
-            TotalAmount = totalAmount,
-            PaymentMethod = orderDto.PaymentMethod
-        };
+            // Update points
+            user.Points += earnedPoints;
 
-        // Save order temporarily in TempData (for receipt page)
-        TempData["LastOrder"] = JsonSerializer.Serialize(order);
-
-        // Return order number to frontend
-        return Json(new { orderId = orderNumber });
+            // Save changes to database
+            _context.SaveChanges();
+        }
     }
+
+    // Store order in TempData for receipt page
+    var order = new OrderModel
+    {
+        OrderNumber = orderNumber,
+        Items = orderDto.Items,
+        DeliveryFee = orderDto.DeliveryFee,
+        TotalAmount = totalAmount,
+        PaymentMethod = orderDto.PaymentMethod
+    };
+
+    TempData["LastOrder"] = JsonSerializer.Serialize(order);
+
+    return Json(new { orderId = orderNumber, pointsEarned = earnedPoints });
+}
 
     /*[HttpPost]
     public IActionResult sendCartData([FromBody])
@@ -115,6 +127,53 @@ public class HomeController : Controller
 
         return View(/*order*/);
     }
+
+
+        public IActionResult Redeem()
+    {
+        var rewards = new List<RewardModel>
+        {
+            new RewardModel{ Id=1, Name="Homeground Coffee Club Cap", PointsRequired=250, Image="/img/rewards/cap.png", Description="Stylish Homeground cap perfect for coffee lovers who want to represent their favorite brew anywhere."},
+            new RewardModel{ Id=2, Name="Homeground Barista Insulated Mug", PointsRequired=400, Image="/img/rewards/insulatedmug.png", Description="Premium insulated mug designed to keep your coffee hot while you enjoy every sip."},
+            new RewardModel{ Id=3, Name="Homeground Brew Hoodie", PointsRequired=300, Image="/img/rewards/hoodie.png", Description="Comfortable Homeground hoodie inspired by cozy coffee shop vibes."},
+            new RewardModel{ Id=4, Name="Homeground Notebook", PointsRequired=100, Image="/img/rewards/notebook.png", Description="Homeground notebook for jotting down your ideas."}
+
+        };
+
+        return View(rewards);
+    }
+
+
+[HttpPost]
+public IActionResult RedeemReward([FromBody] RedeemRequest request)
+{
+    int rewardId = request.RewardId;
+
+    var name = HttpContext.Session.GetString("Name");
+    if (string.IsNullOrEmpty(name))
+        return Unauthorized();
+
+    var user = _context.Users.FirstOrDefault(u => u.Name == name);
+    if (user == null)
+        return NotFound();
+
+    int requiredPoints = rewardId switch
+    {
+        1 => 100,
+        2 => 300,
+        3 => 500,
+        _ => 0
+    };
+
+    if (user.Points < requiredPoints)
+        return BadRequest("Not enough points");
+
+    user.Points -= requiredPoints;
+
+    _context.SaveChanges();
+
+    return Json(new { success = true, remainingPoints = user.Points });
+}
 }
 
 // =============================
@@ -143,3 +202,6 @@ public class OrderItem
     public decimal Price { get; set; }
     public int Quantity { get; set; }
 }
+
+
+

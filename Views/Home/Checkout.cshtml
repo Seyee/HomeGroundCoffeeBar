@@ -168,66 +168,72 @@
                     <span>Order Total</span>
                     <span id="orderTotal">₱0</span>
                 </div>
+
+                <div class="total-row points-earned">
+                    <span>Points Earned</span>
+                    <span id="pointsEarned">₱0</span>
+                </div>
             </div>
         </div>
     </div>
 
     
 <script>
-// UPDATED CHECKOUT.CSHTML SCRIPT SECTION
-// Replace your existing script with this:
-
+// -------------------------------
+// CHECKOUT SCRIPT
+// -------------------------------
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Checkout page loaded');
 
-    // -------------------------------
-    // Load Cart Items from localStorage
-    // -------------------------------
-    let total;
+    let currentStep = 1;
+    let total = 0; // make it global
 
+    // -------------------------------
+    // Load Cart Items
+    // -------------------------------
     function loadCheckoutCart() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const container = document.getElementById('checkoutCartItems');
-
-        console.log(cart);
 
         if (!container) return;
 
         if (cart.length === 0) {
             container.innerHTML = '<p class="empty-cart-message">Your cart is empty</p>';
+            total = 0;
+            document.getElementById('basketPrice').textContent = '₱0';
+            document.getElementById('orderTotal').textContent = '₱0';
+            document.getElementById('pointsEarned').textContent = '₱0';
             return;
         }
 
-        container.innerHTML = cart.map(item => `
-            <div class="checkout-cart-item">
-                <img src="${item.image}" alt="${item.name}">
-                <div class="checkout-item-info">
-                    <div class="checkout-item-name">${item.name}</div>
-                    <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
-                    <div class="checkout-item-price">₱${item.price * item.quantity}</div>
+        total = 0; // reset total
+        container.innerHTML = cart.map(item => {
+            total += item.price * item.quantity;
+            return `
+                <div class="checkout-cart-item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="checkout-item-info">
+                        <div class="checkout-item-name">${item.name}</div>
+                        <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
+                        <div class="checkout-item-price">₱${item.price * item.quantity}</div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
-        total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         document.getElementById('basketPrice').textContent = `₱${total}`;
         document.getElementById('orderTotal').textContent = `₱${total + 50}`;
+        document.getElementById('pointsEarned').textContent = `₱${Math.floor((total + 50) * 0.05)}`;
     }
 
-    loadCheckoutCart();
-    window.addEventListener('load', loadCheckoutCart);
+    loadCheckoutCart(); // call once
 
     // -------------------------------
-    // Multi-step Checkout
+    // Multi-step Navigation
     // -------------------------------
-    let currentStep = 1;
-
     function showStep(step) {
-        const personalForm = document.getElementById('personalInfoForm');
-        const paymentForm = document.getElementById('paymentForm');
-
-        personalForm.classList.toggle('active', step === 1);
-        paymentForm.classList.toggle('active', step === 2);
+        document.getElementById('personalInfoForm').classList.toggle('active', step === 1);
+        document.getElementById('paymentForm').classList.toggle('active', step === 2);
 
         document.querySelectorAll('.step').forEach((s, index) => {
             s.classList.toggle('active', index + 1 === step);
@@ -236,62 +242,51 @@ document.addEventListener('DOMContentLoaded', function () {
         currentStep = step;
     }
 
+    window.goBack = function () {
+        if (currentStep > 1) showStep(currentStep - 1);
+    }
+
     // -------------------------------
-    // Submit Order to Backend
+    // Submit Order
     // -------------------------------
     async function submitOrderToBackend(paymentMethod) {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        
         if (cart.length === 0) {
             alert('Your cart is empty!');
             return null;
         }
 
-        // Prepare order data matching your OrderDto structure
         const orderData = {
-            items: cart.map(item => ({
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity
-            })),
+            items: cart,
             deliveryFee: 50,
-            paymentMethod: paymentMethod
+            paymentMethod
         };
 
         try {
             const response = await fetch('/Home/SubmitOrder', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
             });
 
             if (!response.ok) {
-                throw new Error('Failed to submit order');
+                const text = await response.text();
+                throw new Error(text || 'Failed to submit order');
             }
 
-            const result = await response.json();
-            console.log('Order submitted:', result);
-            
-            // Store payment method for receipt page
-            localStorage.setItem('paymentMethod', paymentMethod);
-            
-            return result.orderId; // Returns the order number
-            
+            return await response.json(); // { orderId, pointsEarned }
         } catch (error) {
             console.error('Error submitting order:', error);
-            alert('Failed to submit order. Please try again.');
+            alert('Failed to submit order. ' + error.message);
             return null;
         }
     }
 
-    // -------------------------------
-    // Next button logic
-    // -------------------------------
     window.goNext = async function () {
+        const nextBtn = document.getElementById('nextBtn');
+        const originalText = nextBtn.innerHTML;
+
         if (currentStep === 1) {
-            // Validate personal info
             const fullName = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             const streetAddress = document.getElementById('streetAddress').value;
@@ -303,20 +298,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Save customer info to localStorage
-            localStorage.setItem('customerInfo', JSON.stringify({
-                fullName,
-                email,
-                streetAddress,
-                city,
-                phoneNumber
-            }));
-
+            localStorage.setItem('customerInfo', JSON.stringify({ fullName, email, streetAddress, city, phoneNumber }));
             showStep(2);
-            
+
         } else if (currentStep === 2) {
             const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
-
             if (!selectedPayment) {
                 alert('Please select a payment method');
                 return;
@@ -325,33 +311,28 @@ document.addEventListener('DOMContentLoaded', function () {
             const paymentMethod = selectedPayment.value;
             const orderTotal = total + 50;
 
-            // Show loading state
-            const nextBtn = document.getElementById('nextBtn');
-            const originalText = nextBtn.innerHTML;
             nextBtn.disabled = true;
             nextBtn.innerHTML = 'Processing...';
 
-            // Submit order to backend
-            const orderId = await submitOrderToBackend(paymentMethod);
-
-            if (!orderId) {
-                // Restore button if failed
+            const result = await submitOrderToBackend(paymentMethod);
+            if (!result) {
                 nextBtn.disabled = false;
                 nextBtn.innerHTML = originalText;
                 return;
             }
 
+            document.getElementById('pointsEarned').textContent = result.pointsEarned + " pts";
+
             // Redirect based on payment method
             switch (paymentMethod) {
                 case 'maya':
-                    window.location.href = `/PayMaya/PayMayaMain?amount=${orderTotal}&orderId=${orderId}`;
+                    window.location.href = `/PayMaya/PayMayaMain?amount=${orderTotal}&orderId=${result.orderId}`;
                     break;
                 case 'gcash':
-                    window.location.href = `/GCash/GcashMain?amount=${orderTotal}&orderId=${orderId}`;
+                    window.location.href = `/GCash/GcashMain?amount=${orderTotal}&orderId=${result.orderId}`;
                     break;
                 case 'cod':
-                    // Go directly to receipt for COD
-                    window.location.href = `/Home/Receipt?orderNumber=${orderId}`;
+                    window.location.href = `/Home/Receipt?orderNumber=${result.orderId}`;
                     break;
                 default:
                     alert('Payment option not implemented');
@@ -360,29 +341,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     };
-
-    // Back button
-    window.goBack = function () {
-        if (currentStep > 1) showStep(currentStep - 1);
-    };
 });
-
-
-// MOVE MO TO 
-/*const cartDataJson = {
-    name: cart.name
-}/*
-
-/*function sendCartData() {
-    fetch("/Home/sendCartData", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application"
-        },
-        body: 
-    });
-}*/
-
 </script>
 
     <script src="~/js/site.js"></script>
