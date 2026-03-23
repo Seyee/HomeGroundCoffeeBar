@@ -50,10 +50,6 @@ public class AccountController : Controller
         {
             conn.Open();
 
-            var cmd = new MySqlCommand(
-            "INSERT INTO Users (Name, Phone, Password, Role, ProfilePic, CreatedAt) VALUES (@Name,@Phone,@Password,'User', NULL, NOW())",
-            conn);
-
             var checkCmd = new MySqlCommand("SELECT Id FROM Users WHERE GoogleId=@GoogleId", conn);
             checkCmd.Parameters.AddWithValue("@GoogleId", googleId);
             var userId = checkCmd.ExecuteScalar();
@@ -67,7 +63,7 @@ public class AccountController : Controller
                 insertCmd.Parameters.AddWithValue("@GoogleId", googleId);
                 insertCmd.Parameters.AddWithValue("@Name", name);
                 insertCmd.Parameters.AddWithValue("@Email", email);
-                insertCmd.Parameters.AddWithValue("@Pic", profilePic ?? "");
+                insertCmd.Parameters.AddWithValue("@Pic", profilePic ?? "0");
                 userId = insertCmd.ExecuteScalar();
             }
 
@@ -76,7 +72,7 @@ public class AccountController : Controller
             HttpContext.Session.SetString("GoogleId", googleId ?? "");
             HttpContext.Session.SetString("Name", name ?? "");
             HttpContext.Session.SetString("Email", email ?? "");
-            HttpContext.Session.SetString("ProfilePic", profilePic ?? "");
+            HttpContext.Session.SetString("ProfilePic", profilePic ?? "0");
         }
 
         return RedirectToAction("Index", "Dashboard");
@@ -115,9 +111,9 @@ public IActionResult Signup(string Name, string Phone, string Password)
             }
 
             // INSERT USER
-                var cmd = new MySqlCommand(
-                    "INSERT INTO Users (Name, Phone, Password, Role, ProfilePic, CreatedAt) VALUES (@Name,@Phone,@Password,'User',NULL,NOW())",
-                    conn);
+            var cmd = new MySqlCommand(
+                "INSERT INTO Users (Name, Phone, Password, Role, ProfilePic, GoogleId, points, CreatedAt) VALUES (@Name,@Phone,@Password,'User', 0, 0, 0, NOW())", 
+                conn);
 
             cmd.Parameters.AddWithValue("@Name", Name);
             cmd.Parameters.AddWithValue("@Phone", Phone);
