@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function () {
             total = 0;
             document.getElementById('basketPrice').textContent = '₱0';
             document.getElementById('orderTotal').textContent = '₱0';
-            document.getElementById('pointsEarned').textContent = '₱0';
+            document.getElementById('pointsEarned').textContent = '0';
             return;
         }
 
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById('basketPrice').textContent = `₱${total}`;
         document.getElementById('orderTotal').textContent = `₱${total + 50}`;
-        document.getElementById('pointsEarned').textContent = `₱${Math.floor((total + 50) * 0.05)}`;
+        document.getElementById('pointsEarned').textContent = `${Math.floor((total + 50) * 0.05)}`;
     }
 
     loadCheckoutCart(); // call once
@@ -314,12 +314,32 @@ document.addEventListener('DOMContentLoaded', function () {
             nextBtn.disabled = true;
             nextBtn.innerHTML = 'Processing...';
 
-            const result = await submitOrderToBackend(paymentMethod);
-            if (!result) {
-                nextBtn.disabled = false;
-                nextBtn.innerHTML = originalText;
-                return;
-            }
+           const result = await submitOrderToBackend(paymentMethod);
+
+if (!result) {
+    nextBtn.disabled = false;
+    nextBtn.innerHTML = originalText;
+    return;
+}
+
+// ✅ GET CURRENT CART FIRST
+const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+// ✅ SAVE LAST ORDER (THIS IS WHAT RECEIPT NEEDS)
+localStorage.setItem('lastOrder', JSON.stringify({
+    items: cart,
+    orderTotal: total + 50,
+    points: result.pointsEarned
+}));
+
+// ✅ (optional but good) save payment method
+localStorage.setItem('paymentMethod', paymentMethod);
+
+// ✅ NOW CLEAR CART
+localStorage.removeItem('cart');
+
+// ✅ redirect
+window.location.href = `/Home/Receipt?orderNumber=${result.orderId}`;
 
             document.getElementById('pointsEarned').textContent = result.pointsEarned + " pts";
 

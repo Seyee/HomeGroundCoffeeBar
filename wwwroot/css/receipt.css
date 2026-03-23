@@ -476,6 +476,55 @@ body {
     box-shadow: 0 8px 20px rgba(97, 76, 58, 0.2);
 }
 
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: rgba(97, 76, 58, 0.08);
+    border: 1px solid rgba(228, 209, 185, 0.12);
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.order-item:last-child {
+    margin-bottom: 0;
+}
+
+.item-image {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.order-item div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.order-item h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #E4D1B9;
+    margin: 0;
+}
+
+.order-item p {
+    font-size: 13px;
+    color: #B3A999;
+    margin: 0;
+}
+
+.order-item p:last-child {
+    font-size: 15px;
+    font-weight: 700;
+    color: #cfba9a;
+}
+
 /* Footer */
 .receipt-footer {
     text-align: center;

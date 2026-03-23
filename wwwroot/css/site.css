@@ -563,7 +563,7 @@ h3 {
 .options {
   display: flex;
   justify-content: space-between;
-  gap: 40px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 

@@ -262,7 +262,7 @@ public IActionResult Signup(string Name, string Phone, string Password)
                     }
 
                     var rawPic = reader["ProfilePic"]?.ToString();
-                    var profilePic = string.IsNullOrWhiteSpace(rawPic) || rawPic == "1" ? "" : rawPic;
+                    var profilePic = string.IsNullOrWhiteSpace(rawPic) || rawPic == "1" ? "0" : rawPic;
 
                     // SET SESSION
                     var userId = reader["Id"].ToString();

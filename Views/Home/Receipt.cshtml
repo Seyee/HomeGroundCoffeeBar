@@ -159,102 +159,76 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get payment method from URL parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            const paymentMethod = urlParams.get('payment') || localStorage.getItem('paymentMethod') || 'cod';
-            
-            // Load cart data
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            
-            // Generate order ID
-            const orderId = 'HG' + Date.now().toString().slice(-8);
-            
-            // Get current date and time
-            const now = new Date();
-            const orderDate = now.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            // Get customer name
-            const customerName = window.currentUser || 'Guest';
-            
-            // Update order information
-            document.getElementById('orderId').textContent = orderId;
-            document.getElementById('orderDate').textContent = orderDate;
-            document.getElementById('customerName').textContent = customerName;
-            
-            // Update payment method
-            const paymentMethodEl = document.getElementById('paymentMethod');
-            let paymentText = '';
-            let paymentClass = '';
-            
-            switch(paymentMethod.toLowerCase()) {
-                case 'gcash':
-                    paymentText = '💳 GCash';
-                    paymentClass = 'gcash';
-                    break;
-                case 'maya':
-                case 'paymaya':
-                    paymentText = '💳 PayMaya';
-                    paymentClass = 'paymaya';
-                    break;
-                case 'cod':
-                    paymentText = '💵 Cash on Delivery';
-                    paymentClass = 'cod';
-                    break;
-                default:
-                    paymentText = paymentMethod;
-            }
-            
-            paymentMethodEl.textContent = paymentText;
-            paymentMethodEl.className = 'payment-method ' + paymentClass;
-            
-            // Render order items
-            const orderItemsContainer = document.getElementById('orderItems');
-            
-            if (cart.length === 0) {
-                orderItemsContainer.innerHTML = '<p class="no-items">No items found</p>';
-            } else {
-                orderItemsContainer.innerHTML = cart.map(item => `
-                    <div class="order-item">
-                        <div class="item-image-wrapper">
-                            <img src="${item.image}" alt="${item.name}" class="item-image">
-                        </div>
-                        <div class="item-details">
-                            <div class="item-info">
-                                <h3>${item.name}</h3>
-                                <div class="item-meta">
-                                    <span class="item-quantity">Qty: ${item.quantity}</span>
-                                    <span class="item-unit-price">₱${item.price.toFixed(2)} each</span>
-                                </div>
-                            </div>
-                            <div class="item-price">₱${(item.price * item.quantity).toFixed(2)}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
+document.addEventListener('DOMContentLoaded', function() {
 
-            // Calculate totals
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const deliveryFee = 50;
-            const grandTotal = subtotal + deliveryFee;
-            
-            // Calculate points earned (1 point per 10 pesos spent)
-            const pointsEarned = Math.floor(grandTotal / 10);
-            
-            document.getElementById('subtotal').textContent = '₱' + subtotal.toFixed(2);
-            document.getElementById('deliveryFee').textContent = '₱' + deliveryFee.toFixed(2);
-            document.getElementById('grandTotal').textContent = '₱' + grandTotal.toFixed(2);
-            document.getElementById('pointsEarned').textContent = pointsEarned + ' pts';
-            
-            // Clear cart after showing receipt
-            // localStorage.removeItem('cart');
-        });
+    // ✅ GET REAL ORDER (NOT CART)
+    const order = JSON.parse(localStorage.getItem('lastOrder'));
+
+    if (!order) {
+        console.error("No order found");
+        return;
+    }
+
+    const cart = order.items;
+    const grandTotal = order.orderTotal;
+    const pointsEarned = order.points;
+
+    // -------------------------------
+    // ORDER INFO
+    // -------------------------------
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderNumber') || 'N/A';
+
+    const now = new Date();
+    const orderDate = now.toLocaleString();
+
+    document.getElementById('orderId').textContent = orderId;
+    document.getElementById('orderDate').textContent = orderDate;
+    document.getElementById('customerName').textContent = 'Guest';
+
+    // -------------------------------
+    // PAYMENT METHOD
+    // -------------------------------
+    const paymentMethod = localStorage.getItem('paymentMethod') || 'cod';
+    document.getElementById('paymentMethod').textContent = paymentMethod.toUpperCase();
+
+    // -------------------------------
+    // ITEMS (DISPLAY ONLY)
+    // -------------------------------
+    const container = document.getElementById('orderItems');
+
+container.innerHTML = cart.map(item => `
+    <div class="order-item">
+        <div class="item-image-wrapper">
+            <img src="${item.image}" class="item-image" alt="${item.name}">
+        </div>
+        <div class="item-details">
+            <div class="item-info">
+                <h3>${item.name}</h3>
+                <div class="item-meta">
+                    <span class="item-quantity">Qty: ${item.quantity}</span>
+                    <span class="item-unit-price">₱${item.price.toFixed(2)} each</span>
+                </div>
+            </div>
+            <span class="item-price">₱${(item.price * item.quantity).toFixed(2)}</span>
+        </div>
+    </div>
+`).join('');
+
+    // -------------------------------
+    // TOTALS (NO RECOMPUTE)
+    // -------------------------------
+    const deliveryFee = 50;
+    const subtotal = grandTotal - deliveryFee;
+
+    document.getElementById('subtotal').textContent = '₱' + subtotal.toFixed(2);
+    document.getElementById('deliveryFee').textContent = '₱50.00';
+    document.getElementById('grandTotal').textContent = '₱' + grandTotal.toFixed(2);
+
+    // ✅ USE BACKEND POINTS ONLY
+    document.getElementById('pointsEarned').textContent = pointsEarned + ' pts';
+
+});
     </script>
 </body>
 </html>

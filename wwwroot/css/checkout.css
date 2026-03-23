@@ -47,6 +47,8 @@ body {
     border: 1px solid rgba(228, 209, 185, 0.15);
 }
 
+
+
 .step {
     display: flex;
     flex-direction: column;
