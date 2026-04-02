@@ -34,10 +34,9 @@
     <title>@ViewData["Title"] - Homeground</title>
     
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body data-page="@ViewBag.Page">
     <header>
         <nav class="navbar">
             <div class="container">
@@ -81,7 +80,7 @@
                                         }
                                         else
                                         {
-                                            <img src="/img/user.webp" class="profile-pic" />
+                                            <img src="~/img/user.webp" class="profile-pic" />
                                         }
                                         
                                         <!-- Points Badge -->
@@ -111,94 +110,135 @@
         </nav>
     </header>
 
-<main role="main" class="pb-3">
-    @RenderBody()
-</main>
+    <main role="main">
+        @RenderBody()
+    </main>
 
 
-<footer class="border-top footer text-muted">
-  <div class="container footer-content">
+    <footer class="border-top footer text-muted">
+        <div class="container footer-content">
+            <div class="footer-info-container" >
+                <div class="about">
+                    <h1>ABOUT</h1>
+                    <span class="welcome-text">Welcome to the Official Website of <br> Homeground. #Happybean</span>
 
-    
-    <div class="footer-info-container" >
-        <div class="about">
-        <h1>ABOUT</h1>
-        <span class="welcome-text">Welcome to the Official Website of <br> Homeground. #Happybean</span>
+                    <div class="social">
+                        <a href="https://www.instagram.com/homegroundcoffeebar" class="social-icon"><img src="/img/iglogo.png" alt="Instagram" /></a>
+                        <a href="https://www.facebook.com/homegroundcoffee4102" class="social-icon"><img src="/img/fblogo.png" alt="Facebook" /></a>
+                    </div>
+                </div>
 
-        <div class="social">
-            <a href="https://www.instagram.com/homegroundcoffeebar" class="social-icon"><img src="/img/iglogo.png" alt="Instagram" /></a>
-            <a href="https://www.facebook.com/homegroundcoffee4102" class="social-icon"><img src="/img/fblogo.png" alt="Facebook" /></a>
+                <div class="quicklinks">
+                    <h1>QUICKLINKS</h1>
+                    <ul>
+                        <li><a href="/Home/Menu" class="quicklink">Menu</a></li>
+                        <li><a href="/Home/Location" class="quicklink">Location</a></li>
+                        <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
+                        @if (!isLogged) {
+                            <li><a href="/Home/Signin" class="quicklink">Sign in</a></li>
+                        }
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-logo-container">
+                <div class="footer-logo">
+                    <img src="/img/logowhite.png" alt="Homeground Logo" />
+                </div>
+
+                <div class="scroll">
+                    <div class="arrow-up">
+                        <a href="#" id="ScrollTopLink">
+                            <img src="/img/scroll_top.svg" alt="Scroll to Top" />
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        </div>
+    </footer>
 
-        <div class="quicklinks">
-        <h1>QUICKLINKS</h1>
-        <ul>
-            <li><a href="/Home/Menu" class="quicklink">Menu</a></li>
-            <li><a href="/Home/Location" class="quicklink">Location</a></li>
-            <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
-            @if (!isLogged) {
-                <li><a href="/Home/Signin" class="quicklink">Sign in</a></li>
-            }
-            
-        </ul>
-        </div>
-    </div>
+    <!-- MODAL -->
+    <div class="modal">
+        <div id="productModal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="modal-body">
+                    <img id="modalImage" src="" alt="">
+                    <div class="modal-info">
+                        <p class="modal-price">₱<span id="modalPrice"></span></p>
+                        <h2 id="modalTitle"></h2>
+                        <p class="modal-description">Enjoy our freshly made product with premium ingredients.</p>
 
-    <div class="footer-logo-container">
-      <div class="footer-logo">
-        <img src="/img/logowhite.png" alt="Homeground Logo" />
-        </div>
-    </div>
+                        <div class="quantity-selector">
+                            <label>Quantity:</label>
+                            <div class="quantity-controls">
+                                <button class="qty-btn qty-decrease">-</button>
+                                <input type="number" class="qty-input" value="1" min="1" max="99">
+                                <button class="qty-btn qty-increase">+</button>
+                            </div>  
+                        </div>
 
-        <div class="scroll">
-            <div class="arrow-up">
-                <a href="#" id="ScrollTopLink">
-                    <img src="/img/scroll_top.svg" alt="Scroll to Top" />
-                </a>
+                        <div class="modal-btn">
+                            <button class="add-to-cart-btn">Add to cart</button>
+                            <button class="order-btn">Order Now</button>                   
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div class="modal-content cart-modal-content">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+                <span class="close cart-close">&times;</span>
+            </div>
+
+            <div class="cart-items"></div>
+
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span class="total-amount">₱0</span>
+                </div>
+                <button class="checkout-btn">Proceed to Checkout</button>
+            </div>
+        </div>
     </div>
 
 
 
-</footer>
     @* THIS CHECKS IF USER IS LOGGED IN *@
-@if (User.Identity.IsAuthenticated)
-{
-    <script>
-        window.isLoggedIn = true;
-        window.userId = "@User.FindFirst("sub")?.Value";
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            window.isLoggedIn = true;
+            window.userId = "@User.FindFirst("sub")?.Value";
 
-    </script> 
+        </script> 
 
-@if (User.Identity.IsAuthenticated && 
-    ViewContext.RouteData.Values["controller"].ToString() == "Home" &&
-    ViewContext.RouteData.Values["action"].ToString() == "Menu")
-{
-    <button id="cartButton" class="cart-button" onclick="openCart()">
-        <span class="cart-icon">🛒</span>
-        <span class="cart-count">0</span>
-    </button>
-}
+    @if (User.Identity.IsAuthenticated && 
+        ViewContext.RouteData.Values["controller"].ToString() == "Home" &&
+        ViewContext.RouteData.Values["action"].ToString() == "Menu")
+    {
+        <button id="cartButton" class="cart-button" onclick="openCart()">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count">0</span>
+        </button>
+    }
 
-}
-else
-{
-    <script>
-        window.isLoggedIn = false;
-        window.userId = null;
-        
-        
-        console.log(window.userId);
-    </script>
-}
+    }
+    else
+    {
+        <script>
+            window.isLoggedIn = false;
+            window.userId = null;
+            
+            
+            console.log(window.userId);
+        </script>
+    }
 
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
 
     <script>
         if (window.isLoggedIn) {
@@ -207,6 +247,8 @@ else
 
         window.currentUser = "@name";
     </script>
+    
+    <script type="module" src="~/js/site.js" asp-append-version="true"></script>
 
 </body>
 </html>
