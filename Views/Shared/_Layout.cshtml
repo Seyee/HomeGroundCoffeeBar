@@ -3,26 +3,28 @@
 @inject ApplicationDbContext _context
 
 @{
-    var name = Context.Session.GetString("Name");
+    var phone = Context.Session.GetString("Phone");
     int Points = 0;
     string profilePic = Context.Session.GetString("ProfilePic");
+    string name = "";
 
-    if (!string.IsNullOrEmpty(name))
+    if (!string.IsNullOrEmpty(phone))
     {
         // Get latest points from database
         var dbUser = await _context.Users
-                                   .Where(u => u.Name == name)
-                                   .Select(u => new { u.Points, u.ProfilePic })
+                                   .Where(u => u.Phone == phone)
+                                   .Select(u => new { u.Name, u.Points, u.ProfilePic })
                                    .FirstOrDefaultAsync();
 
         if (dbUser != null)
         {
+            name = dbUser.Name;
             Points = dbUser.Points;
             profilePic = dbUser.ProfilePic ?? profilePic; // fallback to session
         }
     }
 
-    var isLogged = !string.IsNullOrEmpty(name);
+    var isLogged = !string.IsNullOrEmpty(phone);
 }
 
 
@@ -92,7 +94,7 @@
                                         </a>
                                     </button>
 
-                                    <div id="ProfileMenu" class="profile-menu">
+                                    <div id="profileMenu" class="profile-menu">
                                         <span class="profile-name">@name</span>
                                         <div class="profile-points">
                                             <img src="/img/points.png" class="points-icon-small" />
@@ -160,7 +162,7 @@
 
     <!-- MODAL -->
     <div class="modal">
-        <div id="productModal">
+        <div id="productModal" class="modal-item">
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <div class="modal-body">
@@ -188,7 +190,7 @@
             </div>
         </div>
 
-        <div class="modal-content cart-modal-content">
+        <div id="cartModal" class="modal-content cart-modal-content modal-item">
             <div class="cart-header">
                 <h2>Your Cart</h2>
                 <span class="close cart-close">&times;</span>
@@ -213,20 +215,8 @@
     {
         <script>
             window.isLoggedIn = true;
-            window.userId = "@User.FindFirst("sub")?.Value";
-
+            window.userId = "@User.FindFirst("UserId")?.Value";
         </script> 
-
-    @if (User.Identity.IsAuthenticated && 
-        ViewContext.RouteData.Values["controller"].ToString() == "Home" &&
-        ViewContext.RouteData.Values["action"].ToString() == "Menu")
-    {
-        <button id="cartButton" class="cart-button" onclick="openCart()">
-            <span class="cart-icon">🛒</span>
-            <span class="cart-count">0</span>
-        </button>
-    }
-
     }
     else
     {
@@ -239,14 +229,6 @@
         </script>
     }
 
-
-    <script>
-        if (window.isLoggedIn) {
-            updateCartButton();
-        }
-
-        window.currentUser = "@name";
-    </script>
     
     <script type="module" src="~/js/site.js" asp-append-version="true"></script>
 

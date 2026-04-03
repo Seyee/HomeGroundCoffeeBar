@@ -3,22 +3,38 @@
 
 // GLOBAL Modal elements
 const modal = document.querySelector('.modal');
+const modalItem = document.querySelectorAll(".modal-item");
 const modalImage = document.getElementById('modalImage');
 const modalTitle = document.getElementById('modalTitle');
 const modalPrice = document.getElementById('modalPrice');
 const closeBtn = document.querySelector('.close');
 
+const profileBtn = document.querySelector(".profile-pic");
+const profileMenu = document.getElementById("profileMenu");
+
+// GLOBAL VARIABLE
+let currentStep = 1;
+
 // Close modal when clicking X
 closeBtn.addEventListener('click', function() {
     modal.classList.remove("show"); 
+    modalItem.forEach(m => m.classList.remove("show"));
 });
 
-// Close modal when clicking outside
+if (profileMenu) { 
+    profileBtn.addEventListener("click", function () {
+        profileMenu.classList.toggle("show");
+    });
+}
+
+// Close modal/dropdowns when clicking outside
 window.addEventListener('click', function(event) {
     if (event.target === modal) {
         modal.classList.remove("show");
+        modalItem.forEach(m => m.classList.remove("show"));
     }
 });
+
 
 // PBI
 const Page = {
@@ -42,7 +58,12 @@ const Page = {
 
     menu: function () {
         utils.debug("Page", "Menu");
+
+        // VARIABLES
         const qtyInput = document.querySelector('.qty-input');
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartBtn = document.getElementById('cartButton');
 
         function initializeCategoryFilter() {
             const categoryItems = document.querySelectorAll('.category-item');
@@ -85,110 +106,9 @@ const Page = {
             });
         }
 
-        function initializeProductModal() {
-            const modal = document.getElementById('productModal');
-            const addToCartBtn = modal.querySelector('.add-to-cart-btn');
-            
-            // Create quantity controls if they don't exist
-            let quantityContainer = modal.querySelector('.quantity-selector');
-            
-            const modalBtnContainer = modal.querySelector('.modal-btn');
-            modalBtnContainer.parentNode.insertBefore(quantityContainer, modalBtnContainer);
-            
-            const decreaseBtn = quantityContainer.querySelector('.qty-decrease');
-            const increaseBtn = quantityContainer.querySelector('.qty-increase');
-            
-            // Quantity controls
-            decreaseBtn.onclick = (e) => {
-                e.stopPropagation();
-                let value = parseInt(qtyInput.value);
-                if (value > 1) {
-                    qtyInput.value = value - 1;
-                }
-            };
-
-            qtyInput.oninput = () => {
-                let value = qtyInput.value;
-
-                // Allow empty temporarily so the user can type freely
-                if (value === "") return;
-
-                value = parseInt(value);
-
-                if (isNaN(value) || value < 1) value = 1; // This avoid letting the user input the value `0`
-                if (value > 99) value = 99;
-
-                qtyInput.value = value;
-            };
-
-            increaseBtn.onclick = (e) => {
-                e.stopPropagation();
-                let value = parseInt(qtyInput.value);
-                if (value < 99) {
-                    qtyInput.value = value + 1;
-                }
-            };
-            
-            // Add to cart button
-            addToCartBtn.onclick = () => {
-                const quantity = parseInt(qtyInput.value);
-                const product = {
-                    name: modal.dataset.productName,
-                    price: parseInt(modal.dataset.productPrice),
-                    image: modal.dataset.productImage
-                };
-                
-                // Add with quantity
-                addToCart(product, quantity);
-                
-                closeModal();
-            };
-
-            // Add this inside initializeProductModal(), after addToCartBtn.onclick
-            const orderNowBtn = modal.querySelector('.order-btn');
-
-            orderNowBtn.onclick = (e) => {
-
-                e.stopPropagation(); // 🔥 prevents modal from closing early
-
-                // 🔥 CHECK LOGIN
-                if (!window.isLoggedIn) {
-                    window.location.href = "/Home/Signin";
-                    return;
-                }
-
-                const quantity = parseInt(qtyInput.value);
-                const product = {
-                    name: modal.dataset.productName,
-                    price: parseInt(modal.dataset.productPrice),
-                    image: modal.dataset.productImage
-                };
-
-                addToCart(product, quantity);
-
-                modal.style.display = 'none';
-
-                window.location.href = '/Home/Checkout';
-            };
-
-
-        }
-
         function updateCartButton() {
-
-            // If not logged in → hide button and stop function
-            // DISPLAY MUNA NATEN
-            let cartBtn = document.getElementById('cartButton');
-
-            console.log(window.isLoggedIn); // DEBUGGER
-            console.log(window.userId);
-
-            if (!window.isLoggedIn) {
-                if (cartBtn) cartBtn.style.display = 'flex';
-                return;
-            }
-
-            if (!cartBtn) return; // extra safety
+            utils.debug("Is User Logged in?", window.isLoggedIn);
+            utils.debug("User Id", window.userId);
 
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             const cartCount = cartBtn.querySelector('.cart-count');
@@ -196,9 +116,9 @@ const Page = {
             cartCount.textContent = totalItems;
 
             if (totalItems > 0) {
-                cartBtn.style.display = 'flex'; //THIS SHOW THE CART MODAL // DEBUG
+                cartBtn.classList.add("show"); //THIS SHOW THE CART MODAL
             } else {
-                cartBtn.style.display = 'none';
+                cartBtn.classList.remove("show");
             }
         }
 
@@ -227,6 +147,7 @@ const Page = {
 
         // Open cart modal
         function openCart() {
+            modal.classList.add("show");
             let cartModal = document.getElementById('cartModal');
             
             // Populate cart items
@@ -235,12 +156,14 @@ const Page = {
 
             // Close button
             cartModal.querySelector('.cart-close').onclick = () => {
+                modal.classList.remove("show");
                 cartModal.classList.remove("show");
             };
             
             // Close when clicking outside cart modal
             cartModal.onclick = (event) => {
                 if (event.target === cartModal) {
+                    modal.classList.remove("show");
                     cartModal.classList.remove("show");
                 }
             };
@@ -249,11 +172,19 @@ const Page = {
             };
         }
 
+        function openProductModal() {
+            const productModal = document.getElementById("productModal");
+
+            modal.classList.add("show");
+            productModal.classList.add("show");
+        }
+
         // Update cart modal content
         function updateCartModal(cartModal) {
-            const cartItems = cartModal.querySelector('.cart-items');
-            const totalAmount = cartModal.querySelector('.total-amount');
+            const cartItems = document.querySelector('.cart-items');
+            const totalAmount = document.querySelector('.total-amount');
             
+            // Unnecessary na to, di mo den naman dinidisplay si cart pag 0 eh
             if (cart.length === 0) {
                 cartItems.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
                 totalAmount.textContent = '₱0';
@@ -268,11 +199,11 @@ const Page = {
                         <p class="cart-item-price">₱${item.price}</p>
                     </div>
                     <div class="cart-item-controls">
-                        <button onclick="decreaseQuantity(${index})">-</button>
+                        <button id="cartDecreaseQuantityBtn" data-btn-id="${index}">-</button>
                         <input type="number" class="cart-input" value="${item.quantity}" min="1" max="99">
-                        <button onclick="increaseQuantity(${index})">+</button>
+                        <button id="cartIncreaseQuantityBtn" data-btn-id="${index}">+</button>
                     </div>
-                    <button class="remove-item" onclick="removeItem(${index})">✕</button>
+                    <button class="remove-item" data-item-id="${index}">✕</button>
                 </div>
             `).join('');
             
@@ -305,48 +236,121 @@ const Page = {
             updateCartButton();
             openCart(); // Refresh cart modal
         }
-
         
-        // Load cart items from localStorage
-        function loadCartItems() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const cartItemsContainer = document.getElementById('checkoutCartItems');
-            
-            if (cart === null) {
-                cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your cart is empty. Add items to proceed.</p>';
-                document.getElementById('basketPrice').textContent = '₱0';
-                document.getElementById('orderTotal').textContent = '₱50';
-                return;
-            } else {
-                // Render cart items
-                cartItemsContainer.innerHTML = cart.map(item => `
-                    <div class="checkout-cart-item">
-                        <img src="${item.image}" alt="${item.name}">
-                        <div class="checkout-item-info">
-                            <div class="checkout-item-name">${item.name}</div>
-                            <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
-                            <div class="checkout-item-price">₱${item.price * item.quantity}</div>
-                        </div>
-                    </div>
-                `).join('');
-                
-            }
+        initializeCategoryFilter();
 
-            // Calculate totals
-            calculateTotals(cart);
+        // THIS CHECKS IF USER IS LOGGED IN, THEN DISPLAY CART
+        if (window.isLoggedIn) {
+            updateCartButton();
         }
 
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let currentStep = 1;
+        cartBtn.addEventListener("click", function () {
+            openCart();
+        });
 
-        initializeCategoryFilter();
-        initializeProductModal();
-        updateCartButton();
+        // PRODUCT MODAL QUANTITY CONTROLS
+        const addToCartBtn = document.querySelector('.add-to-cart-btn');
+        const decreaseBtn = document.querySelector('.qty-decrease');
+        const increaseBtn = document.querySelector('.qty-increase');
         
-        loadCartItems();
-        updateStepIndicator();
-        updateNavigationButtons();
+        decreaseBtn.onclick = (e) => {
+            e.stopPropagation();
+            let value = parseInt(qtyInput.value);
+            if (value > 1) {
+                qtyInput.value = value - 1;
+            }
+        };
+
+        qtyInput.oninput = () => {
+            let value = qtyInput.value;
+
+            // Allow empty temporarily so the user can type freely
+            if (value === "") return;
+
+            value = parseInt(value);
+
+            if (isNaN(value) || value < 1) value = 1; // This avoid letting the user input the value `0`
+            if (value > 99) value = 99;
+
+            qtyInput.value = value;
+        };
+
+        increaseBtn.onclick = (e) => {
+            e.stopPropagation();
+            let value = parseInt(qtyInput.value);
+            if (value < 99) {
+                qtyInput.value = value + 1;
+            }
+        };
         
+        // Add to cart button
+        addToCartBtn.onclick = () => {
+            const quantity = parseInt(qtyInput.value);
+            const product = {
+                name: modal.dataset.productName,
+                price: parseInt(modal.dataset.productPrice),
+                image: modal.dataset.productImage
+            };
+            
+            // Add with quantity
+            addToCart(product, quantity);
+        };
+
+        // CART MODAL QUANTITY CONTROLS
+        const cartDecreaseQuantityBtn = document.getElementById("cartDecreaseQuantityBtn");
+        const cartIncreaseQuantityBtn = document.getElementById("cartIncreaseQuantityBtn");
+
+        if (cartDecreaseQuantityBtn) {
+            utils.debug("Cart btn", true);   
+            cartDecreaseQuantityBtn.addEventListener("click", function () {
+                const btnId = cartDecreaseQuantityBtn.dataset.btn.id;
+                decreaseQuantity(btnId);
+            });
+        }
+
+        if (cartIncreaseQuantityBtn) {
+            utils.debug("Cart btn", true);     
+            cartIncreaseQuantityBtn.addEventListener("click", function () {
+                const btnId = cartIncreaseQuantityBtn.dataset.btn.id;
+                increaseQuantity(btnId);
+            });
+        }
+
+        // Add this inside initializeProductModal(), after addToCartBtn.onclick
+        const orderNowBtn = modal.querySelector('.order-btn');
+
+        orderNowBtn.onclick = (e) => {
+            e.stopPropagation();
+
+            if (!window.isLoggedIn) {
+                window.location.href = "/Home/Signin";
+                return;
+            }
+
+            const quantity = parseInt(qtyInput.value);
+            const product = {
+                name: modal.dataset.productName,
+                price: parseInt(modal.dataset.productPrice),
+                image: modal.dataset.productImage
+            };
+
+            addToCart(product, quantity);
+
+            modal.classList.remove("show");
+
+            window.location.href = '/Home/Checkout';
+        };
+    
+        
+        const closeBtn = document.querySelector(".remove-item");
+        if (closeBtn) {
+            utils.debug("Cart", " Hello");
+            closeBtn.addEventListener("click", function () {
+                const itemId = closeBtn.dataset.item.id;
+                utils.debug("Cart Item", itemId);
+                removeItem(itemId);
+            });
+        }
 
         //CATEGORY
         // Get all category items and product cards
@@ -373,7 +377,7 @@ const Page = {
                 
                 // Reset quantity and show modal
                 qtyInput.value = 1;
-                modal.classList.add("show");
+                openProductModal();
             });
         });
 
@@ -504,6 +508,106 @@ const Page = {
 
     aboutUs: function () {
         utils.debug("Page", "About Us");
+    },
+
+    checkout: function () {
+        utils.debug("Page", "Checkout");
+
+        // Go back to previous step
+        function goBack() {
+            if (currentStep === 2) {
+                currentStep = 1;
+                showStep(1);
+            } else if (currentStep === 1) {
+                // Go back to menu
+                window.location.href = '/Home/Menu';
+            }
+        }
+        
+        // Update navigation buttons
+        function updateNavigationButtons() {
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentStep === 1) {
+                backBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Back to Menu
+                `;
+            } else {
+                backBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Back
+                `;
+            }
+            
+            if (currentStep === 2) {
+                nextBtn.innerHTML = `
+                    Place Order
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                `;
+            } else {
+                nextBtn.innerHTML = `
+                    Next
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                `;
+            }
+        }
+
+
+        // Calculate order totals
+        function calculateTotals(cart) {
+            const basketPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = 50;
+            const discount = 0;
+            const orderTotal = basketPrice + deliveryFee - discount;
+            
+            document.getElementById('basketPrice').textContent = `₱${basketPrice}`;
+            document.getElementById('deliveryFee').textContent = `₱${deliveryFee}`;
+            document.getElementById('discount').textContent = `₱${discount}`;
+            document.getElementById('orderTotal').textContent = `₱${orderTotal}`;
+        }
+
+        // Load cart items from localStorage
+        function loadCartItems() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsContainer = document.getElementById('checkoutCartItems');
+            
+            if (cart === null) {
+                cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your cart is empty. Add items to proceed.</p>';
+                document.getElementById('basketPrice').textContent = '₱0';
+                document.getElementById('orderTotal').textContent = '₱50';
+                return;
+            } else {
+                // Render cart items
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="checkout-cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="checkout-item-info">
+                            <div class="checkout-item-name">${item.name}</div>
+                            <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
+                            <div class="checkout-item-price">₱${item.price * item.quantity}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            }
+
+            // Calculate totals
+            calculateTotals(cart);
+        }
+
+        loadCartItems();
+        updateStepIndicator();
+        updateNavigationButtons();
     }
 }
 
@@ -534,21 +638,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 
-
-
-    // Calculate order totals
-    function calculateTotals(cart) {
-        const basketPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const deliveryFee = 50;
-        const discount = 0;
-        const orderTotal = basketPrice + deliveryFee - discount;
-        
-        document.getElementById('basketPrice').textContent = `₱${basketPrice}`;
-        document.getElementById('deliveryFee').textContent = `₱${deliveryFee}`;
-        document.getElementById('discount').textContent = `₱${discount}`;
-        document.getElementById('orderTotal').textContent = `₱${orderTotal}`;
-    }
-
     // Go to next step
     /*function showStep(step) {
         const personalForm = document.getElementById("personalInfoForm");
@@ -576,18 +665,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         
     }*/
-
-
-    // Go back to previous step
-    function goBack() {
-        if (currentStep === 2) {
-            currentStep = 1;
-            showStep(1);
-        } else if (currentStep === 1) {
-            // Go back to menu
-            window.location.href = '/Home/Menu';
-        }
-    }
 
     // Show specific step
     function showStep(step) {
@@ -617,44 +694,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 step.classList.remove('active');
             }
         });
-    }
-
-    // Update navigation buttons
-    function updateNavigationButtons() {
-        const backBtn = document.getElementById('backBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        if (currentStep === 1) {
-            backBtn.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Back to Menu
-            `;
-        } else {
-            backBtn.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Back
-            `;
-        }
-        
-        if (currentStep === 2) {
-            nextBtn.innerHTML = `
-                Place Order
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            `;
-        } else {
-            nextBtn.innerHTML = `
-                Next
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            `;
-        }
     }
 
     // Validate personal info form

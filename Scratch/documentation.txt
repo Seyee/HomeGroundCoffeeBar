@@ -6,3 +6,9 @@ REFACTOR
         ** Create a utils.js, put all of the functions inside, organize functions based on their uses
         ** Use Page-based initiliazation to segregate js code for each page, to avoid errors occuring
             from other pages.
+
+        Make menu work properly
+
+
+4/3/2026
+    Fix session, session starts without even logging in

@@ -254,15 +254,22 @@ public class AccountController : Controller
 
                     // SET SESSION
                     var userId = reader["Id"].ToString();
+                    Console.WriteLine("user Id: " + userId); // This works REMOVE THIS
                     HttpContext.Session.SetString("UserId", userId);
                     HttpContext.Session.SetString("Phone", Phone);
                     HttpContext.Session.SetString("Name", reader["Name"].ToString());
                     HttpContext.Session.SetString("ProfilePic", reader["ProfilePic"]?.ToString() ?? "");
                     HttpContext.Session.SetString("Role", reader["Role"]?.ToString() ?? "User");
 
+                    // UNNECESSARY TONG `HttpContext.Session` applicable lang to dito sa controller, at the same time hindi den naman siya pinapasa as object or veiw data
+
+                    // si claims ang nag hahandle ng session, pwera nalang kung mas trip niyo ng `HttpContxt`, medyo matrabhao nga lang
+
                     // SET CLAIMS
                     var claims = new List<Claim>
                     {
+                        new Claim("UserId", userId),
+                        new Claim("Phone", Phone),
                         new Claim(ClaimTypes.Name, reader["Name"].ToString()),
                         new Claim("picture", reader["ProfilePic"]?.ToString() ?? ""),
                         new Claim(ClaimTypes.Role, reader["Role"]?.ToString() ?? "User")
