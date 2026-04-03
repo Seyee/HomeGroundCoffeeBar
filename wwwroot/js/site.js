@@ -297,24 +297,22 @@ const Page = {
         };
 
         // CART MODAL QUANTITY CONTROLS
-        const cartDecreaseQuantityBtn = document.getElementById("cartDecreaseQuantityBtn");
-        const cartIncreaseQuantityBtn = document.getElementById("cartIncreaseQuantityBtn");
+        document.addEventListener("click", function (e) {
+            if (e.target.id === "cartDecreaseQuantityBtn") {
+                utils.debug("Cart btn", "decrease");
 
-        if (cartDecreaseQuantityBtn) {
-            utils.debug("Cart btn", true);   
-            cartDecreaseQuantityBtn.addEventListener("click", function () {
-                const btnId = cartDecreaseQuantityBtn.dataset.btn.id;
+                const btnId = e.target.dataset.btnId;
                 decreaseQuantity(btnId);
-            });
-        }
+            }
 
-        if (cartIncreaseQuantityBtn) {
-            utils.debug("Cart btn", true);     
-            cartIncreaseQuantityBtn.addEventListener("click", function () {
-                const btnId = cartIncreaseQuantityBtn.dataset.btn.id;
+            if (e.target.id === "cartIncreaseQuantityBtn") {
+                utils.debug("Cart btn", "increase");
+
+                const btnId = e.target.dataset.btnId;
                 increaseQuantity(btnId);
-            });
-        }
+            }
+
+        });
 
         // Add this inside initializeProductModal(), after addToCartBtn.onclick
         const orderNowBtn = modal.querySelector('.order-btn');
