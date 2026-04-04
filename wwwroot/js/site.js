@@ -17,8 +17,7 @@ let currentStep = 1;
 
 // Close modal when clicking X
 closeBtn.addEventListener('click', function() {
-    modal.classList.remove("show"); 
-    modalItem.forEach(m => m.classList.remove("show"));
+    utils.closeModal(modal);
 });
 
 if (profileMenu) { 
@@ -30,8 +29,7 @@ if (profileMenu) {
 // Close modal/dropdowns when clicking outside
 window.addEventListener('click', function(event) {
     if (event.target === modal) {
-        modal.classList.remove("show");
-        modalItem.forEach(m => m.classList.remove("show"));
+        utils.closeModal(modal);
     }
 });
 
@@ -60,7 +58,7 @@ const Page = {
         utils.debug("Page", "Menu");
 
         // VARIABLES
-        const qtyInput = document.querySelector('.qty-input');
+        const productQtyInput = document.querySelector('.qty-input');
 
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let cartBtn = document.getElementById('cartButton');
@@ -122,65 +120,73 @@ const Page = {
             }
         }
 
-        function addToCart(product, quantity = 1) {
+        function addToCart(product) {
             const existingItem = cart.find(item => item.name === product.name);
             
             if (existingItem) {
-                existingItem.quantity += quantity;
+                utils.debug("existing item", true);
+                if (product.quantity >= 99) {
+                    showNotification(`${product.quantity} item quantity exceeded!`);
+                    return;
+                } else {
+                    existingItem.quantity += product.quantity;
+                    updateCartButton();
+                    showNotification(`${product.quantity} added to cart!`);
+                    utils.closeModal(modal);
+                }
             } else {
                 cart.push({
                     name: product.name,
                     price: product.price,
                     image: product.image,
-                    quantity: quantity
+                    quantity: product.quantity
                 });
+                    
+                // Save to localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartButton();
+                
+                // Show success message
+                const itemText = product.quantity > 1 ? `${product.quantity} items` : 'Item';
+                showNotification(`${itemText} added to cart!`);
+                utils.closeModal(modal);
+            
             }
-            
-            // Save to localStorage
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartButton();
-            
-            // Show success message
-            const itemText = quantity > 1 ? `${quantity} items` : 'Item';
-            showNotification(`${itemText} added to cart!`);
         }
 
         // Open cart modal
         function openCart() {
-            modal.classList.add("show");
             let cartModal = document.getElementById('cartModal');
             
             // Populate cart items
             updateCartModal(cartModal);
-            cartModal.classList.add("show");
+            utils.openModal(modal ,cartModal);
 
             // Close button
             cartModal.querySelector('.cart-close').onclick = () => {
-                modal.classList.remove("show");
-                cartModal.classList.remove("show");
+                utils.closeModal(modal);
             };
             
             // Close when clicking outside cart modal
             cartModal.onclick = (event) => {
                 if (event.target === cartModal) {
-                    modal.classList.remove("show");
-                    cartModal.classList.remove("show");
+                    utils.closeModal(modal);
                 }
-            };
-            cartModal.querySelector('.checkout-btn').onclick = () => {
-            window.location.href = '/Home/Checkout';
             };
         }
 
         function openProductModal() {
             const productModal = document.getElementById("productModal");
 
-            modal.classList.add("show");
-            productModal.classList.add("show");
+            utils.openModal(modal, productModal);
+        }
+
+        function setItemQuantity(index, input) {
+            cart[index].quantity = parseInt(input);
         }
 
         // Update cart modal content
-        function updateCartModal(cartModal) {
+        function updateCartModal() {
             const cartItems = document.querySelector('.cart-items');
             const totalAmount = document.querySelector('.total-amount');
             
@@ -200,10 +206,10 @@ const Page = {
                     </div>
                     <div class="cart-item-controls">
                         <button id="cartDecreaseQuantityBtn" data-btn-id="${index}">-</button>
-                        <input type="number" class="cart-input" value="${item.quantity}" min="1" max="99">
+                        <input id="cartItemInput" type="number" class="qty-input cart-input" data-input-id="${index}" value="${item.quantity}" min="1" max="99">
                         <button id="cartIncreaseQuantityBtn" data-btn-id="${index}">+</button>
                     </div>
-                    <button class="remove-item" data-item-id="${index}">✕</button>
+                    <button id="removeCartItem" class="remove-item" data-item-id="${index}">✕</button>
                 </div>
             `).join('');
             
@@ -211,12 +217,34 @@ const Page = {
             totalAmount.textContent = `₱${total}`;
         }
 
+        function updateCartTotalPrice() {
+            const totalAmount = document.querySelector('.total-amount');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+
+            utils.debug("total", total);
+            if (isNaN(total)) {
+                totalAmount.textContent = `₱0`;
+            } else {
+                totalAmount.textContent = `₱${total}`;
+            }
+        }
+
+        function checkout() {
+            // If ever, meron ng table for cart, create a post request na nag papasa ng id or 
+            // unique identifier ni user, then used mo yun para ma identigy ung contents 
+            // ng table ni user
+        }
+
         // Cart manipulation functions
         function increaseQuantity(index) {
-            cart[index].quantity++;
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartButton();
-            openCart(); // Refresh cart modal
+            if (cart[index].quantity >= 99) {
+                showNotification(`${cart[index].quantity} item quantity exceeded!`);
+            } else {
+                cart[index].quantity++;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartButton();
+                openCart(); // Refresh cart modal
+            }
         }
 
         function decreaseQuantity(index) {
@@ -255,68 +283,41 @@ const Page = {
         
         decreaseBtn.onclick = (e) => {
             e.stopPropagation();
-            let value = parseInt(qtyInput.value);
+            let value = parseInt(productQtyInput.value);
             if (value > 1) {
-                qtyInput.value = value - 1;
+                productQtyInput.value = value - 1;
             }
         };
 
-        qtyInput.oninput = () => {
-            let value = qtyInput.value;
-
-            // Allow empty temporarily so the user can type freely
-            if (value === "") return;
-
-            value = parseInt(value);
-
-            if (isNaN(value) || value < 1) value = 1; // This avoid letting the user input the value `0`
-            if (value > 99) value = 99;
-
-            qtyInput.value = value;
-        };
+        // VALIDATE PRODUCT QUANTITY TO MAX 99
+        productQtyInput.addEventListener("input", function () {
+            productQtyInput.value = utils.validateItemQuantity(productQtyInput);
+        });
 
         increaseBtn.onclick = (e) => {
             e.stopPropagation();
-            let value = parseInt(qtyInput.value);
+            let value = parseInt(productQtyInput.value);
             if (value < 99) {
-                qtyInput.value = value + 1;
+                productQtyInput.value = value + 1;
             }
         };
         
         // Add to cart button
         addToCartBtn.onclick = () => {
-            const quantity = parseInt(qtyInput.value);
+            const quantity = parseInt(productQtyInput.value);
             const product = {
                 name: modal.dataset.productName,
                 price: parseInt(modal.dataset.productPrice),
-                image: modal.dataset.productImage
+                image: modal.dataset.productImage,
+                quantity: quantity
             };
             
             // Add with quantity
-            addToCart(product, quantity);
+            addToCart(product);
         };
-
-        // CART MODAL QUANTITY CONTROLS
-        document.addEventListener("click", function (e) {
-            if (e.target.id === "cartDecreaseQuantityBtn") {
-                utils.debug("Cart btn", "decrease");
-
-                const btnId = e.target.dataset.btnId;
-                decreaseQuantity(btnId);
-            }
-
-            if (e.target.id === "cartIncreaseQuantityBtn") {
-                utils.debug("Cart btn", "increase");
-
-                const btnId = e.target.dataset.btnId;
-                increaseQuantity(btnId);
-            }
-
-        });
 
         // Add this inside initializeProductModal(), after addToCartBtn.onclick
         const orderNowBtn = modal.querySelector('.order-btn');
-
         orderNowBtn.onclick = (e) => {
             e.stopPropagation();
 
@@ -325,7 +326,7 @@ const Page = {
                 return;
             }
 
-            const quantity = parseInt(qtyInput.value);
+            const quantity = parseInt(productQtyInput.value);
             const product = {
                 name: modal.dataset.productName,
                 price: parseInt(modal.dataset.productPrice),
@@ -339,17 +340,6 @@ const Page = {
             window.location.href = '/Home/Checkout';
         };
     
-        
-        const closeBtn = document.querySelector(".remove-item");
-        if (closeBtn) {
-            utils.debug("Cart", " Hello");
-            closeBtn.addEventListener("click", function () {
-                const itemId = closeBtn.dataset.item.id;
-                utils.debug("Cart Item", itemId);
-                removeItem(itemId);
-            });
-        }
-
         //CATEGORY
         // Get all category items and product cards
         const categoryItems = document.querySelectorAll('.category-item');
@@ -374,11 +364,47 @@ const Page = {
                 modal.dataset.productImage = imageSrc;
                 
                 // Reset quantity and show modal
-                qtyInput.value = 1;
+                productQtyInput.value = 1;
                 openProductModal();
             });
         });
 
+        document.addEventListener("click", function (e) {
+            // CART MODAL CONTROLS
+            if (e.target.id === "cartDecreaseQuantityBtn") {
+                const btnId = e.target.dataset.btnId;
+                decreaseQuantity(btnId);
+            }
+
+            if (e.target.id === "cartIncreaseQuantityBtn") {
+                const btnId = e.target.dataset.btnId;
+                increaseQuantity(btnId);
+            }
+
+            if (e.target.id === "removeCartItem") {
+                const cartItemId = e.target.dataset.itemId;
+                removeItem(cartItemId);
+            }
+
+            // CHECKS CART QTY INPUT
+            if (e.target.id === "cartItemInput") {
+                const cartQtyInput = document.getElementById("cartItemInput");
+
+                cartQtyInput.addEventListener("input", function () {    
+                    cartQtyInput.value = utils.validateItemQuantity(cartQtyInput);
+                });
+
+                cartQtyInput.addEventListener("input", function () {
+                    const cartItemId = cartQtyInput.dataset.inputId;
+                    setItemQuantity(cartItemId, cartQtyInput.value);
+                    updateCartTotalPrice();
+                });
+            }
+
+            if (e.target.id === "checkoutBtn") {
+                window.location.href = '/Home/Checkout';
+            }
+        });
 
     },
 
