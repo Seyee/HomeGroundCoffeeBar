@@ -793,19 +793,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    // Load saved personal info if available (for returning customers)
-    window.addEventListener('load', function() {
-        const savedInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
-        if (savedInfo) {
-            document.getElementById('fullName').value = savedInfo.fullName || '';
-            document.getElementById('email').value = savedInfo.email || '';
-            document.getElementById('streetAddress').value = savedInfo.streetAddress || '';
-            document.getElementById('state').value = savedInfo.state || '';
-            document.getElementById('city').value = savedInfo.city || '';
-            document.getElementById('zipCode').value = savedInfo.zipCode || '';
-            document.getElementById('phoneNumber').value = savedInfo.phoneNumber || '';
-        }
-    });
+// Load saved personal info if available (for returning customers)
+window.addEventListener('load', function() {
+    const savedInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
+    if (savedInfo) {
+        document.getElementById('fullName').value = savedInfo.fullName || '';
+        document.getElementById('email').value = savedInfo.email || '';
+        document.getElementById('streetAddress').value = savedInfo.streetAddress || '';
+        document.getElementById('state').value = savedInfo.state || '';
+        document.getElementById('city').value = savedInfo.city || '';
+        document.getElementById('zipCode').value = savedInfo.zipCode || '';
+        document.getElementById('phoneNumber').value = savedInfo.phoneNumber || '';
+    }
+});
 
 
 
