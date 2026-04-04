@@ -460,49 +460,17 @@ const Page = {
             });
         });
 
-        
-        // Add ripple effect styles dynamically
-        const style = document.createElement('style');
-        style.textContent = `
-            .store-card {
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .store-card.active {
-                background: rgba(97, 76, 58, 0.25);
-                border-color: #614c3a;
-                box-shadow: 0 0 20px rgba(97, 76, 58, 0.5);
-            }
-            
-            .ripple {
-                position: absolute;
-                border-radius: 50%;
-                background: rgba(228, 209, 185, 0.3);
-                transform: scale(0);
-                animation: ripple-animation 0.6s ease-out;
-                pointer-events: none;
-            }
-            
-            @keyframes ripple-animation {
-                to {
-                    transform: scale(2);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
 
         // LCOATION PAGE
         // Store locations data
         const locations = {
-            store1: {
+            1: {
                 lat: 14.441571582745448,
                 lng: 120.95271528109014,
                 name: '13 Azucena Street',
                 zoom: 17
             },
-            store2: {
+            2: {
                 lat: 14.389405670070746,
                 lng: 120.9397815099245,
                 name: 'Servida Building Anabu',
@@ -511,10 +479,12 @@ const Page = {
         };
 
         
-        function focusLocation(lat, lng, storeId) {
+        function focusLocation(store) {
             const iframe = document.getElementById('googleMap');
 
-            // 🔥 This URL works with dynamic coordinates
+            const lat = locations[store].lat;
+            const lng = locations[store].lng;
+
             const newSrc = `https://www.google.com/maps?q=${lat},${lng}&z=17&output=embed`;
 
             iframe.src = newSrc;
@@ -522,7 +492,6 @@ const Page = {
             // Switch active store visually
             const allCards = document.querySelectorAll('.store-card');
             allCards.forEach(card => card.classList.remove('active'));
-            event.currentTarget.classList.add('active');
 
             // Smooth scroll (mobile)
             if (window.innerWidth <= 1024) {
@@ -532,6 +501,17 @@ const Page = {
                 });
             }
         }
+
+        document.addEventListener("click", function (e) {
+            if (e.target.closest(".store-card")) {
+                utils.debug("Location card", true);
+                const store = e.target.closest(".store-card");
+                store.classList.add("active");
+
+                const storeId = store.dataset.store;
+                focusLocation(storeId);
+            }
+        });
     },
 
     aboutUs: function () {
