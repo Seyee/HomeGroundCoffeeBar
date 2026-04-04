@@ -125,7 +125,7 @@ const Page = {
             
             if (existingItem) {
                 utils.debug("existing item", true);
-                if (product.quantity >= 99) {
+                if (product.quantity >= 99 || existingItem.quantity >= 99) {
                     showNotification(`${product.quantity} item quantity exceeded!`);
                     return;
                 } else {
@@ -198,18 +198,21 @@ const Page = {
             }
             
             cartItems.innerHTML = cart.map((item, index) => `
-                <div class="cart-item">
-                    <img src="${item.image}" alt="${item.name}">
-                    <div class="cart-item-info">
-                        <h3>${item.name}</h3>
-                        <p class="cart-item-price">₱${item.price}</p>
-                    </div>
-                    <div class="cart-item-controls">
-                        <button id="cartDecreaseQuantityBtn" data-btn-id="${index}">-</button>
-                        <input id="cartItemInput" type="number" class="qty-input cart-input" data-input-id="${index}" value="${item.quantity}" min="1" max="99">
-                        <button id="cartIncreaseQuantityBtn" data-btn-id="${index}">+</button>
-                    </div>
+                <div class="cart-item-con">
                     <button id="removeCartItem" class="remove-item" data-item-id="${index}">✕</button>
+
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-info">
+                            <h3>${item.name}</h3>
+                            <p class="cart-item-price">₱${item.price}</p>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button id="cartDecreaseQuantityBtn" data-btn-id="${index}">-</button>
+                            <input id="cartItemInput" type="number" class="qty-input cart-input" data-input-id="${index}" value="${item.quantity}" min="1" max="99">
+                            <button id="cartIncreaseQuantityBtn" data-btn-id="${index}">+</button>
+                        </div>
+                    </div>
                 </div>
             `).join('');
             
@@ -387,8 +390,9 @@ const Page = {
             }
 
             // CHECKS CART QTY INPUT
-            if (e.target.id === "cartItemInput") {
-                const cartQtyInput = document.getElementById("cartItemInput");
+            if (e.target.closest(".cart-input")) {
+                utils.debug("Input cart", true);
+                const cartQtyInput = e.target.closest(".cart-input");
 
                 cartQtyInput.addEventListener("input", function () {    
                     cartQtyInput.value = utils.validateItemQuantity(cartQtyInput);
