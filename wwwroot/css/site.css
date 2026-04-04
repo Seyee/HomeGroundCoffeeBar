@@ -1075,7 +1075,6 @@ footer.footer {
 
 /* ===== MODAL STYLES - FULLY RESPONSIVE ===== */
 .modal {
-  align-items: center;
   justify-content: center;
   display: none;
   position: fixed;
@@ -1153,8 +1152,13 @@ footer.footer {
     padding: 40px;
 }
 
+.modal-body-img-con {
+  display: flex;
+  align-items: center;
+}
+
 .modal-body img {
-  align-self: center;
+  align-self: start;
   width: 300px;
   height: 300px;
   object-fit: cover;
@@ -2387,7 +2391,6 @@ footer.footer {
 @media screen and (max-width: 576px) {
   .modal {
     padding: 10px;
-    align-items: flex-start;
   }
   
   .modal-body {
