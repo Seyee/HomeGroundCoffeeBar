@@ -1,0 +1,27 @@
+REFACTOR
+
+4/2/2026
+    1st - Clean and centralize cshtml and css 
+
+        ** Create a utils.js, put all of the functions inside, organize functions based on their uses
+        ** Use Page-based initiliazation to segregate js code for each page, to avoid errors occuring
+            from other pages.
+
+        Make menu work properly
+
+
+4/3/2026
+    Fix session, session starts without even logging in -- NOT FIXED YET
+
+
+4/4/2026 
+    If ever, try to create a single increment, decrement, quantity input function that handles both
+    productModal and cartModal
+
+    NOTE!!! I have noticed that the cartModal quantity controls (increment and decrement) updates the 
+            quantity of the item to the cart local storage for each click, which is ok, because the cart
+            should always be updated. (Following the current code base).
+
+    REFACTOR!!! The cart should not rely on local storage, instead the cart should have its own table
+                for it to be reliable in the long run. Local storage gets cleared when you close or 
+                clear the browser.

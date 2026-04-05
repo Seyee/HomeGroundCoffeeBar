@@ -1,251 +1,354 @@
-﻿    document.addEventListener('DOMContentLoaded', function() {
-        const scrollBtn = document.getElementById('ScrollTopLink');
-        
-        if (scrollBtn) {
+﻿import * as utils from "./utils.js";
+
+
+// GLOBAL Modal elements
+const modal = document.querySelector('.modal');
+const modalItem = document.querySelectorAll(".modal-item");
+const modalImage = document.getElementById('modalImage');
+const modalTitle = document.getElementById('modalTitle');
+const modalPrice = document.getElementById('modalPrice');
+const closeBtn = document.querySelector('.close');
+
+const profileBtn = document.querySelector(".profile-pic");
+const profileMenu = document.getElementById("profileMenu");
+
+// GLOBAL VARIABLE
+let currentStep = 1;
+
+// Close modal when clicking X
+closeBtn.addEventListener('click', function() {
+    utils.closeModal(modal);
+});
+
+if (profileMenu) { 
+    profileBtn.addEventListener("click", function () {
+        profileMenu.classList.toggle("show");
+    });
+}
+
+// Close modal/dropdowns when clicking outside
+window.addEventListener('click', function(event) {
+    if (event.target === modal) {
+        utils.closeModal(modal);
+    }
+});
+
+
+// PBI
+const Page = {
+    home: function () {
+        utils.debug("Page", "Home");
+
+        function initializeScrollButton() {
+            const scrollBtn = document.getElementById('ScrollTopLink');
+            
             scrollBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                
-
                 document.body.scrollTop = 0;
                 document.documentElement.scrollTop = 0;
             });
         }
-    });
 
+        initializeScrollButton(); // SCROLLING UP
 
-    //CATEGORY
-    // Get all category items and product cards
-    const categoryItems = document.querySelectorAll('.category-item');
-    const productCards = document.querySelectorAll('.product-card');
-    const menuCurrent = document.querySelector('.menu-current');
+        
+    },
 
-    // Modal elements
-    const modal = document.getElementById('productModal');
-    const modalImage = document.getElementById('modalImage');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalPrice = document.getElementById('modalPrice');
-    const closeBtn = document.querySelector('.close');
+    menu: function () {
+        utils.debug("Page", "Menu");
 
-    // Add click event to each category item
-    categoryItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Remove active class from all items
-            categoryItems.forEach(cat => cat.classList.remove('active'));
+        // VARIABLES
+        const productQtyInput = document.querySelector('.qty-input');
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartBtn = document.getElementById('cartButton');
+
+        function initializeCategoryFilter() {
+            const categoryItems = document.querySelectorAll('.category-item');
+            const productCards = document.querySelectorAll('.product-card');
+            const menuCurrent = document.querySelector('.menu-current');
             
-            // Add active class to clicked item
-            this.classList.add('active');
+            categoryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    categoryItems.forEach(cat => cat.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Get selected category
+                    const selectedCategory = this.getAttribute('data-category');
+                    
+                    // Update the menu current text
+                    if (selectedCategory === 'all') {
+                        menuCurrent.textContent = 'Sip & Bites';
+                    } else if (selectedCategory === 'hot') {
+                        menuCurrent.textContent = 'Hot Drinks';
+                    } else if (selectedCategory === 'cold') {
+                        menuCurrent.textContent = 'Cold Drinks';
+                    } else if (selectedCategory === 'burger') {
+                        menuCurrent.textContent = 'Burgers';
+                    }
+                    
+                    // Filter products
+                    productCards.forEach(card => {
+                        const productId = card.getAttribute('id');
+                        
+                        if (selectedCategory === 'all' || productId === selectedCategory) {
+                            card.classList.remove("hide");
+                        } else {
+                            card.classList.add("hide");
+                        }
+                    });
+                });
+            });
+        }
+
+        function updateCartButton() {
+            utils.debug("Is User Logged in?", window.isLoggedIn);
+            utils.debug("User Id", window.userId);
+
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const cartCount = cartBtn.querySelector('.cart-count');
+
+            cartCount.textContent = totalItems;
+
+            if (totalItems > 0) {
+                cartBtn.classList.add("show"); //THIS SHOW THE CART MODAL
+            } else {
+                cartBtn.classList.remove("show");
+            }
+        }
+
+        function addToCart(product) {
+            const existingItem = cart.find(item => item.name === product.name);
             
-            // Get selected category
-            const selectedCategory = this.getAttribute('data-category');
+            if (existingItem) {
+                utils.debug("existing item", true);
+                if (product.quantity >= 99 || existingItem.quantity >= 99) {
+                    showNotification(`${product.quantity} item quantity exceeded!`);
+                    return;
+                } else {
+                    existingItem.quantity += product.quantity;
+                    updateCartButton();
+                    showNotification(`${product.quantity} added to cart!`);
+                    utils.closeModal(modal);
+                }
+            } else {
+                cart.push({
+                    name: product.name,
+                    price: product.price,
+                    image: product.image,
+                    quantity: product.quantity
+                });
+                    
+                // Save to localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartButton();
+                
+                // Show success message
+                const itemText = product.quantity > 1 ? `${product.quantity} items` : 'Item';
+                showNotification(`${itemText} added to cart!`);
+                utils.closeModal(modal);
             
-            // Update the menu current text
-            if (selectedCategory === 'all') {
-                menuCurrent.textContent = 'Sip & Bites';
-            } else if (selectedCategory === 'hot') {
-                menuCurrent.textContent = 'Cold Drinks';
-            } else if (selectedCategory === 'cold') {
-                menuCurrent.textContent = 'Hot Drinks';
-            } else if (selectedCategory === 'burger') {
-                menuCurrent.textContent = 'Burgers';
+            }
+        }
+
+        // Open cart modal
+        function openCart() {
+            let cartModal = document.getElementById('cartModal');
+            
+            // Populate cart items
+            updateCartModal(cartModal);
+            utils.openModal(modal ,cartModal);
+
+            // Close button
+            cartModal.querySelector('.cart-close').onclick = () => {
+                utils.closeModal(modal);
+            };
+            
+            // Close when clicking outside cart modal
+            cartModal.onclick = (event) => {
+                if (event.target === cartModal) {
+                    utils.closeModal(modal);
+                }
+            };
+        }
+
+        function openProductModal() {
+            const productModal = document.getElementById("productModal");
+
+            utils.openModal(modal, productModal);
+        }
+
+        function setItemQuantity(index, input) {
+            cart[index].quantity = parseInt(input);
+        }
+
+        // Update cart modal content
+        function updateCartModal() {
+            const cartItems = document.querySelector('.cart-items');
+            const totalAmount = document.querySelector('.total-amount');
+            
+            // Unnecessary na to, di mo den naman dinidisplay si cart pag 0 eh
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+                totalAmount.textContent = '₱0';
+                return;
             }
             
-            // Filter products
-            productCards.forEach(card => {
-                const productId = card.getAttribute('id');
-                
-                if (selectedCategory === 'all') {
-                    // Show all products
-                    card.style.display = '';
-                } else if (productId === selectedCategory) {
-                    // Show matching products
-                    card.style.display = '';
-                } else {
-                    // Hide non-matching products
-                    card.style.display = 'none';
-                }
-            });
-        });
-    });
+            cartItems.innerHTML = cart.map((item, index) => `
+                <div class="cart-item-con">
+                    <button id="removeCartItem" class="remove-item" data-item-id="${index}">✕</button>
 
-    // Add click event to product cards for modal
-    productCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const img = this.querySelector('img');
-            const title = this.querySelector('p').textContent;
-            const price = this.getAttribute('data-price');
-            const imageSrc = img.getAttribute('src');
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-info">
+                            <h3>${item.name}</h3>
+                            <p class="cart-item-price">₱${item.price}</p>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button id="cartDecreaseQuantityBtn" data-btn-id="${index}">-</button>
+                            <input id="cartItemInput" type="number" class="qty-input cart-input" data-input-id="${index}" value="${item.quantity}" min="1" max="99">
+                            <button id="cartIncreaseQuantityBtn" data-btn-id="${index}">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
             
-            // Set modal content
-            modalImage.src = imageSrc;
-            modalTitle.textContent = title;
-            modalPrice.textContent = price;
-            
-            // Show modal
-            modal.style.display = 'block';
-        });
-    });
-
-    // Close modal when clicking X
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalAmount.textContent = `₱${total}`;
         }
-    });
 
+        function updateCartTotalPrice() {
+            const totalAmount = document.querySelector('.total-amount');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
 
+            utils.debug("total", total);
+            if (isNaN(total)) {
+                totalAmount.textContent = `₱0`;
+            } else {
+                totalAmount.textContent = `₱${total}`;
+            }
+        }
 
+        function checkout() {
+            // If ever, meron ng table for cart, create a post request na nag papasa ng id or 
+            // unique identifier ni user, then used mo yun para ma identigy ung contents 
+            // ng table ni user
+        }
 
-    // Cart state management
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        // Cart manipulation functions
+        function increaseQuantity(index) {
+            if (cart[index].quantity >= 99) {
+                showNotification(`${cart[index].quantity} item quantity exceeded!`);
+            } else {
+                cart[index].quantity++;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartButton();
+                openCart(); // Refresh cart modal
+            }
+        }
 
-    // Initialize everything on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeScrollButton();
-        initializeCategoryFilter();
-        initializeProductModal();
-        updateCartButton();
-    });
+        function decreaseQuantity(index) {
+            if (cart[index].quantity > 1) {
+                cart[index].quantity--;
+            } else {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartButton();
+            openCart(); // Refresh cart modal
+        }
 
-    // Scroll to top functionality
-    function initializeScrollButton() {
-        const scrollBtn = document.getElementById('ScrollTopLink');
+        function removeItem(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartButton();
+            openCart(); // Refresh cart modal
+        }
         
-        if (scrollBtn) {
-            scrollBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
-            });
-        }
-    }
+        initializeCategoryFilter();
 
-    // Category filter functionality
-    function initializeCategoryFilter() {
+        // THIS CHECKS IF USER IS LOGGED IN, THEN DISPLAY CART
+        if (window.isLoggedIn) {
+            updateCartButton();
+        }
+
+        cartBtn.addEventListener("click", function () {
+            openCart();
+        });
+
+        // PRODUCT MODAL QUANTITY CONTROLS
+        const addToCartBtn = document.querySelector('.add-to-cart-btn');
+        const decreaseBtn = document.querySelector('.qty-decrease');
+        const increaseBtn = document.querySelector('.qty-increase');
+        
+        decreaseBtn.onclick = (e) => {
+            e.stopPropagation();
+            let value = parseInt(productQtyInput.value);
+            if (value > 1) {
+                productQtyInput.value = value - 1;
+            }
+        };
+
+        // VALIDATE PRODUCT QUANTITY TO MAX 99
+        productQtyInput.addEventListener("input", function () {
+            productQtyInput.value = utils.validateItemQuantity(productQtyInput);
+        });
+
+        increaseBtn.onclick = (e) => {
+            e.stopPropagation();
+            let value = parseInt(productQtyInput.value);
+            if (value < 99) {
+                productQtyInput.value = value + 1;
+            }
+        };
+        
+        // Add to cart button
+        addToCartBtn.onclick = () => {
+            const quantity = parseInt(productQtyInput.value);
+            const product = {
+                name: modal.dataset.productName,
+                price: parseInt(modal.dataset.productPrice),
+                image: modal.dataset.productImage,
+                quantity: quantity
+            };
+            
+            // Add with quantity
+            addToCart(product);
+        };
+
+        // Add this inside initializeProductModal(), after addToCartBtn.onclick
+        const orderNowBtn = modal.querySelector('.order-btn');
+        orderNowBtn.onclick = (e) => {
+            e.stopPropagation();
+
+            if (!window.isLoggedIn) {
+                window.location.href = "/Home/Signin";
+                return;
+            }
+
+            const quantity = parseInt(productQtyInput.value);
+            const product = {
+                name: modal.dataset.productName,
+                price: parseInt(modal.dataset.productPrice),
+                image: modal.dataset.productImage
+            };
+
+            addToCart(product, quantity);
+
+            modal.classList.remove("show");
+
+            window.location.href = '/Home/Checkout';
+        };
+    
+        //CATEGORY
+        // Get all category items and product cards
         const categoryItems = document.querySelectorAll('.category-item');
         const productCards = document.querySelectorAll('.product-card');
         const menuCurrent = document.querySelector('.menu-current');
-        
-        categoryItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // Remove active class from all items
-                categoryItems.forEach(cat => cat.classList.remove('active'));
-                
-                // Add active class to clicked item
-                this.classList.add('active');
-                
-                // Get selected category
-                const selectedCategory = this.getAttribute('data-category');
-                
-                // Update the menu current text
-                if (selectedCategory === 'all') {
-                    menuCurrent.textContent = 'Sip & Bites';
-                } else if (selectedCategory === 'hot') {
-                    menuCurrent.textContent = 'Hot Drinks';
-                } else if (selectedCategory === 'cold') {
-                    menuCurrent.textContent = 'Cold Drinks';
-                } else if (selectedCategory === 'burger') {
-                    menuCurrent.textContent = 'Burgers';
-                }
-                
-                // Filter products
-                productCards.forEach(card => {
-                    const productId = card.getAttribute('id');
-                    
-                    if (selectedCategory === 'all' || productId === selectedCategory) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-    }
 
-    // Initialize product modal with quantity selector
-    function initializeProductModal() {
-        const modal = document.getElementById('productModal');
-        const closeBtn = modal.querySelector('.close');
-        const addToCartBtn = modal.querySelector('.add-to-cart-btn');
-        const productCards = document.querySelectorAll('.product-card');
-        
-        // Create quantity controls if they don't exist
-        let quantityContainer = modal.querySelector('.quantity-selector');
-        if (!quantityContainer) {
-            quantityContainer = document.createElement('div');
-            quantityContainer.className = 'quantity-selector';
-            quantityContainer.innerHTML = `
-                <label>Quantity:</label>
-                <div class="quantity-controls">
-                    <button class="qty-btn qty-decrease">-</button>
-                    <input type="number" class="qty-input" value="1" min="1" max="99">
-                    <button class="qty-btn qty-increase">+</button>
-                </div>
-            `;
-            
-            // Insert before modal buttons
-            const modalBtnContainer = modal.querySelector('.modal-btn');
-            modalBtnContainer.parentNode.insertBefore(quantityContainer, modalBtnContainer);
-        }
-        
-        const qtyInput = quantityContainer.querySelector('.qty-input');
-        const decreaseBtn = quantityContainer.querySelector('.qty-decrease');
-        const increaseBtn = quantityContainer.querySelector('.qty-increase');
-        
-        // Quantity controls
-        decreaseBtn.onclick = (e) => {
-            e.stopPropagation();
-            let value = parseInt(qtyInput.value);
-            if (value > 1) {
-                qtyInput.value = value - 1;
-            }
-        };
-
-        qtyInput.oninput = () => {
-        let value = qtyInput.value;
-
-        // Allow empty temporarily so the user can type freely
-        if (value === "") return;
-
-        value = parseInt(value);
-
-        if (isNaN(value) || value < 1) value = 1;
-        if (value > 99) value = 99;
-
-        qtyInput.value = value;
-    };
-
-
-        
-        increaseBtn.onclick = (e) => {
-            e.stopPropagation();
-            let value = parseInt(qtyInput.value);
-            if (value < 99) {
-                qtyInput.value = value + 1;
-            }
-        };
-        
-        // Close modal function
-        const closeModal = () => {
-            modal.style.display = 'none';
-            qtyInput.value = 1; // Reset quantity
-        };
-        
-        // Close button
-        closeBtn.onclick = closeModal;
-        
-        // Close when clicking outside
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-        
-        // Product card click handlers
         productCards.forEach(card => {
             card.addEventListener('click', function() {
                 const img = this.querySelector('img');
@@ -264,278 +367,54 @@
                 modal.dataset.productImage = imageSrc;
                 
                 // Reset quantity and show modal
-                qtyInput.value = 1;
-                modal.style.display = 'flex';
+                productQtyInput.value = 1;
+                openProductModal();
             });
         });
-        
-        // Add to cart button
-        addToCartBtn.onclick = () => {
-            const quantity = parseInt(qtyInput.value);
-            const product = {
-                name: modal.dataset.productName,
-                price: parseInt(modal.dataset.productPrice),
-                image: modal.dataset.productImage
-            };
-            
-            // Add with quantity
-            addToCart(product, quantity);
-            
-            closeModal();
-        };
 
-        // Add this inside initializeProductModal(), after addToCartBtn.onclick
+        document.addEventListener("click", function (e) {
+            // CART MODAL CONTROLS
+            if (e.target.id === "cartDecreaseQuantityBtn") {
+                const btnId = e.target.dataset.btnId;
+                decreaseQuantity(btnId);
+            }
 
-    const orderNowBtn = modal.querySelector('.order-btn');
+            if (e.target.id === "cartIncreaseQuantityBtn") {
+                const btnId = e.target.dataset.btnId;
+                increaseQuantity(btnId);
+            }
 
-    orderNowBtn.onclick = (e) => {
+            if (e.target.id === "removeCartItem") {
+                const cartItemId = e.target.dataset.itemId;
+                removeItem(cartItemId);
+            }
 
-        e.stopPropagation(); // 🔥 prevents modal from closing early
+            // CHECKS CART QTY INPUT
+            if (e.target.closest(".cart-input")) {
+                utils.debug("Input cart", true);
+                const cartQtyInput = e.target.closest(".cart-input");
 
-        // 🔥 CHECK LOGIN
-        if (!window.isLoggedIn) {
-            window.location.href = "/Home/Signin";
-            return;
-        }
+                cartQtyInput.addEventListener("input", function () {    
+                    cartQtyInput.value = utils.validateItemQuantity(cartQtyInput);
+                });
 
-        const quantity = parseInt(qtyInput.value);
-        const product = {
-            name: modal.dataset.productName,
-            price: parseInt(modal.dataset.productPrice),
-            image: modal.dataset.productImage
-        };
+                cartQtyInput.addEventListener("input", function () {
+                    const cartItemId = cartQtyInput.dataset.inputId;
+                    setItemQuantity(cartItemId, cartQtyInput.value);
+                    updateCartTotalPrice();
+                });
+            }
 
-        addToCart(product, quantity);
+            if (e.target.id === "checkoutBtn") {
+                window.location.href = '/Home/Checkout';
+            }
+        });
 
-        modal.style.display = 'none';
+    },
 
-        window.location.href = '/Home/Checkout';
-    };
+    location: function () {
+        utils.debug("Page", "Location");
 
-
-    }
-
-    // Update cart button visibility and count
-    function updateCartButton() {
-
-        // If not logged in → hide button and stop function
-        // DISPLAY MUNA NATEN
-        let cartBtn = document.getElementById('cartButton');
-
-        console.log(window.isLoggedIn); // DEBUGGER
-        console.log(window.userId);
-
-        if (!window.isLoggedIn) {
-            if (cartBtn) cartBtn.style.display = 'flex';
-            return;
-        }
-
-        if (!cartBtn) return; // extra safety
-
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        const cartCount = cartBtn.querySelector('.cart-count');
-
-        cartCount.textContent = totalItems;
-
-        if (totalItems > 0) {
-            cartBtn.style.display = 'flex'; //THIS SHOW THE CART MODAL // DEBUG
-        } else {
-            cartBtn.style.display = 'none';
-        }
-    }
-
-
-    // Add item to cart
-    function addToCart(product, quantity = 1) {
-        const existingItem = cart.find(item => item.name === product.name);
-        
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            cart.push({
-                name: product.name,
-                price: product.price,
-                image: product.image,
-                quantity: quantity
-            });
-        }
-        
-        // Save to localStorage
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartButton();
-        
-        // Show success message
-        const itemText = quantity > 1 ? `${quantity} items` : 'Item';
-        showNotification(`${itemText} added to cart!`);
-    }
-
-    // Show notification
-    function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 10);
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 2000);
-    }
-
-    // Open cart modal
-    function openCart() {
-        let cartModal = document.getElementById('cartModal');
-        
-        // Create cart modal if it doesn't exist
-        if (!cartModal) {
-            cartModal = document.createElement('div');
-            cartModal.id = 'cartModal';
-            cartModal.className = 'modal';
-            cartModal.innerHTML = `
-                <div class="modal-content cart-modal-content">
-                    <div class="cart-header">
-                        <h2>Your Cart</h2>
-                        <span class="close cart-close">&times;</span>
-                    </div>
-                    <div class="cart-items"></div>
-                    <div class="cart-footer">
-                        <div class="cart-total">
-                            <span>Total:</span>
-                            <span class="total-amount">₱0</span>
-                        </div>
-                        <button class="checkout-btn">Proceed to Checkout</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(cartModal);
-            
-            // Close button
-            cartModal.querySelector('.cart-close').onclick = () => {
-                cartModal.style.display = 'none';
-            };
-            
-            // Close when clicking outside cart modal
-            cartModal.onclick = (event) => {
-                if (event.target === cartModal) {
-                    cartModal.style.display = 'none';
-                }
-            };
-            cartModal.querySelector('.checkout-btn').onclick = () => {
-            window.location.href = '/Home/Checkout';
-            };
-
-        }
-        
-        // Populate cart items
-        updateCartModal(cartModal);
-        cartModal.style.display = 'block';
-    }
-
-    // Update cart modal content
-    function updateCartModal(cartModal) {
-        const cartItems = cartModal.querySelector('.cart-items');
-        const totalAmount = cartModal.querySelector('.total-amount');
-        
-        if (cart.length === 0) {
-            cartItems.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
-            totalAmount.textContent = '₱0';
-            return;
-        }
-        
-        cartItems.innerHTML = cart.map((item, index) => `
-            <div class="cart-item">
-                <img src="${item.image}" alt="${item.name}">
-                <div class="cart-item-info">
-                    <h3>${item.name}</h3>
-                    <p class="cart-item-price">₱${item.price}</p>
-                </div>
-                <div class="cart-item-controls">
-                    <button onclick="decreaseQuantity(${index})">-</button>
-                    <input type="number" class="cart-input" value="${item.quantity}" min="1" max="99">
-                    <button onclick="increaseQuantity(${index})">+</button>
-                </div>
-                <button class="remove-item" onclick="removeItem(${index})">✕</button>
-            </div>
-        `).join('');
-        
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        totalAmount.textContent = `₱${total}`;
-    }
-
-    // Cart manipulation functions
-    function increaseQuantity(index) {
-        cart[index].quantity++;
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartButton();
-        openCart(); // Refresh cart modal
-    }
-
-    function decreaseQuantity(index) {
-        if (cart[index].quantity > 1) {
-            cart[index].quantity--;
-        } else {
-            cart.splice(index, 1);
-        }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartButton();
-        openCart(); // Refresh cart modal
-    }
-
-    function removeItem(index) {
-        cart.splice(index, 1);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartButton();
-        openCart(); // Refresh cart modal
-    }
-
-
-
-    // Store locations data
-    const locations = {
-        store1: {
-            lat: 14.441571582745448,
-            lng: 120.95271528109014,
-            name: '13 Azucena Street',
-            zoom: 17
-        },
-        store2: {
-            lat: 14.389405670070746,
-            lng: 120.9397815099245,
-            name: 'Servida Building Anabu',
-            zoom: 17
-        }
-    };
-
-    function focusLocation(lat, lng, storeId) {
-        const iframe = document.getElementById('googleMap');
-
-        // 🔥 This URL works with dynamic coordinates
-        const newSrc = `https://www.google.com/maps?q=${lat},${lng}&z=17&output=embed`;
-
-        iframe.src = newSrc;
-
-        // Switch active store visually
-        const allCards = document.querySelectorAll('.store-card');
-        allCards.forEach(card => card.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-
-        // Smooth scroll (mobile)
-        if (window.innerWidth <= 1024) {
-            document.querySelector('.map-container').scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
-
-
-    // Initialize page
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add entrance animation to store cards
         const storeCards = document.querySelectorAll('.store-card');
         storeCards.forEach((card, index) => {
             card.style.opacity = '0';
@@ -580,105 +459,195 @@
                 setTimeout(() => ripple.remove(), 600);
             });
         });
-    });
 
-    // Add ripple effect styles dynamically
-    const style = document.createElement('style');
-    style.textContent = `
-        .store-card {
-            position: relative;
-            overflow: hidden;
-        }
+
+        // LCOATION PAGE
+        // Store locations data
+        const locations = {
+            1: {
+                lat: 14.441571582745448,
+                lng: 120.95271528109014,
+                name: '13 Azucena Street',
+                zoom: 17
+            },
+            2: {
+                lat: 14.389405670070746,
+                lng: 120.9397815099245,
+                name: 'Servida Building Anabu',
+                zoom: 17
+            }
+        };
+
         
-        .store-card.active {
-            background: rgba(97, 76, 58, 0.25);
-            border-color: #614c3a;
-            box-shadow: 0 0 20px rgba(97, 76, 58, 0.5);
-        }
-        
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(228, 209, 185, 0.3);
-            transform: scale(0);
-            animation: ripple-animation 0.6s ease-out;
-            pointer-events: none;
-        }
-        
-        @keyframes ripple-animation {
-            to {
-                transform: scale(2);
-                opacity: 0;
+        function focusLocation(store) {
+            const iframe = document.getElementById('googleMap');
+
+            const lat = locations[store].lat;
+            const lng = locations[store].lng;
+
+            const newSrc = `https://www.google.com/maps?q=${lat},${lng}&z=17&output=embed`;
+
+            iframe.src = newSrc;
+
+            // Switch active store visually
+            const allCards = document.querySelectorAll('.store-card');
+            allCards.forEach(card => card.classList.remove('active'));
+
+            // Smooth scroll (mobile)
+            if (window.innerWidth <= 1024) {
+                document.querySelector('.map-container').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
         }
-    `;
-    document.head.appendChild(style);
+
+        document.addEventListener("click", function (e) {
+            if (e.target.closest(".store-card")) {
+                utils.debug("Location card", true);
+                const store = e.target.closest(".store-card");
+                store.classList.add("active");
+
+                const storeId = store.dataset.store;
+                focusLocation(storeId);
+            }
+        });
+    },
+
+    aboutUs: function () {
+        utils.debug("Page", "About Us");
+    },
+
+    checkout: function () {
+        utils.debug("Page", "Checkout");
+
+        // Go back to previous step
+        function goBack() {
+            if (currentStep === 2) {
+                currentStep = 1;
+                showStep(1);
+            } else if (currentStep === 1) {
+                // Go back to menu
+                window.location.href = '/Home/Menu';
+            }
+        }
+        
+        // Update navigation buttons
+        function updateNavigationButtons() {
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentStep === 1) {
+                backBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Back to Menu
+                `;
+            } else {
+                backBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Back
+                `;
+            }
+            
+            if (currentStep === 2) {
+                nextBtn.innerHTML = `
+                    Place Order
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                `;
+            } else {
+                nextBtn.innerHTML = `
+                    Next
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                `;
+            }
+        }
 
 
+        // Calculate order totals
+        function calculateTotals(cart) {
+            const basketPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = 50;
+            const discount = 0;
+            const orderTotal = basketPrice + deliveryFee - discount;
+            
+            document.getElementById('basketPrice').textContent = `₱${basketPrice}`;
+            document.getElementById('deliveryFee').textContent = `₱${deliveryFee}`;
+            document.getElementById('discount').textContent = `₱${discount}`;
+            document.getElementById('orderTotal').textContent = `₱${orderTotal}`;
+        }
 
+        // Load cart items from localStorage
+        function loadCartItems() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsContainer = document.getElementById('checkoutCartItems');
+            
+            if (cart === null) {
+                cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your cart is empty. Add items to proceed.</p>';
+                document.getElementById('basketPrice').textContent = '₱0';
+                document.getElementById('orderTotal').textContent = '₱50';
+                return;
+            } else {
+                // Render cart items
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="checkout-cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="checkout-item-info">
+                            <div class="checkout-item-name">${item.name}</div>
+                            <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
+                            <div class="checkout-item-price">₱${item.price * item.quantity}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            }
 
+            // Calculate totals
+            calculateTotals(cart);
+        }
 
-
-    // Current step tracker
-    let currentStep = 1;
-
-    // Initialize checkout page
-    document.addEventListener('DOMContentLoaded', function() {
         loadCartItems();
         updateStepIndicator();
         updateNavigationButtons();
-        
-        // Check if cart is empty
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        if (cart.length === 0) {
-            // Redirect to menu if cart is empty
-            // window.location.href = '/Home/Menu';
-        }
-    });
-
-    // Load cart items from localStorage
-    function loadCartItems() {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const cartItemsContainer = document.getElementById('checkoutCartItems');
-        
-        if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your cart is empty. Add items to proceed.</p>';
-            document.getElementById('basketPrice').textContent = '₱0';
-            document.getElementById('orderTotal').textContent = '₱50';
-            return;
-        }
-        
-        // Render cart items
-        cartItemsContainer.innerHTML = cart.map(item => `
-            <div class="checkout-cart-item">
-                <img src="${item.image}" alt="${item.name}">
-                <div class="checkout-item-info">
-                    <div class="checkout-item-name">${item.name}</div>
-                    <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
-                    <div class="checkout-item-price">₱${item.price * item.quantity}</div>
-                </div>
-            </div>
-        `).join('');
-        
-        // Calculate totals
-        calculateTotals(cart);
     }
+}
 
-    // Calculate order totals
-    function calculateTotals(cart) {
-        const basketPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const deliveryFee = 50;
-        const discount = 0;
-        const orderTotal = basketPrice + deliveryFee - discount;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const page = document.body.dataset.page;
+
+    if (Page[page]) {
+        Page[page]();
+    }
+});
+
+
+    // Show notification POP UYP
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
         
-        document.getElementById('basketPrice').textContent = `₱${basketPrice}`;
-        document.getElementById('deliveryFee').textContent = `₱${deliveryFee}`;
-        document.getElementById('discount').textContent = `₱${discount}`;
-        document.getElementById('orderTotal').textContent = `₱${orderTotal}`;
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
     }
 
     // Go to next step
-    function showStep(step) {
+    /*function showStep(step) {
         const personalForm = document.getElementById("personalInfoForm");
         const paymentForm = document.getElementById("paymentForm");
 
@@ -703,19 +672,7 @@
         }
 
         
-    }
-
-
-    // Go back to previous step
-    function goBack() {
-        if (currentStep === 2) {
-            currentStep = 1;
-            showStep(1);
-        } else if (currentStep === 1) {
-            // Go back to menu
-            window.location.href = '/Home/Menu';
-        }
-    }
+    }*/
 
     // Show specific step
     function showStep(step) {
@@ -745,44 +702,6 @@
                 step.classList.remove('active');
             }
         });
-    }
-
-    // Update navigation buttons
-    function updateNavigationButtons() {
-        const backBtn = document.getElementById('backBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        if (currentStep === 1) {
-            backBtn.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Back to Menu
-            `;
-        } else {
-            backBtn.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Back
-            `;
-        }
-        
-        if (currentStep === 2) {
-            nextBtn.innerHTML = `
-                Place Order
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            `;
-        } else {
-            nextBtn.innerHTML = `
-                Next
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            `;
-        }
     }
 
     // Validate personal info form
@@ -874,21 +793,19 @@
     }
 
 
-    // Load saved personal info if available (for returning customers)
-    window.addEventListener('load', function() {
-        const savedInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
-        if (savedInfo) {
-            document.getElementById('fullName').value = savedInfo.fullName || '';
-            document.getElementById('email').value = savedInfo.email || '';
-            document.getElementById('streetAddress').value = savedInfo.streetAddress || '';
-            document.getElementById('state').value = savedInfo.state || '';
-            document.getElementById('city').value = savedInfo.city || '';
-            document.getElementById('zipCode').value = savedInfo.zipCode || '';
-            document.getElementById('phoneNumber').value = savedInfo.phoneNumber || '';
-        }
-
-        
-    });
+// Load saved personal info if available (for returning customers)
+window.addEventListener('load', function() {
+    const savedInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
+    if (savedInfo) {
+        document.getElementById('fullName').value = savedInfo.fullName || '';
+        document.getElementById('email').value = savedInfo.email || '';
+        document.getElementById('streetAddress').value = savedInfo.streetAddress || '';
+        document.getElementById('state').value = savedInfo.state || '';
+        document.getElementById('city').value = savedInfo.city || '';
+        document.getElementById('zipCode').value = savedInfo.zipCode || '';
+        document.getElementById('phoneNumber').value = savedInfo.phoneNumber || '';
+    }
+});
 
 
 
