@@ -336,7 +336,7 @@ window.location.href = `/Home/Receipt?orderNumber=${result.orderId}`;
             // Redirect based on payment method
             switch (paymentMethod) {
                 case 'maya':
-                    window.location.href = `/PayMaya/PayMayaMain?amount=${orderTotal}&orderId=${result.orderId}`;
+                    window.location.href = `/PayMaya/PayMayaMain?amount=${orderTotal}&orderId=${result.orderId}`; // Hindi to gagana kasi per .cshtml file si maya, its either ipasa mo to sa controller, or gamit ka lcoal storage ng js
                     break;
                 case 'gcash':
                     window.location.href = `/GCash/GcashMain?amount=${orderTotal}&orderId=${result.orderId}`;
