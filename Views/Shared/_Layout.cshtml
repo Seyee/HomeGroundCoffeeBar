@@ -1,5 +1,6 @@
 ﻿@using HomeGroundCoffeeBar.Data
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @inject ApplicationDbContext _context
 
 @{
@@ -37,128 +38,139 @@
     
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- sweet alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body data-page="@ViewBag.Page">
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
-                    <img src="/img/logowhite.png" alt="Homeground Logo" />
-                </a>
 
-                <div class="list-links">
-                    <ul class="nav-links">
+    @if (ViewBag.Page == "signup" || ViewBag.Page == "signin") {
+        
+    } else {    
+        <header>
+            <nav class="navbar">
+                <div class="container">
+                    <a class="navbar-logo" asp-area="" asp-controller="Home" asp-action="Home">
+                        <img src="/img/logowhite.png" alt="Homeground Logo" />
+                    </a>
 
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Home">Home</a>
-                        </li>
+                    <div class="list-links">
+                        <ul class="nav-links">
 
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Menu">Menu</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Home/Location">Location</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="AboutUs">About Us</a>
-                        </li>
-
-                        @if (!isLogged)
-                        {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="Signin">Sign in</a>
+                                <a class="nav-link" asp-controller="Home" asp-action="Home">Home</a>
                             </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item profile-li">
-                                <div class="profile-container">
-                                    <button id="ProfileBtn" class="profile-btn">
-                                        @if (!string.IsNullOrEmpty(profilePic))
-                                        {
-                                            <img src="@profilePic" class="profile-pic" />
-                                        }
-                                        else
-                                        {
-                                            <img src="~/img/user.webp" class="profile-pic" />
-                                        }
-                                        
-                                        <!-- Points Badge -->
-                                        <a asp-controller="Home" asp-action="Redeem" class="points-link">
-                                            <div class="points-badge">
-                                                <img src="/img/points.png" alt="Points" class="points-icon" />
-                                                <span class="points-text">@Points</span>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Menu">Menu</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Home/Location">Location</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="AboutUs">About Us</a>
+                            </li>
+
+                            @if (!isLogged)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="Signin">Sign in</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item profile-li">
+                                    <div class="profile-container">
+                                        <button id="ProfileBtn" class="profile-btn">
+                                            @if (!string.IsNullOrEmpty(profilePic))
+                                            {
+                                                <img src="@profilePic" class="profile-pic" />
+                                            }
+                                            else
+                                            {
+                                                <img src="~/img/user.webp" class="profile-pic" />
+                                            }
+                                            
+                                            <!-- Points Badge -->
+                                            <a asp-controller="Home" asp-action="Redeem" class="points-link">
+                                                <div class="points-badge">
+                                                    <img src="/img/points.png" alt="Points" class="points-icon" />
+                                                    <span class="points-text">@Points</span>
+                                                </div>
+                                            </a>
+                                        </button>
+
+                                        <div id="profileMenu" class="profile-menu">
+                                            <span class="profile-name">@name</span>
+                                            <div class="profile-points">
+                                                <img src="/img/points.png" class="points-icon-small" />
+                                                <span>@Points pts</span>
                                             </div>
-                                        </a>
-                                    </button>
-
-                                    <div id="profileMenu" class="profile-menu">
-                                        <span class="profile-name">@name</span>
-                                        <div class="profile-points">
-                                            <img src="/img/points.png" class="points-icon-small" />
-                                            <span>@Points pts</span>
+                                            <a asp-controller="Home" asp-action="Logout">Logout</a>
                                         </div>
-                                        <a asp-controller="Home" asp-action="Logout">Logout</a>
                                     </div>
-                                </div>
-                            </li>
-                        }
+                                </li>
+                            }
 
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </header>
+    }
 
     <main role="main">
         @RenderBody()
     </main>
 
+    @if (ViewBag.Page == "signup" || ViewBag.Page == "signin") {
+            
+    } else { 
+        <footer class="border-top footer text-muted">
+            <div class="container footer-content">
+                <div class="footer-info-container" >
+                    <div class="about">
+                        <h1>ABOUT</h1>
+                        <span class="welcome-text">Welcome to the Official Website of <br> Homeground. #Happybean</span>
 
-    <footer class="border-top footer text-muted">
-        <div class="container footer-content">
-            <div class="footer-info-container" >
-                <div class="about">
-                    <h1>ABOUT</h1>
-                    <span class="welcome-text">Welcome to the Official Website of <br> Homeground. #Happybean</span>
+                        <div class="social">
+                            <a href="https://www.instagram.com/homegroundcoffeebar" class="social-icon"><img src="/img/iglogo.png" alt="Instagram" /></a>
+                            <a href="https://www.facebook.com/homegroundcoffee4102" class="social-icon"><img src="/img/fblogo.png" alt="Facebook" /></a>
+                        </div>
+                    </div>
 
-                    <div class="social">
-                        <a href="https://www.instagram.com/homegroundcoffeebar" class="social-icon"><img src="/img/iglogo.png" alt="Instagram" /></a>
-                        <a href="https://www.facebook.com/homegroundcoffee4102" class="social-icon"><img src="/img/fblogo.png" alt="Facebook" /></a>
+                    <div class="quicklinks">
+                        <h1>QUICKLINKS</h1>
+                        <ul>
+                            <li><a href="/Home/Menu" class="quicklink">Menu</a></li>
+                            <li><a href="/Home/Location" class="quicklink">Location</a></li>
+                            <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
+                            @if (!isLogged) {
+                                <li><a href="/Home/Signin" class="quicklink">Sign in</a></li>
+                            }
+                            
+                        </ul>
                     </div>
                 </div>
 
-                <div class="quicklinks">
-                    <h1>QUICKLINKS</h1>
-                    <ul>
-                        <li><a href="/Home/Menu" class="quicklink">Menu</a></li>
-                        <li><a href="/Home/Location" class="quicklink">Location</a></li>
-                        <li><a href="/Home/AboutUs" class="quicklink">About Us</a></li>
-                        @if (!isLogged) {
-                            <li><a href="/Home/Signin" class="quicklink">Sign in</a></li>
-                        }
-                        
-                    </ul>
-                </div>
-            </div>
+                <div class="footer-logo-container">
+                    <div class="footer-logo">
+                        <img src="/img/logowhite.png" alt="Homeground Logo" />
+                    </div>
 
-            <div class="footer-logo-container">
-                <div class="footer-logo">
-                    <img src="/img/logowhite.png" alt="Homeground Logo" />
-                </div>
-
-                <div class="scroll">
-                    <div class="arrow-up">
-                        <a href="#" id="ScrollTopLink">
-                            <img src="/img/scroll_top.svg" alt="Scroll to Top" />
-                        </a>
+                    <div class="scroll">
+                        <div class="arrow-up">
+                            <a href="#" id="ScrollTopLink">
+                                <img src="/img/scroll_top.svg" alt="Scroll to Top" />
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+    }
 
     <!-- MODAL -->
     <div class="modal">
