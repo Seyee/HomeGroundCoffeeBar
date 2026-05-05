@@ -25,3 +25,5 @@ REFACTOR
     REFACTOR!!! The cart should not rely on local storage, instead the cart should have its own table
                 for it to be reliable in the long run. Local storage gets cleared when you close or 
                 clear the browser.
+
+
