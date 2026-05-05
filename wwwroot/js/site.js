@@ -101,8 +101,24 @@
 
 
     // Cart state management
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
+    function addToCart(product, quantity = 1) {
+        fetch('/Account/AddToCart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: product.name,
+                price: product.price,
+                quantity: quantity,
+                image: product.image
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            updateCartUI(data); // 🔥 NEW
+            showNotification(`${quantity} item(s) added to cart!`);
+        });
+    }
+    
     // Initialize everything on page load
     document.addEventListener('DOMContentLoaded', function() {
         initializeScrollButton();
