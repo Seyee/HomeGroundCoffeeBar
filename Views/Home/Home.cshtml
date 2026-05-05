@@ -1,21 +1,23 @@
 ﻿@{
-ViewData[index: "Title"] = "Guess";
+    ViewData[index: "Title"] = "Home";
+    ViewData["Page"] = "home";
 }
-    <div class="FirstSection">
-        <div class="content">
-        <h1 class="hotmilk">
-            <span class="line1">Hot milk</span><br>
-            <span class="line2">Chocolate</span>
 
-            <span class="line3">Welcome to</span><br>
-            <span class="line4">our <br>Homeground!</span>
-        </h1>
-            <p class="description-chocolate">
-                Warm up with our Hot Milk Chocolate and other comforting <br>
-                drinks—now part of our special menu.
-            </p>
-            <a asp-area="" asp-controller="Home" asp-action="Menu" class="btn-taste">Taste it now</a>
-        </div>
+<div class="FirstSection">
+    <div class="content">
+    <h1 class="hotmilk">
+        <span class="line1">Hot milk</span><br>
+        <span class="line2">Chocolate</span>
+
+        <span class="line3">Welcome to</span><br>
+        <span class="line4">our <br>Homeground!</span>
+    </h1>
+        <p class="description-chocolate">
+            Warm up with our Hot Milk Chocolate and other comforting <br>
+            drinks—now part of our special menu.
+        </p>
+        <a asp-area="" asp-controller="Home" asp-action="Menu" class="btn-taste">Taste it now</a>
+    </div>
 
     <div class="big-chocolate">
         <div class="smoke"></div>
@@ -25,11 +27,10 @@ ViewData[index: "Title"] = "Guess";
         <div class="smoke smoke5"></div>
         <div class="smoke smoke6"></div>
         <img src="/img/kape.png" class="kape" alt="Chocolate Image" />
-
     </div>
-    </div>
+</div>
 
-    <div class="SecondSection">
+<div class="SecondSection">
     <div class="options" >
         <div class="drinks">
             <div class="drink-item">
@@ -49,12 +50,12 @@ ViewData[index: "Title"] = "Guess";
             </div>
         </div>
     </div>
+</div>
+
+<div class="ThirdSection">
+    <div class="text">
+        <h2 class="bean" >How You Bean?</h2>
     </div>
 
-    <div class="ThirdSection">
-        <div class="text"">
-            <h2 class="bean" >How You Bean?</h2>
-        </div>
-
-        <p class="at" >&#64;homegroundcoffeebar</p>
-    </div> 
+    <p class="at" >&#64;homegroundcoffeebar</p>
+</div> 

@@ -1,19 +1,9 @@
 @{
-    Layout = null;
     ViewData["Title"] = "Sign In";
+    ViewData["Page"] = "signin";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
-    <link rel="icon" type="image/x-icon" href="~/img/icon.png" />
-    <link rel="stylesheet" href="~/css/signin.css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
+<div class="sign-in">
     <div class="signin-container">
         <div class="header">
             <h1 class="signin-title">Sign in</h1>
@@ -58,23 +48,21 @@
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const errorMessage = "@TempData["ErrorMessage"]";
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const errorMessage = "@TempData["ErrorMessage"]";
 
-        if (errorMessage && errorMessage !== "") {
-        Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: errorMessage, 
-            confirmButtonColor: "#7066E0",
-            background: "#FFFFFF",
-            color: "#000000"
-        });
-        }
+    if (errorMessage && errorMessage !== "") {
+    Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: errorMessage, 
+        confirmButtonColor: "#7066E0",
+        background: "#FFFFFF",
+        color: "#000000"
     });
-    </script>
-
-</body>
-</html>
+    }
+});
+</script>

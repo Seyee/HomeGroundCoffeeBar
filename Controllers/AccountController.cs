@@ -75,65 +75,60 @@ public class AccountController : Controller
             HttpContext.Session.SetString("ProfilePic", profilePic ?? "0");
         }
 
-        return RedirectToAction("Index", "Dashboard");
+        return RedirectToAction("Home", "Home");
     }
 
     [HttpGet("/api/user/status")]
-public IActionResult GetStatus() {
-    if (User.Identity.IsAuthenticated) {
-        return Ok(new { loggedIn = true, username = User.Identity.Name });
+    public IActionResult GetStatus() {
+        if (User.Identity.IsAuthenticated) {
+            return Ok(new { loggedIn = true, username = User.Identity.Name });
+        }
+        return Ok(new { loggedIn = false });
     }
-    return Ok(new { loggedIn = false });
-}
 
-
-    // ================================
     // SIGN UP
-    // ================================
-[HttpPost]
-public IActionResult Signup(string Name, string Phone, string Password)
-{
-    try
+    [HttpPost]
+    public IActionResult Signup(string Name, string Phone, string Password)
     {
-        using (var conn = new MySqlConnection(connectionString))
+        try
         {
-            conn.Open();
-
-            // CHECK PHONE
-            var checkCmd = new MySqlCommand(
-                "SELECT COUNT(*) FROM Users WHERE Phone=@Phone", conn);
-            checkCmd.Parameters.AddWithValue("@Phone", Phone);
-
-            if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
+            using (var conn = new MySqlConnection(connectionString))
             {
-                TempData["ErrorMessage"] = "Phone number already exists!";
-                return RedirectToAction("Signup", "Home");
+                conn.Open();
+
+                // CHECK PHONE
+                var checkCmd = new MySqlCommand(
+                    "SELECT COUNT(*) FROM Users WHERE Phone=@Phone", conn);
+                checkCmd.Parameters.AddWithValue("@Phone", Phone);
+
+                if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
+                {
+                    TempData["ErrorMessage"] = "Phone number already exists!";
+                    return RedirectToAction("Signup", "Home");
+                }
+
+                // INSERT USER
+                var cmd = new MySqlCommand(
+                    "INSERT INTO Users (Name, Phone, Password, Role, ProfilePic, GoogleId, points, CreatedAt) VALUES (@Name,@Phone,@Password,'User', 0, 0, 0, NOW())", 
+                    conn);
+
+                cmd.Parameters.AddWithValue("@Name", Name);
+                cmd.Parameters.AddWithValue("@Phone", Phone);
+                cmd.Parameters.AddWithValue("@Password", Password);
+                cmd.ExecuteNonQuery();
             }
 
-            // INSERT USER
-            var cmd = new MySqlCommand(
-                "INSERT INTO Users (Name, Phone, Password, Role, ProfilePic, GoogleId, points, CreatedAt) VALUES (@Name,@Phone,@Password,'User', 0, 0, 0, NOW())", 
-                conn);
-
-            cmd.Parameters.AddWithValue("@Name", Name);
-            cmd.Parameters.AddWithValue("@Phone", Phone);
-            cmd.Parameters.AddWithValue("@Password", Password);
-            cmd.ExecuteNonQuery();
+            TempData["SignupSuccess"] = true;
+            return RedirectToAction("Signup", "Home");
         }
-
-        TempData["SignupSuccess"] = true;
-        return RedirectToAction("Signup", "Home");
+        catch (Exception ex)
+        {
+            // TEMPORARY: SHOW REAL ERROR
+            return Content(ex.Message);
+        }
     }
-    catch (Exception ex)
-    {
-        // TEMPORARY: SHOW REAL ERROR
-        return Content(ex.Message);
-    }
-}
 
-    // ================================
     // ADD TO CART
-    // ================================
     [HttpPost]
     public IActionResult AddToCart([FromBody] CartItem item)
     {
@@ -228,9 +223,7 @@ public IActionResult Signup(string Name, string Phone, string Password)
         return Json(cart);
     }
 
-    // ================================
     // LOGIN
-    // ================================
     [HttpPost]
     public async Task<IActionResult> Signin(string Phone, string Password)
     {
@@ -238,7 +231,6 @@ public IActionResult Signup(string Name, string Phone, string Password)
         {
             conn.Open();
             
-
             string query = "SELECT Id, Name, ProfilePic, GoogleId, Role, Password FROM Users WHERE Phone=@Phone";
             using (var cmd = new MySqlCommand(query, conn))
             {
@@ -262,15 +254,22 @@ public IActionResult Signup(string Name, string Phone, string Password)
 
                     // SET SESSION
                     var userId = reader["Id"].ToString();
+                    Console.WriteLine("user Id: " + userId); // This works REMOVE THIS
                     HttpContext.Session.SetString("UserId", userId);
                     HttpContext.Session.SetString("Phone", Phone);
                     HttpContext.Session.SetString("Name", reader["Name"].ToString());
                     HttpContext.Session.SetString("ProfilePic", reader["ProfilePic"]?.ToString() ?? "");
                     HttpContext.Session.SetString("Role", reader["Role"]?.ToString() ?? "User");
 
+                    // UNNECESSARY TONG `HttpContext.Session` applicable lang to dito sa controller, at the same time hindi den naman siya pinapasa as object or veiw data
+
+                    // si claims ang nag hahandle ng session, pwera nalang kung mas trip niyo ng `HttpContxt`, medyo matrabhao nga lang
+
                     // SET CLAIMS
                     var claims = new List<Claim>
                     {
+                        new Claim("UserId", userId),
+                        new Claim("Phone", Phone),
                         new Claim(ClaimTypes.Name, reader["Name"].ToString()),
                         new Claim("picture", reader["ProfilePic"]?.ToString() ?? ""),
                         new Claim(ClaimTypes.Role, reader["Role"]?.ToString() ?? "User")
@@ -284,7 +283,7 @@ public IActionResult Signup(string Name, string Phone, string Password)
                     if (reader["Role"]?.ToString() == "Admin")
                         return RedirectToAction("AdminHomePage", "Admin");
                     else
-                        return RedirectToAction("Index", "Dashboard");
+                        return RedirectToAction("Home", "Home");
                 }
             }
         }

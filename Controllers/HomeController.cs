@@ -8,8 +8,6 @@ using HomeGroundCoffeeBar.Data;
 
 namespace HomeGroundCoffeeBar.Controllers;
 
-
-
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -31,12 +29,7 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
 
     public IActionResult Home()
     {
-        var user = HttpContext.Session.GetString("Name");
-
-        if (!string.IsNullOrEmpty(user))
-        {
-            return RedirectToAction("Index", "Dashboard");
-        }
+        // REMOVE THE CODE HERE, accessible naamn si session sa .cshtml files, rather than ipapasa mo pa as a viewbag, unnecessary and matrabaho ba
         return View();
     }
 
@@ -49,13 +42,6 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
     public IActionResult AboutUs() => View();
     public IActionResult Checkout() => View();
     public IActionResult PaymentMethods() => View();
-
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
 
     // =============================
     // ORDER SUBMISSION & RECEIPT
@@ -179,6 +165,9 @@ public IActionResult RedeemReward([FromBody] RedeemRequest request)
 // =============================
 // DTO & Model Classes
 // =============================
+
+
+// TODO move this in a DTO folder
 
 public class OrderDto
 {

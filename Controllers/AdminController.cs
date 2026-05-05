@@ -9,7 +9,7 @@ namespace HomeGroundCoffeeBar.Controllers
 {
     public class AdminController : Controller
     {
-        private string connectionString = "Server=localhost;Port=3307;Database=homegroundcoffeebar;User Id=root;Password=homeground;";
+        private string connectionString = "Server=localhost;Port=3306;Database=homegroundcoffeebar;User=root;Password=Mstr_Haku010208;"; // TODO remove this, make it rely on `ConnectString`
 
 
         // Admin Home Page with Users Table
