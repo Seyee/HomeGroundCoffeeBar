@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json;
 using HomeGroundCoffeeBar.Data;
+using HomeGroundCoffeeBar.DTO;
+using Microsoft.EntityFrameworkCore;
+
+
 
 namespace HomeGroundCoffeeBar.Controllers;
 
@@ -46,49 +50,71 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
     // =============================
     // ORDER SUBMISSION & RECEIPT
     // =============================
-[HttpPost]
-public IActionResult SubmitOrder([FromBody] OrderDto orderDto)
-{
-    if (orderDto == null || orderDto.Items == null || orderDto.Items.Count == 0)
-        return BadRequest("No items in order.");
-
-    string orderNumber = "ORD-" + DateTime.Now.Ticks;
-    decimal itemsTotal = orderDto.Items.Sum(i => i.Price * i.Quantity);
-    decimal totalAmount = itemsTotal + orderDto.DeliveryFee;
-    int earnedPoints = (int)(totalAmount * 0.05m);
-
-    // Get user name from session
-    var name = HttpContext.Session.GetString("Name");
-
-    if (!string.IsNullOrEmpty(name))
+    [HttpPost]
+    public async Task<IActionResult> SubmitOrder([FromBody] SubmitOrderRequest request)
     {
-        // Fetch the actual tracked entity from EF
-        var user = _context.Users.FirstOrDefault(u => u.Name == name);
-        if (user != null)
+        var userIdStr = HttpContext.Session.GetString("UserId");
+        if (string.IsNullOrEmpty(userIdStr))
+            return Json(new { success = false, message = "Not logged in" });
+
+        string userId = userIdStr;
+
+        // Pull cart from DB
+        var cartItems = await _context.Cart
+            .Where(c => c.UserId == userId)
+            .ToListAsync();
+
+        if (!cartItems.Any())
+            return Json(new { success = false, message = "Cart is empty." });
+
+        // Fetch user FIRST before building the order
+        var user = await _context.Users.FindAsync(int.Parse(userId));
+        if (user == null)
+            return Json(new { success = false, message = "User not found." });
+
+        // Totals
+        decimal subtotal = cartItems.Sum(i => i.Price * i.Quantity);
+        decimal delivery = 50m;
+        decimal total    = subtotal + delivery;
+        int points       = (int)Math.Floor(total * 0.05m);
+
+        string orderId = "ORD-" + Guid.NewGuid().ToString("N")[..8].ToUpper();
+        string address = $"{request.StreetAddress}, {request.City}, {request.State} {request.ZipCode}";
+
+        var order = new Order
         {
-            // Update points
-            user.Points += earnedPoints;
+            OrderId       = orderId,
+            UserId        = int.Parse(userId),
+            FullName      = request.FullName,
+            Phone         = user.Phone,
+            Address       = address,
+            PaymentMethod = request.PaymentMethod,
+            DeliveryNotes = request.DeliveryNotes,
+            Subtotal      = subtotal,
+            DeliveryFee   = delivery,
+            Total         = total,
+            PointsEarned  = points,
+            Status        = "Pending",
+            CreatedAt     = DateTime.UtcNow,
+            Items = cartItems.Select(c => new OrderItemSnapshot
+            {
+                ProductName = c.ProductName,
+                Price       = c.Price,
+                Quantity    = c.Quantity,
+                Image       = c.Image
+            }).ToList()
+        };
 
-            // Save changes to database
-            _context.SaveChanges();
-        }
+        _context.Orders.Add(order);
+
+        user.Points += points;
+
+        _context.Cart.RemoveRange(cartItems);
+
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, orderId, pointsEarned = points });
     }
-
-    // Store order in TempData for receipt page
-    var order = new OrderModel
-    {
-        OrderNumber = orderNumber,
-        Items = orderDto.Items,
-        DeliveryFee = orderDto.DeliveryFee,
-        TotalAmount = totalAmount,
-        PaymentMethod = orderDto.PaymentMethod
-    };
-
-    TempData["LastOrder"] = JsonSerializer.Serialize(order);
-
-    return Json(new { orderId = orderNumber, pointsEarned = earnedPoints });
-}
-
     /*[HttpPost]
     public IActionResult sendCartData([FromBody])
     {

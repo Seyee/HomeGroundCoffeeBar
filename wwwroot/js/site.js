@@ -637,9 +637,24 @@ const Page = {
         loadCartItems();
         updateStepIndicator();
         updateNavigationButtons();
-    }
-}
 
+        document.getElementById('nextBtn').addEventListener('click', function () {
+        if (currentStep === 1) {
+            if (!validatePersonalInfo()) return;
+            savePersonalInfo();         // ← save before moving to step 2
+            currentStep = 2;
+            showStep(2);
+        } else if (currentStep === 2) {
+            savePaymentMethod();        // ← save payment before submitting
+            processOrder();
+        }
+    });
+
+    document.getElementById('backBtn').addEventListener('click', function () {
+        goBack();
+    });
+}
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const page = document.body.dataset.page;
@@ -776,46 +791,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Process order
     function processOrder() {
-
         fetch('/Account/GetCart')
         .then(res => res.json())
         .then(cart => {
-
-            const personalInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
-            const paymentMethod = localStorage.getItem('paymentMethod');
-            const deliveryNotes = localStorage.getItem('deliveryNotes');
-
             if (!cart || cart.length === 0) {
                 alert('Your cart is empty!');
                 return;
             }
 
-            const basketPrice = cart.reduce(
-                (sum, item) => sum + (item.price * item.quantity),
-                0
-            );
+            const personalInfo  = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
+            const paymentMethod = localStorage.getItem('paymentMethod') || 'cod';
+            const deliveryNotes = localStorage.getItem('deliveryNotes') || '';
 
-            const order = {
-                orderNumber: 'ORD-' + Date.now(),
-                personalInfo: personalInfo,
-                items: cart,
+            const payload = {
+                fullName:      personalInfo.fullName,
+                phone:         personalInfo.phoneNumber,
+                streetAddress: personalInfo.streetAddress,
+                state:         personalInfo.state,
+                city:          personalInfo.city,
+                zipCode:       personalInfo.zipCode,
                 paymentMethod: paymentMethod,
-                deliveryNotes: deliveryNotes,
-                basketPrice: basketPrice,
-                deliveryFee: 50,
-                discount: 0,
-                orderTotal: basketPrice + 50,
-                orderDate: new Date().toISOString()
+                deliveryNotes: deliveryNotes
             };
 
-            console.log(order);
+            fetch('/Home/SubmitOrder', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('lastOrderId',      data.orderId);
+                    localStorage.setItem('lastPointsEarned', data.pointsEarned);
 
-            // OPTIONAL:
-            // save order temporarily
-            localStorage.setItem('lastOrder', JSON.stringify(order));
+                    // Clean up checkout temp data
+                    localStorage.removeItem('checkoutPersonalInfo');
+                    localStorage.removeItem('paymentMethod');
+                    localStorage.removeItem('deliveryNotes');
 
-            // Redirect
-            window.location.href = '/Home/Receipt';
+                    window.location.href = '/Home/Receipt';
+                } else {
+                    alert('Order failed: ' + data.message);
+                }
+            });
         });
     }
 
