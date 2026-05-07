@@ -196,7 +196,7 @@ const Page = {
 
             cartItems.innerHTML = cart.map((item, index) => `
                 <div class="cart-item-con">
-                    <button class="remove-item" data-index="${index}">✕</button>
+                    <button class="remove-item" data-id="${item.cartId}">✕</button>
 
                     <div class="cart-item">
                         <img src="${item.image}" alt="${item.name}">
@@ -205,9 +205,9 @@ const Page = {
                             <p class="cart-item-price">₱${item.price}</p>
                         </div>
                         <div class="cart-item-controls">
-                            <button class="decrease" data-index="${index}">-</button>
-                            <input type="number" class="cart-input" data-index="${index}" value="${item.quantity}" min="1" max="99">
-                            <button class="increase" data-index="${index}">+</button>
+                            <button class="decrease" data-id="${item.cartId}">-</button>
+                            <input type="number" class="cart-input" data-id="${item.cartId}" value="${item.quantity}" min="1" max="99">
+                            <button class="increase" data-id="${item.cartId}">+</button>
                         </div>
                     </div>
                 </div>
@@ -236,28 +236,51 @@ const Page = {
         }
 
         // Cart manipulation functions
-        function increaseQuantity(index) {
+        function increaseQuantity(cartId) {
             fetch('/Account/UpdateQuantity', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ index, action: "increase" })
-            }).then(() => openCart());
+                body: JSON.stringify({ cartId, action: "increase" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    openCart();
+                    updateCartButton();
+                }
+            });
         }
 
-        function decreaseQuantity(index) {
+        function decreaseQuantity(cartId) {
             fetch('/Account/UpdateQuantity', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ index, action: "decrease" })
-            }).then(() => openCart());
+                body: JSON.stringify({ cartId, action: "decrease" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    openCart();
+                    updateCartButton();
+                }
+            });
         }
 
-        function removeItem(index) {
+        function removeItem(cartId) {
             fetch('/Account/RemoveItem', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ index })
-            }).then(() => openCart());
+                body: JSON.stringify({ cartId: cartId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    openCart();
+                    updateCartButton();
+                } else {
+                    console.log(data.message);
+                }
+            });
         }
         
         initializeCategoryFilter();
@@ -367,21 +390,47 @@ const Page = {
         document.addEventListener("click", function (e) {
 
             if (e.target.classList.contains("increase")) {
-                increaseQuantity(e.target.dataset.index);
+                increaseQuantity(e.target.dataset.id);
             }
 
             if (e.target.classList.contains("decrease")) {
-                decreaseQuantity(e.target.dataset.index);
+                decreaseQuantity(e.target.dataset.id);
             }
 
             if (e.target.classList.contains("remove-item")) {
-                removeItem(e.target.dataset.index);
+                removeItem(e.target.dataset.id);
             }
 
             if (e.target.id === "checkoutBtn") {
                 window.location.href = '/Home/Checkout';
             }
         });
+
+        document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("cart-input")) {
+            const cartId = e.target.dataset.id;
+            const newQuantity = parseInt(e.target.value);
+            
+            if (newQuantity < 1 || newQuantity > 99 || isNaN(newQuantity)) {
+                e.target.value = 1; // Reset to minimum
+                return;
+            }
+            
+            // Send update to server
+            fetch('/Account/UpdateQuantityInput', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cartId: cartId, quantity: newQuantity })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    openCart(); // Refresh cart modal
+                    updateCartButton();
+                }
+            });
+        }
+    });
 
     },
 
@@ -727,36 +776,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Process order
     function processOrder() {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const personalInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
-        const paymentMethod = localStorage.getItem('paymentMethod');
-        const deliveryNotes = localStorage.getItem('deliveryNotes');
 
-        if(cart.length === 0) {
-            alert('Your cart is empty!');
-            return;
-        }
+        fetch('/Account/GetCart')
+        .then(res => res.json())
+        .then(cart => {
 
-        const order = {
-            orderNumber: 'ORD-' + Date.now(),
-            personalInfo: personalInfo,
-            items: cart,
-            paymentMethod: paymentMethod,
-            deliveryNotes: deliveryNotes,
-            basketPrice: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-            deliveryFee: 50,  // fixed or calculated
-            discount: 0,
-            orderTotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50,
-            orderDate: new Date().toISOString()
-        };
+            const personalInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
+            const paymentMethod = localStorage.getItem('paymentMethod');
+            const deliveryNotes = localStorage.getItem('deliveryNotes');
 
-        
+            if (!cart || cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
 
-        // Clear cart
-        localStorage.removeItem('cart');
+            const basketPrice = cart.reduce(
+                (sum, item) => sum + (item.price * item.quantity),
+                0
+            );
 
-        // Redirect to receipt page
-        window.location.href = '/Home/Receipt';
+            const order = {
+                orderNumber: 'ORD-' + Date.now(),
+                personalInfo: personalInfo,
+                items: cart,
+                paymentMethod: paymentMethod,
+                deliveryNotes: deliveryNotes,
+                basketPrice: basketPrice,
+                deliveryFee: 50,
+                discount: 0,
+                orderTotal: basketPrice + 50,
+                orderDate: new Date().toISOString()
+            };
+
+            console.log(order);
+
+            // OPTIONAL:
+            // save order temporarily
+            localStorage.setItem('lastOrder', JSON.stringify(order));
+
+            // Redirect
+            window.location.href = '/Home/Receipt';
+        });
     }
 
 

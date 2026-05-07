@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Load Cart Items
     // -------------------------------
     function loadCheckoutCart() {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cart = JSON.parse(await fetch('/Account/GetCart').then(res => res.json())) || [];
         const container = document.getElementById('checkoutCartItems');
 
         if (!container) return;
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Submit Order
     // -------------------------------
     async function submitOrderToBackend(paymentMethod) {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cart = JSON.parse(await fetch('/Account/GetCart').then(res => res.json())) || [];
         if (cart.length === 0) {
             alert('Your cart is empty!');
             return null;
@@ -313,7 +313,7 @@ if (!result) {
 }
 
 // ✅ GET CURRENT CART FIRST
-const cart = JSON.parse(localStorage.getItem('cart')) || [];
+const cart = JSON.parse(await fetch('/Account/GetCart').then(res => res.json())) || [];
 
 // ✅ SAVE LAST ORDER (THIS IS WHAT RECEIPT NEEDS)
 localStorage.setItem('lastOrder', JSON.stringify({

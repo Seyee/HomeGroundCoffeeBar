@@ -163,7 +163,9 @@ public class AccountController : Controller
                 }
                 else
                 {
-                    string insertQuery = "INSERT INTO cart (UserId, ProductName, Price, Quantity, Image) VALUES (@UserId, @Product, @Price, @Qty, @Image)";
+                    string insertQuery = @"
+                    INSERT INTO cart (UserId, ProductName, Price, Quantity, Image, CreatedAt)
+                    VALUES (@UserId, @Product, @Price, @Qty, @Image, NOW())";
                     var insertCmd = new MySqlCommand(insertQuery, conn);
                     insertCmd.Parameters.AddWithValue("@UserId", userId);
                     insertCmd.Parameters.AddWithValue("@Product", item.name);
@@ -201,38 +203,39 @@ public class AccountController : Controller
         }
     }
 
-    [HttpGet]
-    public IActionResult GetCart()
-    {
-        var userId = HttpContext.Session.GetString("UserId");
-        if (string.IsNullOrEmpty(userId))
-            return Json(new List<object>());
-
-        var cart = new List<object>();
-        using (var conn = new MySqlConnection(connectionString))
+        [HttpGet]
+        public IActionResult GetCart()
         {
-            conn.Open();
-            string query = "SELECT ProductName, Price, Quantity, Image FROM cart WHERE UserId=@UserId";
-            using (var cmd = new MySqlCommand(query, conn))
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+                return Json(new List<object>());
+
+            var cart = new List<object>();
+            using (var conn = new MySqlConnection(connectionString))
             {
-                cmd.Parameters.AddWithValue("@UserId", userId);
-                using (var reader = cmd.ExecuteReader())
+                conn.Open();
+                string query = "SELECT CartId, ProductName, Price, Quantity, Image FROM cart WHERE UserId=@UserId";            
+                using (var cmd = new MySqlCommand(query, conn))
                 {
-                    while (reader.Read())
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        cart.Add(new
+                        while (reader.Read())
                         {
-                            name = reader["ProductName"],
-                            price = Convert.ToDecimal(reader["Price"]),
-                            quantity = Convert.ToInt32(reader["Quantity"]),
-                            image = reader["Image"].ToString()
-                        });
+                            cart.Add(new
+                            {
+                                cartId = reader["CartId"],   // Changed from 'id' to 'cartId'
+                                name = reader["ProductName"],
+                                price = Convert.ToDecimal(reader["Price"]),
+                                quantity = Convert.ToInt32(reader["Quantity"]),
+                                image = reader["Image"].ToString()
+                            });
+                        }
                     }
                 }
             }
+            return Json(cart);
         }
-        return Json(cart);
-    }
 
     // LOGIN
     [HttpPost]
@@ -300,111 +303,160 @@ public class AccountController : Controller
         }
     }
 
-            [HttpPost]
-        public IActionResult UpdateQuantity([FromBody] dynamic data)
+
+//LATEST CART DATABASE RELATED CODES
+
+    [HttpPost]
+    public IActionResult UpdateQuantityInput([FromBody] UpdateQuantityInputRequest data)
+    {
+        var userId = HttpContext.Session.GetString("UserId");
+        if (string.IsNullOrEmpty(userId))
+            return Json(new { success = false, message = "Not logged in" });
+
+        try
         {
-            var userId = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userId))
-                return Json(new { success = false });
-
-            int index = data.index;
-            string action = data.action;
-
             using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
+                
+                var cmd = new MySqlCommand(
+                    "UPDATE cart SET Quantity = @Quantity WHERE UserId=@UserId AND CartId=@CartId", conn);
+                cmd.Parameters.AddWithValue("@Quantity", data.quantity);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                cmd.Parameters.AddWithValue("@CartId", data.cartId);
+                cmd.ExecuteNonQuery();
 
-                // Get cart items
-                var cart = new List<int>();
-                var items = new List<(string name, int qty)>();
-
-                var getCmd = new MySqlCommand(
-                    "SELECT ProductName, Quantity FROM cart WHERE UserId=@UserId", conn);
-
-                getCmd.Parameters.AddWithValue("@UserId", userId);
-
-                using (var reader = getCmd.ExecuteReader())
+                // Return updated cart
+                var cartList = new List<object>();
+                var getCartCmd = new MySqlCommand(
+                    "SELECT CartId, ProductName, Price, Quantity, Image FROM cart WHERE UserId=@UserId", conn);
+                getCartCmd.Parameters.AddWithValue("@UserId", userId);
+                
+                using (var reader = getCartCmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        items.Add((reader["ProductName"].ToString(), Convert.ToInt32(reader["Quantity"])));
+                        cartList.Add(new
+                        {
+                            cartId = Convert.ToInt32(reader["CartId"]),
+                            name = reader["ProductName"].ToString(),
+                            price = Convert.ToDecimal(reader["Price"]),
+                            quantity = Convert.ToInt32(reader["Quantity"]),
+                            image = reader["Image"].ToString()
+                        });
                     }
                 }
 
-                if (index < 0 || index >= items.Count)
-                    return Json(new { success = false });
+                return Json(new { success = true, cart = cartList });
+            }
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
 
-                var item = items[index];
+        [HttpPost]
+        public IActionResult UpdateQuantity([FromBody] UpdateQuantityRequest data)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false, message = "Not logged in" });
 
-                if (action == "increase")
+            try
+            {
+                using (var conn = new MySqlConnection(connectionString))
                 {
-                    var cmd = new MySqlCommand(
-                        "UPDATE cart SET Quantity = Quantity + 1 WHERE UserId=@UserId AND ProductName=@Name", conn);
-                    cmd.Parameters.AddWithValue("@UserId", userId);
-                    cmd.Parameters.AddWithValue("@Name", item.name);
-                    cmd.ExecuteNonQuery();
-                }
-                else if (action == "decrease")
-                {
-                    if (item.qty <= 1)
+                    conn.Open();
+
+                    if (data.action == "increase")
                     {
                         var cmd = new MySqlCommand(
-                            "DELETE FROM cart WHERE UserId=@UserId AND ProductName=@Name", conn);
+                            "UPDATE cart SET Quantity = Quantity + 1 WHERE UserId=@UserId AND CartId=@CartId", conn);
                         cmd.Parameters.AddWithValue("@UserId", userId);
-                        cmd.Parameters.AddWithValue("@Name", item.name);
+                        cmd.Parameters.AddWithValue("@CartId", data.cartId);
                         cmd.ExecuteNonQuery();
                     }
-                    else
+                    else if (data.action == "decrease")
                     {
-                        var cmd = new MySqlCommand(
-                            "UPDATE cart SET Quantity = Quantity - 1 WHERE UserId=@UserId AND ProductName=@Name", conn);
-                        cmd.Parameters.AddWithValue("@UserId", userId);
-                        cmd.Parameters.AddWithValue("@Name", item.name);
-                        cmd.ExecuteNonQuery();
+                        // First get current quantity
+                        var getCmd = new MySqlCommand(
+                            "SELECT Quantity FROM cart WHERE UserId=@UserId AND CartId=@CartId", conn);
+                        getCmd.Parameters.AddWithValue("@UserId", userId);
+                        getCmd.Parameters.AddWithValue("@CartId", data.cartId);
+                        
+                        var result = getCmd.ExecuteScalar();
+                        if (result == null)
+                            return Json(new { success = false, message = "Item not found" });
+                            
+                        var currentQty = Convert.ToInt32(result);
+                        
+                        if (currentQty <= 1)
+                        {
+                            var deleteCmd = new MySqlCommand(
+                                "DELETE FROM cart WHERE UserId=@UserId AND CartId=@CartId", conn);
+                            deleteCmd.Parameters.AddWithValue("@UserId", userId);
+                            deleteCmd.Parameters.AddWithValue("@CartId", data.cartId);
+                            deleteCmd.ExecuteNonQuery();
+                        }
+                        else
+                        {
+                            var updateCmd = new MySqlCommand(
+                                "UPDATE cart SET Quantity = Quantity - 1 WHERE UserId=@UserId AND CartId=@CartId", conn);
+                            updateCmd.Parameters.AddWithValue("@UserId", userId);
+                            updateCmd.Parameters.AddWithValue("@CartId", data.cartId);
+                            updateCmd.ExecuteNonQuery();
+                        }
                     }
+
+                    // Return updated cart
+                    var cartList = new List<object>();
+                    var getCartCmd = new MySqlCommand(
+                        "SELECT CartId, ProductName, Price, Quantity, Image FROM cart WHERE UserId=@UserId", conn);
+                    getCartCmd.Parameters.AddWithValue("@UserId", userId);
+                    
+                    using (var reader = getCartCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            cartList.Add(new
+                            {
+                                cartId = Convert.ToInt32(reader["CartId"]),
+                                name = reader["ProductName"].ToString(),
+                                price = Convert.ToDecimal(reader["Price"]),
+                                quantity = Convert.ToInt32(reader["Quantity"]),
+                                image = reader["Image"].ToString()
+                            });
+                        }
+                    }
+
+                    return Json(new { success = true, cart = cartList });
                 }
             }
-
-            return Json(new { success = true });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]
-        public IActionResult RemoveItem([FromBody] dynamic data)
+        public IActionResult RemoveItem([FromBody] RemoveRequest data)
         {
             var userId = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userId))
-                return Json(new { success = false });
-
-            int index = data.index;
 
             using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
 
-                var items = new List<string>();
+                var cmd = new MySqlCommand(
+                    "DELETE FROM cart WHERE CartId=@CartId AND UserId=@UserId",
+                    conn
+                );
 
-                var getCmd = new MySqlCommand(
-                    "SELECT ProductName FROM cart WHERE UserId=@UserId", conn);
+                cmd.Parameters.AddWithValue("@CartId", data.CartId);
+                cmd.Parameters.AddWithValue("@UserId", userId);
 
-                getCmd.Parameters.AddWithValue("@UserId", userId);
-
-                using (var reader = getCmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        items.Add(reader["ProductName"].ToString());
-                    }
-                }
-
-                if (index >= 0 && index < items.Count)
-                {
-                    var cmd = new MySqlCommand(
-                        "DELETE FROM cart WHERE UserId=@UserId AND ProductName=@Name", conn);
-
-                    cmd.Parameters.AddWithValue("@UserId", userId);
-                    cmd.Parameters.AddWithValue("@Name", items[index]);
-                    cmd.ExecuteNonQuery();
-                }
+                cmd.ExecuteNonQuery();
             }
 
             return Json(new { success = true });

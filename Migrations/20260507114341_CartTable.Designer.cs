@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace _.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260505145826_AddedCartTable")]
-    partial class AddedCartTable
+    [Migration("20260507114341_CartTable")]
+    partial class CartTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,14 @@ namespace _.Migrations
 
             modelBuilder.Entity("Cart", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CartId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CartId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Image")
                         .IsRequired()
@@ -51,7 +54,7 @@ namespace _.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("Id");
+                    b.HasKey("CartId");
 
                     b.ToTable("Cart");
                 });
