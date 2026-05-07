@@ -128,65 +128,76 @@ public class AccountController : Controller
         }
     }
 
-    // ADD TO CART
     [HttpPost]
     public IActionResult AddToCart([FromBody] CartItem item)
     {
         var userId = HttpContext.Session.GetString("UserId");
+
         if (string.IsNullOrEmpty(userId))
-            return Json(new List<CartItem>());
+            return Json(new { success = false, message = "Not logged in" });
 
-        using (var conn = new MySqlConnection(connectionString))
+        if (item == null)
+            return Json(new { success = false, message = "Invalid item data" });
+
+        try
         {
-            conn.Open();
-
-            // Check if item already exists in cart
-            string checkQuery = "SELECT COUNT(*) FROM cart WHERE UserId=@UserId AND ProductName=@Product";
-            var checkCmd = new MySqlCommand(checkQuery, conn);
-            checkCmd.Parameters.AddWithValue("@UserId", userId);
-            checkCmd.Parameters.AddWithValue("@Product", item.name);
-            bool exists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
-
-            if (exists)
+            using (var conn = new MySqlConnection(connectionString))
             {
-                string updateQuery = "UPDATE cart SET Quantity = Quantity + @Qty WHERE UserId=@UserId AND ProductName=@Product";
-                var updateCmd = new MySqlCommand(updateQuery, conn);
-                updateCmd.Parameters.AddWithValue("@Qty", item.quantity);
-                updateCmd.Parameters.AddWithValue("@UserId", userId);
-                updateCmd.Parameters.AddWithValue("@Product", item.name);
-                updateCmd.ExecuteNonQuery();
-            }
-            else
-            {
-                string insertQuery = "INSERT INTO cart (UserId, ProductName, Price, Quantity, Image) " +
-                                     "VALUES (@UserId, @Product, @Price, @Qty, @Image)";
-                var insertCmd = new MySqlCommand(insertQuery, conn);
-                insertCmd.Parameters.AddWithValue("@UserId", userId);
-                insertCmd.Parameters.AddWithValue("@Product", item.name);
-                insertCmd.Parameters.AddWithValue("@Price", item.price);
-                insertCmd.Parameters.AddWithValue("@Qty", item.quantity);
-                insertCmd.Parameters.AddWithValue("@Image", item.image);
-                insertCmd.ExecuteNonQuery();
-            }
+                conn.Open();
 
-            // Return updated cart
-            string getQuery = "SELECT ProductName, Price, Quantity, Image FROM cart WHERE UserId=@UserId";
-            var getCmd = new MySqlCommand(getQuery, conn);
-            getCmd.Parameters.AddWithValue("@UserId", userId);
+                string checkQuery = "SELECT COUNT(*) FROM cart WHERE UserId=@UserId AND ProductName=@Product";
+                var checkCmd = new MySqlCommand(checkQuery, conn);
+                checkCmd.Parameters.AddWithValue("@UserId", userId);
+                checkCmd.Parameters.AddWithValue("@Product", item.name);
 
-            var reader = getCmd.ExecuteReader();
-            var cartList = new List<object>();
-            while (reader.Read())
-            {
-                cartList.Add(new
+                bool exists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
+
+                if (exists)
                 {
-                    name = reader["ProductName"],
-                    price = Convert.ToDecimal(reader["Price"]),
-                    quantity = Convert.ToInt32(reader["Quantity"]),
-                    image = reader["Image"].ToString()
-                });
+                    string updateQuery = "UPDATE cart SET Quantity = Quantity + @Qty WHERE UserId=@UserId AND ProductName=@Product";
+                    var updateCmd = new MySqlCommand(updateQuery, conn);
+                    updateCmd.Parameters.AddWithValue("@Qty", item.quantity);
+                    updateCmd.Parameters.AddWithValue("@UserId", userId);
+                    updateCmd.Parameters.AddWithValue("@Product", item.name);
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    string insertQuery = "INSERT INTO cart (UserId, ProductName, Price, Quantity, Image) VALUES (@UserId, @Product, @Price, @Qty, @Image)";
+                    var insertCmd = new MySqlCommand(insertQuery, conn);
+                    insertCmd.Parameters.AddWithValue("@UserId", userId);
+                    insertCmd.Parameters.AddWithValue("@Product", item.name);
+                    insertCmd.Parameters.AddWithValue("@Price", item.price);
+                    insertCmd.Parameters.AddWithValue("@Qty", item.quantity);
+                    insertCmd.Parameters.AddWithValue("@Image", item.image);
+                    insertCmd.ExecuteNonQuery();
+                }
+
+                // Return updated cart
+                string getQuery = "SELECT ProductName, Price, Quantity, Image FROM cart WHERE UserId=@UserId";
+                var getCmd = new MySqlCommand(getQuery, conn);
+                getCmd.Parameters.AddWithValue("@UserId", userId);
+
+                var reader = getCmd.ExecuteReader();
+                var cartList = new List<object>();
+
+                while (reader.Read())
+                {
+                    cartList.Add(new
+                    {
+                        name = reader["ProductName"],
+                        price = Convert.ToDecimal(reader["Price"]),
+                        quantity = Convert.ToInt32(reader["Quantity"]),
+                        image = reader["Image"].ToString()
+                    });
+                }
+
+                return Json(new { success = true, cart = cartList });
             }
-            return Json(cartList);
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
         }
     }
 
@@ -288,4 +299,116 @@ public class AccountController : Controller
             }
         }
     }
+
+            [HttpPost]
+        public IActionResult UpdateQuantity([FromBody] dynamic data)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false });
+
+            int index = data.index;
+            string action = data.action;
+
+            using (var conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Get cart items
+                var cart = new List<int>();
+                var items = new List<(string name, int qty)>();
+
+                var getCmd = new MySqlCommand(
+                    "SELECT ProductName, Quantity FROM cart WHERE UserId=@UserId", conn);
+
+                getCmd.Parameters.AddWithValue("@UserId", userId);
+
+                using (var reader = getCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add((reader["ProductName"].ToString(), Convert.ToInt32(reader["Quantity"])));
+                    }
+                }
+
+                if (index < 0 || index >= items.Count)
+                    return Json(new { success = false });
+
+                var item = items[index];
+
+                if (action == "increase")
+                {
+                    var cmd = new MySqlCommand(
+                        "UPDATE cart SET Quantity = Quantity + 1 WHERE UserId=@UserId AND ProductName=@Name", conn);
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@Name", item.name);
+                    cmd.ExecuteNonQuery();
+                }
+                else if (action == "decrease")
+                {
+                    if (item.qty <= 1)
+                    {
+                        var cmd = new MySqlCommand(
+                            "DELETE FROM cart WHERE UserId=@UserId AND ProductName=@Name", conn);
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.AddWithValue("@Name", item.name);
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        var cmd = new MySqlCommand(
+                            "UPDATE cart SET Quantity = Quantity - 1 WHERE UserId=@UserId AND ProductName=@Name", conn);
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.AddWithValue("@Name", item.name);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveItem([FromBody] dynamic data)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false });
+
+            int index = data.index;
+
+            using (var conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                var items = new List<string>();
+
+                var getCmd = new MySqlCommand(
+                    "SELECT ProductName FROM cart WHERE UserId=@UserId", conn);
+
+                getCmd.Parameters.AddWithValue("@UserId", userId);
+
+                using (var reader = getCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(reader["ProductName"].ToString());
+                    }
+                }
+
+                if (index >= 0 && index < items.Count)
+                {
+                    var cmd = new MySqlCommand(
+                        "DELETE FROM cart WHERE UserId=@UserId AND ProductName=@Name", conn);
+
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@Name", items[index]);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return Json(new { success = true });
+        }
 }
+
+

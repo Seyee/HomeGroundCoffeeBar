@@ -60,7 +60,6 @@ const Page = {
         // VARIABLES
         const productQtyInput = document.querySelector('.qty-input');
 
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let cartBtn = document.getElementById('cartButton');
 
         function initializeCategoryFilter() {
@@ -104,54 +103,49 @@ const Page = {
             });
         }
 
-        function updateCartButton() {
-            utils.debug("Is User Logged in?", window.isLoggedIn);
-            utils.debug("User Id", window.userId);
+        function updateCartButton(cartData = null) {
+            const cartBtn = document.getElementById('cartButton');
+            if (!cartBtn) return;
 
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const cartCount = cartBtn.querySelector('.cart-count');
+            const load = cartData 
+                ? Promise.resolve(cartData)
+                : fetch('/Account/GetCart').then(res => res.json());
 
-            cartCount.textContent = totalItems;
+            load.then(cart => {
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                const cartCount = cartBtn.querySelector('.cart-count');
 
-            if (totalItems > 0) {
-                cartBtn.classList.add("show"); //THIS SHOW THE CART MODAL
-            } else {
-                cartBtn.classList.remove("show");
-            }
+                cartCount.textContent = totalItems;
+
+                if (totalItems > 0) {
+                    cartBtn.classList.add("show");
+                } else {
+                    cartBtn.classList.remove("show");
+                }
+            });
         }
 
         function addToCart(product) {
-            const existingItem = cart.find(item => item.name === product.name);
-            
-            if (existingItem) {
-                utils.debug("existing item", true);
-                if (product.quantity >= 99 || existingItem.quantity >= 99) {
-                    showNotification(`${product.quantity} item quantity exceeded!`);
-                    return;
-                } else {
-                    existingItem.quantity += product.quantity;
-                    updateCartButton();
-                    showNotification(`${product.quantity} added to cart!`);
-                    utils.closeModal(modal);
-                }
-            } else {
-                cart.push({
+            fetch('/Account/AddToCart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     name: product.name,
                     price: product.price,
-                    image: product.image,
-                    quantity: product.quantity
-                });
-                    
-                // Save to localStorage
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartButton();
-                
-                // Show success message
-                const itemText = product.quantity > 1 ? `${product.quantity} items` : 'Item';
-                showNotification(`${itemText} added to cart!`);
-                utils.closeModal(modal);
-            
-            }
+                    quantity: product.quantity,
+                    image: product.image
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartButton(data.cart);
+                    showNotification(`${product.quantity} added to cart!`);
+                    utils.closeModal(modal);
+                } else {
+                    console.log(data.message);
+                }
+            });
         }
 
         // Open cart modal
@@ -159,7 +153,11 @@ const Page = {
             let cartModal = document.getElementById('cartModal');
             
             // Populate cart items
-            updateCartModal(cartModal);
+            fetch('/Account/GetCart')
+            .then(res => res.json())
+            .then(cart => {
+                updateCartModal(cartModal, cart);
+            });            
             utils.openModal(modal ,cartModal);
 
             // Close button
@@ -186,20 +184,19 @@ const Page = {
         }
 
         // Update cart modal content
-        function updateCartModal() {
-            const cartItems = document.querySelector('.cart-items');
-            const totalAmount = document.querySelector('.total-amount');
-            
-            // Unnecessary na to, di mo den naman dinidisplay si cart pag 0 eh
-            if (cart.length === 0) {
+        function updateCartModal(cartModal, cart) {
+            const cartItems = cartModal.querySelector('.cart-items');
+            const totalAmount = cartModal.querySelector('.total-amount');
+
+            if (!cart || cart.length === 0) {
                 cartItems.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
                 totalAmount.textContent = '₱0';
                 return;
             }
-            
+
             cartItems.innerHTML = cart.map((item, index) => `
                 <div class="cart-item-con">
-                    <button id="removeCartItem" class="remove-item" data-item-id="${index}">✕</button>
+                    <button class="remove-item" data-index="${index}">✕</button>
 
                     <div class="cart-item">
                         <img src="${item.image}" alt="${item.name}">
@@ -208,14 +205,14 @@ const Page = {
                             <p class="cart-item-price">₱${item.price}</p>
                         </div>
                         <div class="cart-item-controls">
-                            <button id="cartDecreaseQuantityBtn" data-btn-id="${index}">-</button>
-                            <input id="cartItemInput" type="number" class="qty-input cart-input" data-input-id="${index}" value="${item.quantity}" min="1" max="99">
-                            <button id="cartIncreaseQuantityBtn" data-btn-id="${index}">+</button>
+                            <button class="decrease" data-index="${index}">-</button>
+                            <input type="number" class="cart-input" data-index="${index}" value="${item.quantity}" min="1" max="99">
+                            <button class="increase" data-index="${index}">+</button>
                         </div>
                     </div>
                 </div>
             `).join('');
-            
+
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             totalAmount.textContent = `₱${total}`;
         }
@@ -240,32 +237,27 @@ const Page = {
 
         // Cart manipulation functions
         function increaseQuantity(index) {
-            if (cart[index].quantity >= 99) {
-                showNotification(`${cart[index].quantity} item quantity exceeded!`);
-            } else {
-                cart[index].quantity++;
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartButton();
-                openCart(); // Refresh cart modal
-            }
+            fetch('/Account/UpdateQuantity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ index, action: "increase" })
+            }).then(() => openCart());
         }
 
         function decreaseQuantity(index) {
-            if (cart[index].quantity > 1) {
-                cart[index].quantity--;
-            } else {
-                cart.splice(index, 1);
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartButton();
-            openCart(); // Refresh cart modal
+            fetch('/Account/UpdateQuantity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ index, action: "decrease" })
+            }).then(() => openCart());
         }
 
         function removeItem(index) {
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartButton();
-            openCart(); // Refresh cart modal
+            fetch('/Account/RemoveItem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ index })
+            }).then(() => openCart());
         }
         
         initializeCategoryFilter();
@@ -275,9 +267,9 @@ const Page = {
             updateCartButton();
         }
 
-        cartBtn.addEventListener("click", function () {
-            openCart();
-        });
+        if (cartBtn) {
+            cartBtn.addEventListener("click", openCart);
+        }
 
         // PRODUCT MODAL QUANTITY CONTROLS
         const addToCartBtn = document.querySelector('.add-to-cart-btn');
@@ -373,36 +365,17 @@ const Page = {
         });
 
         document.addEventListener("click", function (e) {
-            // CART MODAL CONTROLS
-            if (e.target.id === "cartDecreaseQuantityBtn") {
-                const btnId = e.target.dataset.btnId;
-                decreaseQuantity(btnId);
+
+            if (e.target.classList.contains("increase")) {
+                increaseQuantity(e.target.dataset.index);
             }
 
-            if (e.target.id === "cartIncreaseQuantityBtn") {
-                const btnId = e.target.dataset.btnId;
-                increaseQuantity(btnId);
+            if (e.target.classList.contains("decrease")) {
+                decreaseQuantity(e.target.dataset.index);
             }
 
-            if (e.target.id === "removeCartItem") {
-                const cartItemId = e.target.dataset.itemId;
-                removeItem(cartItemId);
-            }
-
-            // CHECKS CART QTY INPUT
-            if (e.target.closest(".cart-input")) {
-                utils.debug("Input cart", true);
-                const cartQtyInput = e.target.closest(".cart-input");
-
-                cartQtyInput.addEventListener("input", function () {    
-                    cartQtyInput.value = utils.validateItemQuantity(cartQtyInput);
-                });
-
-                cartQtyInput.addEventListener("input", function () {
-                    const cartItemId = cartQtyInput.dataset.inputId;
-                    setItemQuantity(cartItemId, cartQtyInput.value);
-                    updateCartTotalPrice();
-                });
+            if (e.target.classList.contains("remove-item")) {
+                removeItem(e.target.dataset.index);
             }
 
             if (e.target.id === "checkoutBtn") {
@@ -586,31 +559,30 @@ const Page = {
 
         // Load cart items from localStorage
         function loadCartItems() {
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
             const cartItemsContainer = document.getElementById('checkoutCartItems');
-            
-            if (cart === null) {
-                cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your cart is empty. Add items to proceed.</p>';
-                document.getElementById('basketPrice').textContent = '₱0';
-                document.getElementById('orderTotal').textContent = '₱50';
-                return;
-            } else {
-                // Render cart items
+
+            fetch('/Account/GetCart')
+            .then(res => res.json())
+            .then(cart => {
+
+                if (!cart || cart.length === 0) {
+                    cartItemsContainer.innerHTML = '<p class="empty-cart-message">Your cart is empty.</p>';
+                    return;
+                }
+
                 cartItemsContainer.innerHTML = cart.map(item => `
                     <div class="checkout-cart-item">
                         <img src="${item.image}" alt="${item.name}">
                         <div class="checkout-item-info">
-                            <div class="checkout-item-name">${item.name}</div>
-                            <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
-                            <div class="checkout-item-price">₱${item.price * item.quantity}</div>
+                            <div>${item.name}</div>
+                            <div>Qty: ${item.quantity}</div>
+                            <div>₱${item.price * item.quantity}</div>
                         </div>
                     </div>
                 `).join('');
-                
-            }
 
-            // Calculate totals
-            calculateTotals(cart);
+                calculateTotals(cart);
+            });
         }
 
         loadCartItems();
@@ -778,12 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
             orderDate: new Date().toISOString()
         };
 
-        // Save order to localStorage
-        localStorage.setItem('lastOrder', JSON.stringify({
-        items: JSON.parse(localStorage.getItem('cart')) || [],
-        orderTotal: total + 50,
-        points: result.pointsEarned
-    }));
+        
 
         // Clear cart
         localStorage.removeItem('cart');
