@@ -170,19 +170,18 @@ function processOrder() {
             return;
         }
 
-        const personalInfo  = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
-        const paymentMethod = localStorage.getItem('paymentMethod') || 'cod';
-        const deliveryNotes = localStorage.getItem('deliveryNotes') || '';
-
+        // Read directly from the form — no localStorage needed
         const payload = {
-            fullName:      personalInfo.fullName,
-            streetAddress: personalInfo.streetAddress,
-            state:         personalInfo.state,
-            city:          personalInfo.city,
-            zipCode:       personalInfo.zipCode,
-            paymentMethod: paymentMethod,
-            deliveryNotes: deliveryNotes
+            fullName:      document.getElementById('fullName').value.trim(),
+            streetAddress: document.getElementById('streetAddress').value.trim(),
+            state:         document.getElementById('state').value.trim(),
+            city:          document.getElementById('city').value.trim(),
+            zipCode:       document.getElementById('zipCode').value.trim(),
+            paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+            deliveryNotes: document.getElementById('deliveryNotes').value.trim()
         };
+
+        console.log('Submitting payload:', payload); // ← check browser console
 
         fetch('/Home/SubmitOrder', {
             method:  'POST',
@@ -194,9 +193,6 @@ function processOrder() {
             if (data.success) {
                 localStorage.setItem('lastOrderId',      data.orderId);
                 localStorage.setItem('lastPointsEarned', data.pointsEarned);
-                localStorage.removeItem('checkoutPersonalInfo');
-                localStorage.removeItem('paymentMethod');
-                localStorage.removeItem('deliveryNotes');
                 window.location.href = '/Home/Receipt';
             } else {
                 alert('Order failed: ' + data.message);
