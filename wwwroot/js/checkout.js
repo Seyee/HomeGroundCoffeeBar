@@ -1,31 +1,18 @@
 let currentStep = 1;
 
 document.addEventListener('DOMContentLoaded', function () {
+    if (!document.getElementById('personalInfoForm')) return;
 
     loadCartItems();
     updateStepIndicator();
     updateNavigationButtons();
 
-    // Load saved personal info if available
-    const savedInfo = JSON.parse(localStorage.getItem('checkoutPersonalInfo'));
-    if (savedInfo) {
-        document.getElementById('fullName').value        = savedInfo.fullName      || '';
-        document.getElementById('email').value           = savedInfo.email         || '';
-        document.getElementById('streetAddress').value   = savedInfo.streetAddress || '';
-        document.getElementById('state').value           = savedInfo.state         || '';
-        document.getElementById('city').value            = savedInfo.city          || '';
-        document.getElementById('zipCode').value         = savedInfo.zipCode       || '';
-        document.getElementById('phoneNumber').value     = savedInfo.phoneNumber   || '';
-    }
-
     document.getElementById('nextBtn').addEventListener('click', function () {
         if (currentStep === 1) {
             if (!validatePersonalInfo()) return;
-            savePersonalInfo();
             currentStep = 2;
             showStep(2);
         } else if (currentStep === 2) {
-            savePaymentMethod();
             processOrder();
         }
     });
@@ -39,8 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-
-// ── Cart ──────────────────────────────────────────────────────────────────────
 
 function loadCartItems() {
     const cartItemsContainer = document.getElementById('checkoutCartItems');
@@ -72,13 +57,13 @@ function calculateTotals(cart) {
     const basketPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const deliveryFee = 50;
     const orderTotal  = basketPrice + deliveryFee;
+    const points      = Math.floor(orderTotal * 0.05);
 
-    document.getElementById('basketPrice').textContent = `₱${basketPrice}`;
-    document.getElementById('deliveryFee').textContent = `₱${deliveryFee}`;
-    document.getElementById('orderTotal').textContent  = `₱${orderTotal}`;
+    document.getElementById('basketPrice').textContent  = `₱${basketPrice}`;
+    document.getElementById('deliveryFee').textContent  = `₱${deliveryFee}`;
+    document.getElementById('orderTotal').textContent   = `₱${orderTotal}`;
+    document.getElementById('pointsEarned').textContent = `+${points} pts`;
 }
-
-// ── Steps ─────────────────────────────────────────────────────────────────────
 
 function showStep(step) {
     document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
@@ -100,6 +85,8 @@ function updateNavigationButtons() {
     const backBtn = document.getElementById('backBtn');
     const nextBtn = document.getElementById('nextBtn');
 
+    if (!backBtn || !nextBtn) return;
+
     backBtn.innerHTML = currentStep === 1
         ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -117,18 +104,17 @@ function updateNavigationButtons() {
            </svg>`;
 }
 
-// ── Validation & Save ─────────────────────────────────────────────────────────
-
 function validatePersonalInfo() {
+
     const fullName      = document.getElementById('fullName').value.trim();
     const email         = document.getElementById('email').value.trim();
     const streetAddress = document.getElementById('streetAddress').value.trim();
     const state         = document.getElementById('state').value.trim();
     const city          = document.getElementById('city').value.trim();
     const zipCode       = document.getElementById('zipCode').value.trim();
-    const phoneNumber   = document.getElementById('phoneNumber').value.trim();
 
-    if (!fullName || !email || !streetAddress || !state || !city || !zipCode || !phoneNumber) {
+
+    if (!fullName || !email || !streetAddress || !state || !city || !zipCode) {
         alert('Please fill in all required fields.');
         return false;
     }
@@ -142,25 +128,6 @@ function validatePersonalInfo() {
     return true;
 }
 
-function savePersonalInfo() {
-    localStorage.setItem('checkoutPersonalInfo', JSON.stringify({
-        fullName:      document.getElementById('fullName').value.trim(),
-        email:         document.getElementById('email').value.trim(),
-        streetAddress: document.getElementById('streetAddress').value.trim(),
-        state:         document.getElementById('state').value.trim(),
-        city:          document.getElementById('city').value.trim(),
-        zipCode:       document.getElementById('zipCode').value.trim(),
-        phoneNumber:   document.getElementById('phoneNumber').value.trim()
-    }));
-}
-
-function savePaymentMethod() {
-    localStorage.setItem('paymentMethod',   document.querySelector('input[name="paymentMethod"]:checked').value);
-    localStorage.setItem('deliveryNotes',   document.getElementById('deliveryNotes').value.trim());
-}
-
-// ── Order Submission ──────────────────────────────────────────────────────────
-
 function processOrder() {
     fetch('/Account/GetCart')
     .then(res => res.json())
@@ -170,7 +137,6 @@ function processOrder() {
             return;
         }
 
-        // Read directly from the form — no localStorage needed
         const payload = {
             fullName:      document.getElementById('fullName').value.trim(),
             streetAddress: document.getElementById('streetAddress').value.trim(),
@@ -180,8 +146,6 @@ function processOrder() {
             paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
             deliveryNotes: document.getElementById('deliveryNotes').value.trim()
         };
-
-        console.log('Submitting payload:', payload); // ← check browser console
 
         fetch('/Home/SubmitOrder', {
             method:  'POST',
