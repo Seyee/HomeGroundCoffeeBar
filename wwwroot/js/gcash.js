@@ -57,26 +57,14 @@ btn4.addEventListener('click', () => {
 
 // UPDATED BTN5 - Redirect to Receipt
 btn5.addEventListener('click', () => {
-    // Get order ID from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('orderId');
-    
-    // Store payment method in localStorage
-    localStorage.setItem('paymentMethod', 'gcash');
-    
-    // Redirect to receipt page
+
     if (orderId) {
-        window.location.href = `/Home/Receipt?orderNumber=${orderId}`;
+        window.location.href = `/Home/ConfirmAndReceipt?orderId=${orderId}`;
     } else {
         window.location.href = '/Home/Receipt';
     }
-    
-    // Optional: Clear these popups
-    loginPop.classList.remove("inactive");
-    otpPop.classList.remove("active");
-    mpinPop.classList.remove("active");
-    payDetPop.classList.remove("active");
-    paySucPop.classList.remove("active");
 });
 
 // AVAILABLE BALANCE VALIDATION

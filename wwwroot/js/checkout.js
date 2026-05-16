@@ -1,4 +1,4 @@
-let currentStep = 1;
+window.currentStep = 1;
 
 document.addEventListener('DOMContentLoaded', function () {
     if (!document.getElementById('personalInfoForm')) return;
@@ -7,24 +7,25 @@ document.addEventListener('DOMContentLoaded', function () {
     updateStepIndicator();
     updateNavigationButtons();
 
-    document.getElementById('nextBtn').addEventListener('click', function () {
-        if (currentStep === 1) {
+    document.getElementById('nextBtn').onclick = function () {
+        console.log('nextBtn onclick, currentStep:', window.currentStep);
+        if (window.currentStep === 1) {
             if (!validatePersonalInfo()) return;
-            currentStep = 2;
+            window.currentStep = 2;
             showStep(2);
-        } else if (currentStep === 2) {
+        } else if (window.currentStep === 2) {
             processOrder();
         }
-    });
+    };
 
-    document.getElementById('backBtn').addEventListener('click', function () {
-        if (currentStep === 2) {
-            currentStep = 1;
+    document.getElementById('backBtn').onclick = function () {
+        if (window.currentStep === 2) {
+            window.currentStep = 1;
             showStep(1);
         } else {
             window.location.href = '/Home/Menu';
         }
-    });
+    };
 });
 
 function loadCartItems() {
@@ -77,31 +78,18 @@ function showStep(step) {
 
 function updateStepIndicator() {
     document.querySelectorAll('.step').forEach((step, index) => {
-        step.classList.toggle('active', index + 1 <= currentStep);
+        step.classList.toggle('active', index + 1 <= window.currentStep);
     });
 }
 
 function updateNavigationButtons() {
-    const backBtn = document.getElementById('backBtn');
-    const nextBtn = document.getElementById('nextBtn');
+    const backBtnText = document.getElementById('backBtnText');
+    const nextBtnText = document.getElementById('nextBtnText');
 
-    if (!backBtn || !nextBtn) return;
+    if (!backBtnText || !nextBtnText) return;
 
-    backBtn.innerHTML = currentStep === 1
-        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-               <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-           </svg> Back to Menu`
-        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-               <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-           </svg> Back`;
-
-    nextBtn.innerHTML = currentStep === 2
-        ? `Place Order <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-               <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-           </svg>`
-        : `Next <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-               <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-           </svg>`;
+    backBtnText.textContent = window.currentStep === 1 ? 'Back to Menu' : 'Back';
+    nextBtnText.textContent = window.currentStep === 2 ? 'Place Order' : 'Next';
 }
 
 function validatePersonalInfo() {
@@ -128,14 +116,16 @@ function validatePersonalInfo() {
     return true;
 }
 
+
 function processOrder() {
+ console.log('processOrder called');
+    console.log('paymentMethod selected:', document.querySelector('input[name="paymentMethod"]:checked')?.value);
+    
+
     fetch('/Account/GetCart')
     .then(res => res.json())
     .then(cart => {
-        if (!cart || cart.length === 0) {
-            alert('Your cart is empty!');
-            return;
-        }
+        console.log('cart:', cart);
 
         const payload = {
             fullName:      document.getElementById('fullName').value.trim(),
@@ -147,20 +137,37 @@ function processOrder() {
             deliveryNotes: document.getElementById('deliveryNotes').value.trim()
         };
 
+        console.log('payload:', payload);
+
         fetch('/Home/SubmitOrder', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify(payload)
         })
-        .then(res => res.json())
+        .then(res => {
+            console.log('SubmitOrder status:', res.status);
+            return res.json();
+        })
         .then(data => {
+            console.log('SubmitOrder data:', data);
+            console.log('redirectUrl:', data.redirectUrl);
+
             if (data.success) {
-                localStorage.setItem('lastOrderId',      data.orderId);
-                localStorage.setItem('lastPointsEarned', data.pointsEarned);
-                window.location.href = '/Home/Receipt';
+                localStorage.setItem('lastOrderId', data.orderId);
+
+                if (data.redirectUrl) {
+                    console.log('Redirecting to:', data.redirectUrl);
+                    window.location.href = data.redirectUrl;
+                } else {
+                    console.log('No redirectUrl, going to Receipt');
+                    window.location.href = '/Home/Receipt';
+                }
             } else {
                 alert('Order failed: ' + data.message);
             }
+        })
+        .catch(err => {
+            console.error('Fetch error:', err);
         });
     });
 }

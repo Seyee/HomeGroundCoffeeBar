@@ -12,92 +12,77 @@ public class GCashController(ILogger<GCashController> logger, ApplicationDbConte
     private readonly ILogger<GCashController> _logger = logger;
     private readonly ApplicationDbContext _context = context;
 
-    public IActionResult GCashMain(int amount)
+public IActionResult GCashMain(int amount, string orderId)
+{
+    Console.WriteLine("Accessed Gcash Table");
+    TempData["OrderId"] = orderId;
+    TempData.Keep("OrderId");
+
+    var gcashTable = _context.GCash.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+
+    if (gcashTable == null)
     {
-        Console.WriteLine("Accessed Gcash Table"); // REMOVE THIS
-
-        var gcashTable = _context.GCash.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-
-        if (gcashTable == null)
+        var balance = 10000;
+        var updateAvailBalance = new GCashModel
         {
-            var balance = 10000;
-
-            var updateAvailBalance = new GCashModel
-            {
-                AvailableBalance = balance,
-                Amount = amount
-            };
-
-            _context.GCash.Add(updateAvailBalance);
-            _context.SaveChanges();
-
-            Console.WriteLine("Empty Table");
-        }
-        else
+            AvailableBalance = balance,
+            Amount = amount
+        };
+        _context.GCash.Add(updateAvailBalance);
+        _context.SaveChanges();
+    }
+    else
+    {
+        if (gcashTable.AvailableBalance > 0)
         {
-            if (gcashTable.AvailableBalance > 0)
+            if (amount > gcashTable.AvailableBalance)
             {
-                if (amount > gcashTable.AvailableBalance)
-                {
-                    Console.WriteLine("AMount exceed the avail balance"); // REMOVE THIS
-                    return View();
-                }
-                else
-                {
-                    var newBalance = gcashTable.AvailableBalance - amount;
-
-                    var sendNewBalance = new GCashModel
-                    {
-                        AvailableBalance = newBalance,
-                        Amount = amount
-                    };
-
-                    Console.WriteLine("Amount send: " + amount); // REMOVE THIS
-
-                    _context.GCash.Add(sendNewBalance);
-
-                    // CHECKS IF GCASH TABLE AVAILBALANCE COLUMN IS 0
-                    if (newBalance <= 0)
-                    {
-                        var balance = 10000;
-
-                        var updateGcashBalance = new GCashModel
-                        {
-                            AvailableBalance = balance,
-                            Amount = amount
-                        };
-
-                        _context.GCash.Add(updateGcashBalance);
-                    }
-
-                    _context.SaveChanges();
-                }
+                Console.WriteLine("Amount exceeds available balance");
             }
             else
             {
-                var balance = 10000;
-
-                var updateAvailBalance = new GCashModel
+                var newBalance = gcashTable.AvailableBalance - amount;
+                var sendNewBalance = new GCashModel
                 {
-                    AvailableBalance = balance,
+                    AvailableBalance = newBalance,
                     Amount = amount
                 };
+                _context.GCash.Add(sendNewBalance);
 
-                _context.GCash.Add(updateAvailBalance);
+                if (newBalance <= 0)
+                {
+                    var updateGcashBalance = new GCashModel
+                    {
+                        AvailableBalance = 10000,
+                        Amount = amount
+                    };
+                    _context.GCash.Add(updateGcashBalance);
+                }
                 _context.SaveChanges();
-                Console.WriteLine("Update GCash balance to 10,000"); // REMOVE THIS
             }
         }
-
-        var payment = _context.GCash.OrderByDescending(p => p.CreatedAt).FirstOrDefault(); // GET THE LATEST DATA ROM THE DATABASE
-
-        var vm = new ViewModels
+        else
         {
-            GCash = payment ?? new GCashModel()
-        };
-
-        return View(vm);
+            var updateAvailBalance = new GCashModel
+            {
+                AvailableBalance = 10000,
+                Amount = amount
+            };
+            _context.GCash.Add(updateAvailBalance);
+            _context.SaveChanges();
+        }
     }
+
+    var payment = _context.GCash.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+    var vm = new ViewModels
+    {
+        GCash = payment ?? new GCashModel()
+    };
+
+    // ← show the view, orderId is in URL as query param
+    ViewBag.OrderId = orderId;
+    return View(vm);
+}
 
     [HttpPost]
     public IActionResult GetAvailBalance([FromBody] PaymentRequest amount)

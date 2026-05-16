@@ -59,7 +59,6 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
 
         string userId = userIdStr;
 
-        // Pull cart from DB
         var cartItems = await _context.Cart
             .Where(c => c.UserId == userId)
             .ToListAsync();
@@ -67,12 +66,10 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
         if (!cartItems.Any())
             return Json(new { success = false, message = "Cart is empty." });
 
-        // Fetch user FIRST before building the order
         var user = await _context.Users.FindAsync(int.Parse(userId));
         if (user == null)
             return Json(new { success = false, message = "User not found." });
 
-        // Totals
         decimal subtotal = cartItems.Sum(i => i.Price * i.Quantity);
         decimal delivery = 50m;
         decimal total    = subtotal + delivery;
@@ -107,13 +104,25 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
 
         _context.Orders.Add(order);
 
-        user.Points += points;
-
-        _context.Cart.RemoveRange(cartItems);
+        // Only award points and clear cart for COD (instant)
+        // For GCash/Maya, do it after payment succeeds
+        if (request.PaymentMethod == "cod")
+        {
+            user.Points += points;
+            _context.Cart.RemoveRange(cartItems);
+        }
 
         await _context.SaveChangesAsync();
 
-        return Json(new { success = true, orderId, pointsEarned = points });
+        // Redirect based on payment method
+        string? redirectUrl = request.PaymentMethod switch
+        {
+            "gcash" => Url.Action("GCashMain", "GCash", new { amount = (int)total, orderId }),
+            "maya"  => Url.Action("PayMayaMain", "PayMaya", new { amount = (int)total, orderId }),
+            _       => null  // COD — no redirect
+        };
+
+        return Json(new { success = true, orderId, pointsEarned = points, redirectUrl });
     }
     /*[HttpPost]
     public IActionResult sendCartData([FromBody])
@@ -121,24 +130,7 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
         
     }*/
 
-    public IActionResult Receipt(string orderNumber)
-    {
-        // FIND A WAY TO STORE THE DATA FROM    
-        var lastOrderJson = TempData["LastOrder"] as string;
-
-        Console.WriteLine(lastOrderJson);
-
-        if (string.IsNullOrEmpty(lastOrderJson))
-        {
-            // No order found → redirect to menu
-            return RedirectToAction("menu");
-        }
-
-        // Deserialize order
-        var order = JsonSerializer.Deserialize<OrderModel>(lastOrderJson);
-
-        return View(/*order*/);
-    }
+    
 
 
         public IActionResult Redeem()
@@ -185,6 +177,91 @@ public IActionResult RedeemReward([FromBody] RedeemRequest request)
     _context.SaveChanges();
 
     return Json(new { success = true, remainingPoints = user.Points });
+}
+
+public async Task<IActionResult> ConfirmAndReceipt(string orderId)
+{
+    var userIdStr = HttpContext.Session.GetString("UserId");
+    if (string.IsNullOrEmpty(userIdStr))
+        return RedirectToAction("Signin");
+
+    var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+    if (order == null)
+        return RedirectToAction("Menu");
+
+    var user = await _context.Users.FindAsync(int.Parse(userIdStr));
+    if (user != null)
+        user.Points += order.PointsEarned;
+
+    // Clear cart now that payment is confirmed
+    var cartItems = await _context.Cart
+        .Where(c => c.UserId == userIdStr)
+        .ToListAsync();
+
+    _context.Cart.RemoveRange(cartItems);
+    await _context.SaveChangesAsync();
+
+    // Pass orderId to receipt via TempData so JS can pick it up
+    TempData["ConfirmedOrderId"] = orderId;
+    return RedirectToAction("Receipt");
+}
+
+public IActionResult Receipt()
+{
+    return View();
+}
+
+[HttpGet]
+public async Task<IActionResult> GetOrder(string orderId)
+{
+    var order = await _context.Orders
+        .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+    if (order == null)
+        return Json(new { success = false, message = "Order not found." });
+
+    return Json(new
+    {
+        success      = true,
+        orderId      = order.OrderId,
+        fullName     = order.FullName,
+        paymentMethod = order.PaymentMethod,
+        subtotal     = order.Subtotal,
+        deliveryFee  = order.DeliveryFee,
+        total        = order.Total,
+        pointsEarned = order.PointsEarned,
+        createdAt    = order.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt"),
+        items        = order.Items
+    });
+}
+
+[HttpPost]
+public async Task<IActionResult> ConfirmOrder(string orderId)
+{
+    var userIdStr = HttpContext.Session.GetString("UserId");
+    if (string.IsNullOrEmpty(userIdStr))
+        return Json(new { success = false, message = "Not logged in" });
+
+    int userId = int.Parse(userIdStr);
+
+    var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+    if (order == null)
+        return Json(new { success = false, message = "Order not found." });
+
+    var user = await _context.Users.FindAsync(userId);
+    if (user != null)
+        user.Points += order.PointsEarned;
+
+    // Clear cart now that payment is done
+    var cartItems = await _context.Cart
+        .Where(c => c.UserId == userIdStr)
+        .ToListAsync();
+
+    _context.Cart.RemoveRange(cartItems);
+
+    await _context.SaveChangesAsync();
+
+    return Json(new { success = true });
 }
 }
 

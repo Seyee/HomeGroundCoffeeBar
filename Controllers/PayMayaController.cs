@@ -15,85 +15,80 @@ public class PayMayaController : Controller
         _context = context;
     }
 
-    public IActionResult PayMayaMain(int amount)
+public IActionResult PayMayaMain(int amount, string orderId)
+{
+    Console.WriteLine("Accessed Maya Table");
+    TempData["OrderId"] = orderId;
+    TempData.Keep("OrderId");
+
+    var PayMaya = _context.PayMaya.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+
+    if (PayMaya == null)
     {
-        Console.WriteLine("Accessed Maya Table"); // REMOVE THIS
-        var PayMaya = _context.PayMaya.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-
-        if (PayMaya == null)
+        var updateAvailBalance = new PayMayaModel
         {
-            var balance = 10000;
-
-                var updateAvailBalance = new PayMayaModel
-                {
-                    AvailBalance = balance,
-                    Amount = amount
-                };
-
-                _context.PayMaya.Add(updateAvailBalance);
-                _context.SaveChanges();
-
-            Console.WriteLine("Empty Table");
+            AvailBalance = 10000,
+            Amount = amount
+        };
+        _context.PayMaya.Add(updateAvailBalance);
+        _context.SaveChanges();
+    }
+    else
+    {
+        if (PayMaya.AvailBalance > 0)
+        {
+            if (PayMaya.Amount > PayMaya.AvailBalance)
+                return BadRequest(new { message = "Amount exceeded!" });
         }
         else
         {
-            if (PayMaya.AvailBalance > 0)
+            var updateAvailBalance = new PayMayaModel
             {
-                if (PayMaya.Amount > PayMaya.AvailBalance)
-                {
-                    return BadRequest(new { message = "Amount exceeded!" });
-                }
-                else
-                {
-                   return View();
-                }
-            }
-            else
-            {
-                var balance = 10000;
-
-                var updateAvailBalance = new PayMayaModel
-                {
-                    AvailBalance = balance,
-                    Amount = PayMaya.Amount
-                };
-
-                _context.PayMaya.Add(updateAvailBalance);
-                _context.SaveChanges();
-                Console.WriteLine("Update PayMaya balance to 10,000"); // REMOVE THIS
-
-                return Ok( new { message = "Maya Balance update", redirect = Url.Action("PayMayaMain", "PayMaya")});
-            }
+                AvailBalance = 10000,
+                Amount = PayMaya.Amount
+            };
+            _context.PayMaya.Add(updateAvailBalance);
+            _context.SaveChanges();
+            return Ok(new { message = "Maya Balance update", redirect = Url.Action("PayMayaMain", "PayMaya") });
         }
-
-        return View();
     }
 
-    public IActionResult PayMayaOTP()
+    ViewBag.OrderId = orderId;
+    return View();
+}
+
+public IActionResult PayMayaOTP()
+{
+    ViewBag.OrderId = TempData["OrderId"]?.ToString();
+    TempData.Keep("OrderId");
+    return View();
+}
+
+public IActionResult PayMayaDetails()
+{
+    ViewBag.OrderId = TempData["OrderId"]?.ToString();
+    TempData.Keep("OrderId");
+
+    var payment = _context.PayMaya.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+    var vm = new ViewModels
     {
-        return View();
-    }
+        PayMaya = payment ?? new PayMayaModel()
+    };
+    return View(vm);
+}
 
-    public IActionResult PayMayaDetails()
+public IActionResult PayMayaSuccess()
+{
+    ViewBag.OrderId = TempData["OrderId"]?.ToString();
+    TempData.Keep("OrderId");
+
+    var payment = _context.PayMaya.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+    var vm = new ViewModels
     {
-       var payment = _context.PayMaya.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-        var vm = new ViewModels
-        {
-            PayMaya = payment ?? new PayMayaModel()
-        };
-
-        return View(vm);
-    }
-
-    public IActionResult PayMayaSuccess()
-    {
-        var payment = _context.PayMaya.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-        var vm = new ViewModels
-        {
-            PayMaya = payment ?? new PayMayaModel()
-        };
-        return View(vm);
-    }
+        PayMaya = payment ?? new PayMayaModel()
+    };
+    return View(vm);
+}
 
     [HttpPost]
     public IActionResult SendData([FromBody] PayMayaModel availBalance)

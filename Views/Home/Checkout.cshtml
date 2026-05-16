@@ -1,7 +1,6 @@
 @{
     ViewData["Title"] = "Checkout";
-    ViewData["Page"] = "checkout";
-    
+    ViewBag.Page = "checkout";  // ← change this
 }
 
 <div class="checkout-container">
@@ -115,14 +114,14 @@
 
         <!-- Navigation Buttons -->
         <div class="form-navigation">
-                <button class="btn-back" id="backBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <button class="btn-back" id="backBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                Back
+                <span id="backBtnText">Back to Menu</span>
             </button>
-                <button class="btn-next" id="nextBtn">
-                Next
+            <button class="btn-next" id="nextBtn">
+                <span id="nextBtnText">Next</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
@@ -163,7 +162,6 @@
         </div>
     </div>
 </div>
-
 
 
 <script src="~/js/checkout.js"></script>

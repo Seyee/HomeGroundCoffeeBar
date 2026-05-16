@@ -48,16 +48,10 @@ if (paymentFormCon) {
 
 // FUNCTION TO REDIRECT TO RECEIPT (for success button)
 function redirectToReceipt() {
-    // Get order ID from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('orderId');
-    
-    // Store payment method in localStorage
-    localStorage.setItem('paymentMethod', 'paymaya');
-    
-    // Redirect to receipt page
+    const orderId = document.getElementById('hiddenOrderId')?.value;
+
     if (orderId) {
-        window.location.href = `/Home/Receipt?orderNumber=${orderId}`;
+        window.location.href = `/Home/ConfirmAndReceipt?orderId=${orderId}`;
     } else {
         window.location.href = '/Home/Receipt';
     }
