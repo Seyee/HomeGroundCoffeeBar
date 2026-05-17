@@ -43,9 +43,9 @@ function loadCartItems() {
             <div class="checkout-cart-item">
                 <img src="${item.image}" alt="${item.name}">
                 <div class="checkout-item-info">
-                    <div>${item.name}</div>
-                    <div>Qty: ${item.quantity}</div>
-                    <div>₱${item.price * item.quantity}</div>
+                    <div class="checkout-item-name">${item.name}</div>
+                    <div class="checkout-item-quantity">Qty: ${item.quantity}</div>
+                    <div class="checkout-item-price">₱${item.price * item.quantity}</div>
                 </div>
             </div>
         `).join('');

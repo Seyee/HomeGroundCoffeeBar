@@ -14,6 +14,28 @@ body {
     padding: 20px;
 }
 
+.btn-track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #614c3a 0%, #4e3b2d 100%);
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(97, 76, 58, 0.4);
+}
+
+.btn-track:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(97, 76, 58, 0.5);
+    background: linear-gradient(135deg, #4e3b2d 0%, #3d2e21 100%);
+    color: white;
+}
+
 /* ── WRAPPER & CONTAINER ─────────────────────────── */
 .receipt-wrapper {
     display: flex;
@@ -487,17 +509,7 @@ body {
     color: #fff;
 }
 
-.btn-secondary {
-    background: #1f1b17;
-    color: #9a8c7a;
-    border: 1px solid #4a3c30;
-}
 
-.btn-secondary:hover {
-    color: #D3C4AE;
-    border-color: #D3C4AE;
-    transform: translateY(-2px);
-}
 
 /* ── FOOTER ──────────────────────────────────────── */
 .receipt-footer {

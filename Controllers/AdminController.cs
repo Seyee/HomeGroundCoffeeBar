@@ -1,102 +1,58 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using HomeGroundCoffeeBar.Models;
-using MySql.Data.MySqlClient;
+using HomeGroundCoffeeBar.Data;
+using Microsoft.EntityFrameworkCore;
 using Models;
 
 namespace HomeGroundCoffeeBar.Controllers
 {
     public class AdminController : Controller
     {
-        private string connectionString; //= "Server=localhost;Port=3306;Database=homegroundcoffeebar;User=root;Password=Mstr_Haku010208;"; // TODO remove this, make it rely on `ConnectString`
+        private readonly ApplicationDbContext _context;
 
+        public AdminController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
-        // Admin Home Page with Users Table
         public IActionResult AdminHomePage()
         {
-            List<UserModel> users = new List<UserModel>();
-
-            using (var conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                var cmd = new MySqlCommand("SELECT Id, Name, Phone, Password, Role, CreatedAt, ProfilePic FROM Users", conn);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                while (reader.Read())
-                {
-                    users.Add(new UserModel
-                    {
-                        Id = Convert.ToInt32(reader["Id"]),                        
-                        Name = reader["Name"].ToString(),
-                        Phone = reader["Phone"].ToString(),
-                        Password = reader["Password"].ToString(),
-                        Role = reader["Role"].ToString(),
-                        CreatedAt = reader["CreatedAt"] == DBNull.Value 
-                                    ? (DateTime?)null 
-                                    : Convert.ToDateTime(reader["CreatedAt"]),
-                        ProfilePic = reader["ProfilePic"].ToString()
-                    });
-                }
-
-                }
-            }
-
-            return View(users); // ipapasa sa view
+            var users = _context.Users.ToList();
+            return View(users);
         }
 
         [HttpPost]
         public IActionResult EditUser([FromBody] UserModel user)
         {
-
             if (string.IsNullOrWhiteSpace(user.Name))
-            {
                 return BadRequest(new { message = "Name is required." });
-            }
 
             if (user.Name.Length < 3)
-            {
                 return BadRequest(new { message = "Name must be at least 3 characters." });
-            }
 
             if (user.Name.Length > 18)
-            {
                 return BadRequest(new { message = "Name must not exceed 18 characters." });
-            }
 
             if (string.IsNullOrEmpty(user.Phone) || user.Phone.Length != 11)
-            {
                 return BadRequest(new { message = "Phone number must be exactly 11 digits." });
-            }
 
-            using (var conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
+            // Check for duplicates
+            var duplicate = _context.Users
+                .Any(u => (u.Phone == user.Phone || u.Name == user.Name) && u.Id != user.Id);
 
-                // Check for duplicates (Phone or Name)
-                var checkCmd = new MySqlCommand(
-                    "SELECT COUNT(*) FROM Users WHERE (Phone=@phone OR Name=@name) AND Id<>@id", conn);
-                checkCmd.Parameters.AddWithValue("@id", user.Id);
-                checkCmd.Parameters.AddWithValue("@phone", user.Phone);
-                checkCmd.Parameters.AddWithValue("@name", user.Name);
+            if (duplicate)
+                return Conflict(new { message = "Duplicate Name or Phone detected!" });
 
-                var count = Convert.ToInt32(checkCmd.ExecuteScalar());
-                if (count > 0)
-                {
-                    return Conflict(new { message = "Duplicate Name or Phone detected!" });
-                }
+            var existing = _context.Users.Find(user.Id);
+            if (existing == null)
+                return NotFound(new { message = "User not found." });
 
-                // Update user safely
-                var cmd = new MySqlCommand(
-                    "UPDATE Users SET Name=@name, Phone=@phone, Password=@password, Role=@role WHERE Id=@id", conn);
-                cmd.Parameters.AddWithValue("@id", user.Id);
-                cmd.Parameters.AddWithValue("@name", user.Name);
-                cmd.Parameters.AddWithValue("@phone", user.Phone);
-                cmd.Parameters.AddWithValue("@password", user.Password);
-                cmd.Parameters.AddWithValue("@role", user.Role);
-                cmd.ExecuteNonQuery();
-            }
+            existing.Name     = user.Name;
+            existing.Phone    = user.Phone;
+            existing.Password = user.Password;
+            existing.Role     = user.Role;
+
+            _context.SaveChanges();
 
             return Ok(new { message = "User updated successfully!" });
         }
@@ -107,26 +63,57 @@ namespace HomeGroundCoffeeBar.Controllers
             if (user == null)
                 return BadRequest(new { message = "Invalid user Id." });
 
-            using (var conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
+            var existing = _context.Users.Find(user.Id);
+            if (existing == null)
+                return NotFound(new { message = "User not found." });
 
-                // Check if user exists
-                var checkCmd = new MySqlCommand("SELECT COUNT(*) FROM Users WHERE Id=@id", conn);
-                checkCmd.Parameters.AddWithValue("@id", user.Id);
-                var exists = Convert.ToInt32(checkCmd.ExecuteScalar());
-                if (exists == 0)
-                    return NotFound(new { message = "User not found." });
-
-                // Delete user
-                var cmd = new MySqlCommand("DELETE FROM Users WHERE Id=@id", conn);
-                cmd.Parameters.AddWithValue("@id", user.Id);
-                cmd.ExecuteNonQuery();
-            }
+            _context.Users.Remove(existing);
+            _context.SaveChanges();
 
             return Ok(new { message = "User deleted successfully!" });
-            
         }
 
+        public async Task<IActionResult> GetOrders()
+{
+    var orders = await _context.Orders
+        .OrderByDescending(o => o.CreatedAt)
+        .ToListAsync();
+
+    return Json(orders.Select(o => new
+    {
+        o.Id,
+        o.OrderId,
+        o.FullName,
+        o.Phone,
+        o.Address,
+        o.PaymentMethod,
+        o.DeliveryNotes,
+        o.Subtotal,
+        o.DeliveryFee,
+        o.Total,
+        o.PointsEarned,
+        o.Status,
+        createdAt = o.CreatedAt.ToString("MMM dd, yyyy hh:mm tt"),
+        items     = o.Items
+    }));
+}
+
+[HttpPost]
+public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateStatusRequest request)
+{
+    var order = await _context.Orders
+        .FirstOrDefaultAsync(o => o.OrderId == request.OrderId);
+
+    if (order == null)
+        return NotFound(new { message = "Order not found." });
+
+    order.Status = request.Status;
+    await _context.SaveChangesAsync();
+
+    return Ok(new { message = "Status updated." });
+}
     }
+
+
+    
 }

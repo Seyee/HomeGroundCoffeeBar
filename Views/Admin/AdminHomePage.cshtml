@@ -42,6 +42,132 @@
     </table>
 </div>
 
+<!-- ORDERS TAB -->
+<div id="orders-section" style="display:none;">
+    <!-- Search & Filter Bar -->
+    <div class="orders-toolbar">
+        <input type="text" id="orderSearch" placeholder="Search by Order ID, Name, Phone..." class="order-search-input" />
+        <div class="status-filters">
+            <button class="status-filter active" data-status="all">All</button>
+            <button class="status-filter" data-status="Pending">Pending</button>
+            <button class="status-filter" data-status="Confirmed">Confirmed</button>
+            <button class="status-filter" data-status="Preparing">Preparing</button>
+            <button class="status-filter" data-status="Pickup">Pickup</button>
+            <button class="status-filter" data-status="Otw">On the Way</button>
+            <button class="status-filter" data-status="Delivered">Delivered</button>
+            <button class="status-filter" data-status="Completed">Completed</button>
+            <button class="status-filter" data-status="Cancelled">Cancelled</button>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <table id="orders-table" style="display:table;">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Payment</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="orders-tbody">
+            <tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">Loading orders...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div id="orderModal" class="order-modal-overlay" style="display:none;">
+    <div class="order-modal">
+        <div class="order-modal-header">
+            <h2>Order Details</h2>
+            <button class="order-modal-close" id="closeOrderModal">✕</button>
+        </div>
+
+        <div class="order-modal-body">
+            <!-- Info Grid -->
+            <div class="order-detail-grid">
+                <div class="order-detail-item">
+                    <span class="detail-label">Order ID</span>
+                    <span class="detail-value" id="modal-orderId"></span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value" id="modal-date"></span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="detail-label">Customer</span>
+                    <span class="detail-value" id="modal-name"></span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value" id="modal-phone"></span>
+                </div>
+                <div class="order-detail-item full-width">
+                    <span class="detail-label">Address</span>
+                    <span class="detail-value" id="modal-address"></span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="detail-label">Payment</span>
+                    <span class="detail-value" id="modal-payment"></span>
+                </div>
+                <div class="order-detail-item full-width">
+                    <span class="detail-label">Delivery Notes</span>
+                    <span class="detail-value" id="modal-notes"></span>
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div class="order-modal-items">
+                <h3>Order Items</h3>
+                <div id="modal-items"></div>
+            </div>
+
+            <!-- Totals -->
+            <div class="order-modal-totals">
+                <div class="modal-total-row">
+                    <span>Subtotal</span>
+                    <span id="modal-subtotal"></span>
+                </div>
+                <div class="modal-total-row">
+                    <span>Delivery Fee</span>
+                    <span id="modal-delivery"></span>
+                </div>
+                <div class="modal-total-row grand">
+                    <span>Total</span>
+                    <span id="modal-total"></span>
+                </div>
+                <div class="modal-total-row points">
+                    <span>Points Earned</span>
+                    <span id="modal-points"></span>
+                </div>
+            </div>
+
+            <!-- Status Update -->
+            <div class="order-modal-status">
+                <h3>Update Status</h3>
+                <div class="status-update-controls">
+                    <select id="modal-status-select">
+                        <option value="Pending">Pending</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Preparing">Preparing</option>
+                        <option value="Pickup">Pickup</option>
+                        <option value="Otw">On the Way</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <button id="saveStatusBtn" class="save-status-btn">Save Status</button>
+                </div>
+                <p id="statusSaveMsg" style="display:none; color:#4CAF50; margin-top:8px;">Status updated!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif; }
 body { background-color:#2A241E; color:#fff; min-height:100vh; }
@@ -106,7 +232,7 @@ document.querySelectorAll('tr[data-id]').forEach(row => {
         roleCell.dataset.original = currentRole;
         const select = document.createElement('select');
 
-        ['Admin', 'User'].forEach(r => {
+        ['Admin', 'User', 'Employee', 'Rider'].forEach(r => {
             const option = document.createElement('option');
             option.value = r;
             option.textContent = r;

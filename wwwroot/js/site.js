@@ -335,28 +335,30 @@ const Page = {
         };
 
         // Add this inside initializeProductModal(), after addToCartBtn.onclick
-        const orderNowBtn = modal.querySelector('.order-btn');
-        orderNowBtn.onclick = (e) => {
-            e.stopPropagation();
+const orderNowBtn = modal.querySelector('.order-btn');
+orderNowBtn.onclick = (e) => {
+    e.stopPropagation();
 
-            if (!window.isLoggedIn) {
-                window.location.href = "/Home/Signin";
-                return;
-            }
+    if (!window.isLoggedIn) {
+        window.location.href = "/Home/Signin";
+        return;
+    }
 
-            const quantity = parseInt(productQtyInput.value);
-            const product = {
-                name: modal.dataset.productName,
-                price: parseInt(modal.dataset.productPrice),
-                image: modal.dataset.productImage
-            };
+    const quantity = parseInt(productQtyInput.value); // ← this is already correct
 
-            addToCart(product, quantity);
+    const product = {
+        name:     modal.dataset.productName,
+        price:    parseInt(modal.dataset.productPrice),
+        image:    modal.dataset.productImage,
+        quantity: quantity  // ← quantity was missing here
+    };
 
-            modal.classList.remove("show");
+    addToCart(product);  // ← quantity wasn't being passed before
 
-            window.location.href = '/Home/Checkout';
-        };
+    modal.classList.remove("show");
+
+    window.location.href = '/Home/Checkout';
+};
     
         //CATEGORY
         // Get all category items and product cards

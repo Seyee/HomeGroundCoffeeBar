@@ -90,7 +90,7 @@
                                             }
                                             else
                                             {
-                                                <img src="~/img/user.webp" class="profile-pic" />
+                                                <img src="/img/user.webp" class="profile-pic" />
                                             }
                                             
                                             <!-- Points Badge -->
@@ -104,10 +104,7 @@
 
                                         <div id="profileMenu" class="profile-menu">
                                             <span class="profile-name">@name</span>
-                                            <div class="profile-points">
-                                                <img src="/img/points.png" class="points-icon-small" />
-                                                <span>@Points pts</span>
-                                            </div>
+                                            <a asp-controller="Home" asp-action="OrderHistory">Order History</a>
                                             <a asp-controller="Home" asp-action="Logout">Logout</a>
                                         </div>
                                     </div>

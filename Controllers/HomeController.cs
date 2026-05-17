@@ -263,6 +263,50 @@ public async Task<IActionResult> ConfirmOrder(string orderId)
 
     return Json(new { success = true });
 }
+
+public async Task<IActionResult> OrderHistory()
+{
+    var userIdStr = HttpContext.Session.GetString("UserId");
+    if (string.IsNullOrEmpty(userIdStr))
+        return RedirectToAction("Signin");
+
+    int userId = int.Parse(userIdStr);
+
+    var orders = await _context.Orders
+        .Where(o => o.UserId == userId)
+        .OrderByDescending(o => o.CreatedAt)
+        .ToListAsync();
+
+    return View(orders);
+}
+
+[HttpPost]
+public async Task<IActionResult> UpdateMyOrderStatus([FromBody] UpdateStatusRequest request)
+{
+    var userIdStr = HttpContext.Session.GetString("UserId");
+    if (string.IsNullOrEmpty(userIdStr))
+        return Json(new { success = false, message = "Not logged in" });
+
+    var order = await _context.Orders
+        .FirstOrDefaultAsync(o => o.OrderId == request.OrderId
+                               && o.UserId == int.Parse(userIdStr));
+
+    if (order == null)
+        return Json(new { success = false, message = "Order not found." });
+
+    // Only allow cancel if Pending
+    if (request.Status == "Cancelled" && order.Status != "Pending")
+        return Json(new { success = false, message = "Only pending orders can be cancelled." });
+
+    // Only allow completed if Delivered
+    if (request.Status == "Completed" && order.Status != "Delivered")
+        return Json(new { success = false, message = "Order must be delivered first." });
+
+    order.Status = request.Status;
+    await _context.SaveChangesAsync();
+
+    return Json(new { success = true });
+}
 }
 
 // =============================
