@@ -106,11 +106,10 @@ public HomeController(ILogger<HomeController> logger, ApplicationDbContext conte
 
         // Only award points and clear cart for COD (instant)
         // For GCash/Maya, do it after payment succeeds
-        if (request.PaymentMethod == "cod")
-        {
-            user.Points += points;
-            _context.Cart.RemoveRange(cartItems);
-        }
+            if (request.PaymentMethod == "cod")
+            {
+                _context.Cart.RemoveRange(cartItems);  // ← points removed
+            }
 
         await _context.SaveChangesAsync();
 
@@ -190,8 +189,6 @@ public async Task<IActionResult> ConfirmAndReceipt(string orderId)
         return RedirectToAction("Menu");
 
     var user = await _context.Users.FindAsync(int.Parse(userIdStr));
-    if (user != null)
-        user.Points += order.PointsEarned;
 
     // Clear cart now that payment is confirmed
     var cartItems = await _context.Cart
@@ -294,15 +291,22 @@ public async Task<IActionResult> UpdateMyOrderStatus([FromBody] UpdateStatusRequ
     if (order == null)
         return Json(new { success = false, message = "Order not found." });
 
-    // Only allow cancel if Pending
     if (request.Status == "Cancelled" && order.Status != "Pending")
         return Json(new { success = false, message = "Only pending orders can be cancelled." });
 
-    // Only allow completed if Delivered
     if (request.Status == "Completed" && order.Status != "Delivered")
         return Json(new { success = false, message = "Order must be delivered first." });
 
     order.Status = request.Status;
+
+    // Award points when completed
+    if (request.Status == "Completed")
+    {
+        var user = await _context.Users.FindAsync(int.Parse(userIdStr));
+        if (user != null)
+            user.Points += order.PointsEarned;
+    }
+
     await _context.SaveChangesAsync();
 
     return Json(new { success = true });

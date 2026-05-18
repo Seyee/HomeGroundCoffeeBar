@@ -108,12 +108,20 @@ public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateStatusReques
         return NotFound(new { message = "Order not found." });
 
     order.Status = request.Status;
+
+    // Award points when admin marks as Completed
+    if (request.Status == "Completed")
+    {
+        var user = await _context.Users.FindAsync(order.UserId);
+        if (user != null)
+            user.Points += order.PointsEarned;
+    }
+
     await _context.SaveChangesAsync();
 
     return Ok(new { message = "Status updated." });
 }
     }
-
 
     
 }
